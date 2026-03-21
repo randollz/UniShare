@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — My Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f3f4f8; color: #0d0f1f;
+    -webkit-font-smoothing: antialiased; min-height: 100%;
+  }
+  a { text-decoration: none; color: inherit; }
+  ul { list-style: none; }
+
+  :root {
+    --dark:  #0d0f1f; --dark2: #1d2035;
+    --mid:   #4a5068; --muted: #8891a8;
+    --border:rgba(0,0,0,0.08); --bdr2:rgba(0,0,0,0.13);
+    --gold:  #c8950a; --navy: #003087; --white: #ffffff;
+    --t: 0.18s; --ease: cubic-bezier(0.22,1,0.36,1); --r: 12px;
+  }
+
+  /* ── Top nav (identical across all pages) ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    height: 56px; background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 20px; gap: 16px;
+  }
+  .tb-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; width: 220px; }
+  .tb-uwa   { height: 32px; width: auto; object-fit: contain; }
+  .tb-divider { width: 1px; height: 22px; background: var(--bdr2); flex-shrink: 0; }
+  .tb-logo  { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.04em; color: var(--dark); white-space: nowrap; }
+  .tb-logo span { color: var(--gold); }
+  .tb-search {
+    display: flex; align-items: center; gap: 8px;
+    background: #f3f4f8; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 14px; flex: 1; max-width: 280px;
+    transition: border-color var(--t);
+  }
+  .tb-search:focus-within { border-color: var(--gold); background: #fff; }
+  .tb-search i { color: var(--muted); font-size: 0.82rem; }
+  .tb-search input {
+    border: none; background: transparent; outline: none;
+    font-family: 'Inter', sans-serif; font-size: 0.84rem; color: var(--dark); width: 100%;
+  }
+  .tb-search input::placeholder { color: var(--muted); }
+  .tb-nav {
+    display: flex; align-items: center; flex: 1; justify-content: center; gap: 4px;
+  }
+  .tb-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 18px; border-radius: 8px;
+    font-size: 0.68rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; border: none; background: transparent;
+    font-family: 'Inter', sans-serif; transition: color var(--t); position: relative;
+  }
+  .tb-nav-item i { font-size: 1.1rem; }
+  .tb-nav-item:hover { color: var(--dark); }
+  .tb-nav-item.active { color: var(--dark); }
+  .tb-nav-item.active::after {
+    content: ''; position: absolute; bottom: -9px; left: 12px; right: 12px;
+    height: 2px; background: var(--dark); border-radius: 2px 2px 0 0;
+  }
+  .tb-badge {
+    position: absolute; top: 3px; right: 10px;
+    background: #ef4444; color: #fff; font-size: 0.58rem; font-weight: 800;
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tb-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .tb-av {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--dark); color: #fff; font-size: 0.8rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* ── Page wrapper ── */
+  .page-wrap {
+    max-width: 1140px; margin: 0 auto;
+    padding: 72px 16px 40px;
+    display: grid; grid-template-columns: 220px 1fr 256px;
+    gap: 20px; align-items: start;
+  }
+
+  /* ── Sidebar (identical) ── */
+  .sidebar { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 10px; }
+  .sb-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+  .sb-profile-banner { height: 58px; background: linear-gradient(135deg,var(--dark) 0%,#2a2d4a 100%); }
+  .sb-profile-body { padding: 0 16px 16px; }
+  .sb-profile-av {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--dark); color: #fff;
+    font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    border: 3px solid #fff; margin-top: -26px; margin-bottom: 8px;
+  }
+  .sb-profile-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); }
+  .sb-profile-detail { font-size: 0.73rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .sb-profile-stats { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sb-stat-row { display: flex; justify-content: space-between; align-items: center; }
+  .sb-stat-label { font-size: 0.74rem; color: var(--mid); }
+  .sb-stat-val { font-size: 0.74rem; font-weight: 700; color: var(--navy); }
+  .sb-xp-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; }
+  .sb-xp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+  .sb-xp-label { font-size: 0.74rem; font-weight: 600; color: var(--mid); }
+  .sb-xp-pts { font-size: 0.74rem; font-weight: 800; color: var(--gold); }
+  .sb-xp-track { height: 5px; background: #eceef5; border-radius: 99px; overflow: hidden; }
+  .sb-xp-fill { height: 100%; width: 68%; background: linear-gradient(90deg,var(--gold),#f5c842); border-radius: 99px; }
+  .sb-xp-sub { font-size: 0.68rem; color: var(--muted); margin-top: 5px; }
+  .sb-nav-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 8px; display: flex; flex-direction: column; gap: 1px; }
+  .sb-link {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px;
+    font-size: 0.84rem; font-weight: 500; color: var(--mid);
+    transition: all var(--t) var(--ease); cursor: pointer;
+  }
+  .sb-link:hover { background: #f3f4f8; color: var(--dark); }
+  .sb-link.active { background: #f3f4f8; color: var(--dark); font-weight: 600; }
+  .sb-link.active i { color: var(--gold); }
+  .sb-link i { width: 17px; text-align: center; font-size: 0.88rem; }
+
+  /* ═══════════════════════════════════════
+     MAIN — Personal library
+  ═══════════════════════════════════════ */
+  .main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+  /* Page header */
+  .page-head {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-head h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); margin-bottom: 3px; }
+  .page-head p  { font-size: 0.83rem; color: var(--muted); }
+  .btn-marketplace {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 16px; border-radius: 9px; border: 1.5px solid var(--bdr2);
+    background: transparent; color: var(--mid);
+    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all var(--t) var(--ease); white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-marketplace:hover { border-color: var(--dark); color: var(--dark); background: #f3f4f8; }
+
+  /* Recently opened strip */
+  .recent-strip {
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px;
+  }
+  .strip-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+  }
+  .recent-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+  .recent-items::-webkit-scrollbar { display: none; }
+  .recent-item {
+    flex-shrink: 0; width: 130px; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: box-shadow var(--t), transform var(--t);
+  }
+  .recent-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-2px); }
+  .ri-header {
+    height: 52px; position: relative;
+    display: flex; align-items: flex-end; padding: 6px 8px;
+  }
+  .ri-header::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(transparent,transparent 12px,rgba(255,255,255,0.1) 12px,rgba(255,255,255,0.1) 13px);
+  }
+  .ri-unit {
+    font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.22); padding: 1px 5px; border-radius: 3px;
+    position: relative; z-index: 1;
+  }
+  .ri-body { padding: 8px; background: #fff; }
+  .ri-title {
+    font-size: 0.72rem; font-weight: 600; color: var(--dark); line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .ri-time { font-size: 0.63rem; color: var(--muted); margin-top: 3px; }
+
+  /* Tab bar */
+  .tab-bar {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 4px;
+    display: flex; gap: 3px;
+  }
+  .tab-btn {
+    flex: 1; padding: 9px; border-radius: 9px;
+    font-size: 0.82rem; font-weight: 600; color: var(--muted);
+    border: none; background: transparent; font-family: 'Inter', sans-serif;
+    cursor: pointer; text-align: center; transition: all var(--t) var(--ease);
+  }
+  .tab-btn:hover { color: var(--dark); }
+  .tab-btn.active { background: var(--dark); color: #fff; }
+
+  /* Filter row */
+  .filter-row {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 12px 16px;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .filter-search {
+    display: flex; align-items: center; gap: 8px;
+    background: #f3f4f8; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; flex: 1;
+    transition: border-color var(--t);
+  }
+  .filter-search:focus-within { border-color: var(--gold); background: #fff; }
+  .filter-search i { color: var(--muted); font-size: 0.8rem; flex-shrink: 0; }
+  .filter-search input {
+    border: none; background: transparent; outline: none;
+    font-family: 'Inter', sans-serif; font-size: 0.83rem; color: var(--dark); width: 100%;
+  }
+  .filter-search input::placeholder { color: var(--muted); }
+  .filter-select {
+    padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--white); font-family: 'Inter', sans-serif;
+    font-size: 0.8rem; font-weight: 500; color: var(--mid);
+    cursor: pointer; outline: none; transition: border-color var(--t);
+  }
+  .filter-select:focus { border-color: var(--gold); }
+
+  /* Results meta */
+  .results-meta { font-size: 0.78rem; color: var(--muted); }
+  .results-meta strong { color: var(--dark); font-weight: 600; }
+
+  /* ── Library item card ── */
+  .lib-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+  }
+
+  /* Item row (top of card) */
+  .lib-item {
+    display: flex; gap: 0; align-items: stretch;
+  }
+  /* Colour tab on left edge */
+  .lib-color-tab { width: 5px; flex-shrink: 0; }
+  .lib-item-body { flex: 1; padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start; }
+
+  /* Item thumbnail */
+  .lib-thumb {
+    width: 56px; height: 70px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: rgba(255,255,255,0.5);
+    position: relative; overflow: hidden;
+  }
+  .lib-thumb::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(transparent,transparent 10px,rgba(255,255,255,0.08) 10px,rgba(255,255,255,0.08) 11px);
+  }
+  .lib-thumb i { position: relative; z-index: 1; }
+
+  /* Item info */
+  .lib-info { flex: 1; min-width: 0; }
+  .lib-badges { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+  .lib-unit {
+    padding: 2px 7px; border-radius: 4px; font-size: 0.63rem; font-weight: 800;
+    background: var(--dark); color: #fff;
+  }
+  .lib-type {
+    padding: 2px 7px; border-radius: 4px; font-size: 0.63rem; font-weight: 600;
+    border: 1px solid var(--border); color: var(--mid);
+  }
+  .lib-title { font-size: 0.92rem; font-weight: 700; color: var(--dark); line-height: 1.3; margin-bottom: 4px; }
+  .lib-sub   { font-size: 0.74rem; color: var(--muted); margin-bottom: 8px; }
+  .lib-meta  { display: flex; align-items: center; gap: 12px; font-size: 0.72rem; color: var(--muted); }
+  .lib-meta-item { display: flex; align-items: center; gap: 4px; }
+  .lib-meta-item i { font-size: 0.66rem; }
+
+  /* Item actions */
+  .lib-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; justify-content: center; flex-shrink: 0; }
+  .lib-btn {
+    padding: 6px 13px; border-radius: 7px; border: 1.5px solid var(--border);
+    background: transparent; font-family: 'Inter', sans-serif;
+    font-size: 0.75rem; font-weight: 600; color: var(--mid);
+    cursor: pointer; white-space: nowrap; transition: all var(--t) var(--ease);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .lib-btn:hover { border-color: var(--dark); color: var(--dark); background: #f3f4f8; }
+  .lib-btn-dl { background: var(--dark); border-color: var(--dark); color: #fff; }
+  .lib-btn-dl:hover { background: var(--dark2); }
+  .lib-price-paid { font-size: 0.72rem; color: var(--muted); text-align: right; }
+
+  /* ── Review section ── */
+  .review-section {
+    border-top: 1px solid var(--border);
+    padding: 16px 18px 16px 23px;
+    background: #fafafa;
+  }
+  .review-section-label {
+    font-size: 0.71rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+  }
+
+  /* Written review (filled state) */
+  .review-filled { display: flex; flex-direction: column; gap: 8px; }
+  .review-stars-row { display: flex; align-items: center; gap: 8px; }
+  .rev-stars { color: #f59e0b; font-size: 0.95rem; letter-spacing: 2px; }
+  .rev-date  { font-size: 0.71rem; color: var(--muted); }
+  .rev-public-badge {
+    margin-left: auto; font-size: 0.63rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 99px;
+    background: rgba(22,163,74,0.1); color: #16a34a;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .review-text {
+    font-size: 0.84rem; color: var(--mid); line-height: 1.65;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 9px; padding: 12px 14px;
+  }
+  .review-actions-row { display: flex; gap: 6px; align-items: center; }
+  .rev-action-btn {
+    padding: 5px 12px; border-radius: 7px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-family: 'Inter', sans-serif; font-size: 0.73rem; font-weight: 600;
+    color: var(--mid); cursor: pointer; transition: all var(--t) var(--ease);
+  }
+  .rev-action-btn:hover { border-color: var(--dark); color: var(--dark); }
+  .rev-helpful { font-size: 0.71rem; color: var(--muted); margin-left: auto; }
+
+  /* Empty review (prompt state) */
+  .review-prompt { display: flex; flex-direction: column; gap: 10px; }
+  .review-prompt-top { display: flex; align-items: center; gap: 10px; }
+  .review-prompt p { font-size: 0.83rem; color: var(--mid); }
+  .star-picker { display: flex; gap: 3px; }
+  .star-pick {
+    font-size: 1.2rem; color: #eceef5; cursor: pointer;
+    transition: color var(--t); line-height: 1;
+  }
+  .star-pick:hover, .star-pick.lit { color: #f59e0b; }
+  .review-textarea {
+    width: 100%; padding: 10px 13px; border-radius: 9px;
+    border: 1.5px solid var(--border); background: var(--white);
+    font-family: 'Inter', sans-serif; font-size: 0.84rem; color: var(--dark);
+    resize: none; outline: none; line-height: 1.6;
+    transition: border-color var(--t);
+  }
+  .review-textarea:focus { border-color: var(--gold); }
+  .review-textarea::placeholder { color: var(--muted); }
+  .review-submit-row { display: flex; align-items: center; gap: 10px; }
+  .review-public-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--mid); cursor: pointer; }
+  .toggle-box {
+    width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--bdr2);
+    background: var(--white); display: flex; align-items: center; justify-content: center;
+  }
+  .toggle-box.checked { background: var(--dark); border-color: var(--dark); }
+  .toggle-box.checked::after { content: '✓'; font-size: 0.6rem; color: #fff; font-weight: 700; }
+  .btn-submit-review {
+    margin-left: auto; padding: 7px 16px; border-radius: 8px; border: none;
+    background: var(--dark); color: #fff;
+    font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; transition: all var(--t) var(--ease);
+  }
+  .btn-submit-review:hover { background: var(--dark2); }
+
+  /* ═══════════════════════════════════════
+     RIGHT PANEL
+  ═══════════════════════════════════════ */
+  .right { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 12px; }
+  .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+  .rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+
+  /* Library stats */
+  .stat-block {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px;
+  }
+  .stat-cell {
+    background: #f3f4f8; border-radius: 10px; padding: 12px;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.04em; }
+  .stat-lbl { font-size: 0.69rem; color: var(--muted); line-height: 1.3; }
+  .stat-gold { color: var(--gold); }
+
+  /* Review overview */
+  .rev-overview { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .rev-big-num { font-size: 2.8rem; font-weight: 800; color: var(--dark); letter-spacing: -0.05em; line-height: 1; }
+  .rev-right-col { display: flex; flex-direction: column; gap: 4px; }
+  .rev-big-stars { color: #f59e0b; font-size: 0.9rem; letter-spacing: 2px; }
+  .rev-total { font-size: 0.72rem; color: var(--muted); }
+  .rev-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .rev-bar-label { font-size: 0.68rem; color: var(--muted); width: 12px; text-align: right; flex-shrink: 0; }
+  .rev-bar-track { flex: 1; height: 5px; background: #eceef5; border-radius: 99px; overflow: hidden; }
+  .rev-bar-fill  { height: 100%; background: #f59e0b; border-radius: 99px; }
+  .rev-bar-count { font-size: 0.68rem; color: var(--muted); width: 18px; flex-shrink: 0; }
+
+  /* Marketplace link card */
+  .mkt-cta {
+    background: var(--dark); border-radius: var(--r); padding: 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .mkt-cta h3 { font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .mkt-cta p  { font-size: 0.76rem; color: rgba(255,255,255,0.5); line-height: 1.55; }
+  .btn-mkt {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px; border-radius: 9px; border: none;
+    background: var(--gold); color: #fff;
+    font-family: 'Inter', sans-serif; font-size: 0.83rem; font-weight: 700;
+    cursor: pointer; transition: all var(--t) var(--ease);
+  }
+  .btn-mkt:hover { background: #b07d06; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(200,149,10,.3); }
+
+  /* Spend summary */
+  .spend-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .spend-row:last-child { border-bottom: none; }
+  .spend-label { font-size: 0.78rem; color: var(--mid); }
+  .spend-val   { font-size: 0.82rem; font-weight: 700; color: var(--dark); }
+  .spend-green { color: #16a34a; }
+
+  .rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .rcard-footer a { color: var(--muted); }
+  .rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOP NAV ═══════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="tb-brand">
+      <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
+      <div class="tb-divider"></div>
+      <span class="tb-logo">UniShare<span>.</span></span>
+    </div>
+    <div class="tb-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search your library…" />
+    </div>
+    <nav class="tb-nav">
+      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="notes.html" class="tb-nav-item active"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+      <button class="tb-nav-item" style="position:relative;">
+        <i class="fa-solid fa-bell"></i> Alerts
+        <span class="tb-badge">3</span>
+      </button>
+    </nav>
+    <div class="tb-right"><div class="tb-av">R</div></div>
+  </header>
+
+  <div class="page-wrap">
+
+    <!-- ── LEFT SIDEBAR ─────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">R</div>
+          <div class="sb-profile-name">Randall Heng</div>
+          <div class="sb-profile-detail">Computer Science &amp; Data Science<br/>UWA · Perth, WA</div>
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row"><span class="sb-stat-label">Items in library</span><span class="sb-stat-val">23</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Reviews written</span><span class="sb-stat-val">11</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Saved total</span><span class="sb-stat-val">$284</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Your XP — Silver</span>
+          <span class="sb-xp-pts">1,340 pts</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">660 pts to reach <strong>Gold</strong></div>
+      </div>
+      <div class="sb-nav-card">
+        <a href="dashboard.html" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
+        <a href="notes.html" class="sb-link active"><i class="fa-solid fa-file-lines"></i> My Library</a>
+        <a href="sessions.html" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
+        <a href="#" class="sb-link"><i class="fa-solid fa-box-archive"></i> My Listings</a>
+        <a href="#" class="sb-link"><i class="fa-solid fa-bookmark"></i> Saved</a>
+        <a href="#" class="sb-link"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
+        <a href="#" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ──────────────────────────────── -->
+    <main class="main">
+
+      <!-- Heading -->
+      <div class="page-head">
+        <div>
+          <h1>My Library</h1>
+          <p>Everything you've downloaded or purchased — all in one place.</p>
+        </div>
+        <a href="marketplace.html">
+          <button class="btn-marketplace"><i class="fa-solid fa-tag"></i> Browse marketplace</button>
+        </a>
+      </div>
+
+      <!-- Recently opened -->
+      <div class="recent-strip">
+        <div class="strip-label">Recently opened</div>
+        <div class="recent-items">
+          <div class="recent-item">
+            <div class="ri-header" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
+              <span class="ri-unit">CITS3403</span>
+            </div>
+            <div class="ri-body">
+              <div class="ri-title">Complete Lecture Notes Wks 1–12</div>
+              <div class="ri-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="recent-item">
+            <div class="ri-header" style="background:linear-gradient(135deg,#1e1b4b,#7c3aed);">
+              <span class="ri-unit">STAT2401</span>
+            </div>
+            <div class="ri-body">
+              <div class="ri-title">Mid-Sem Cheat Sheet</div>
+              <div class="ri-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="recent-item">
+            <div class="ri-header" style="background:linear-gradient(135deg,#1c1917,#b45309);">
+              <span class="ri-unit">CITS3200</span>
+            </div>
+            <div class="ri-body">
+              <div class="ri-title">Software Engineering 9th Ed.</div>
+              <div class="ri-time">3 days ago</div>
+            </div>
+          </div>
+          <div class="recent-item">
+            <div class="ri-header" style="background:linear-gradient(135deg,#134e4a,#0d9488);">
+              <span class="ri-unit">MATH2401</span>
+            </div>
+            <div class="ri-body">
+              <div class="ri-title">Tutorial Worked Solutions</div>
+              <div class="ri-time">4 days ago</div>
+            </div>
+          </div>
+          <div class="recent-item">
+            <div class="ri-header" style="background:linear-gradient(135deg,#500724,#be185d);">
+              <span class="ri-unit">PHIL1001</span>
+            </div>
+            <div class="ri-body">
+              <div class="ri-title">Full Lecture Notes S2 2024</div>
+              <div class="ri-time">1 week ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="tab-btn active">All <span style="opacity:.5;font-weight:400;">· 23</span></button>
+        <button class="tab-btn">Notes <span style="opacity:.5;font-weight:400;">· 17</span></button>
+        <button class="tab-btn">Textbooks <span style="opacity:.5;font-weight:400;">· 4</span></button>
+        <button class="tab-btn">Other <span style="opacity:.5;font-weight:400;">· 2</span></button>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-row">
+        <div class="filter-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search your library…" />
+        </div>
+        <select class="filter-select">
+          <option>Unit: All</option>
+          <option>CITS3403</option>
+          <option>STAT2401</option>
+          <option>MATH2401</option>
+          <option>CITS3200</option>
+        </select>
+        <select class="filter-select">
+          <option>Sort: Recent</option>
+          <option>Sort: A–Z</option>
+          <option>Sort: Reviewed</option>
+          <option>Sort: Unreviewed</option>
+        </select>
+      </div>
+
+      <div class="results-meta">Showing <strong>23 items</strong> in your library</div>
+
+      <!-- ── Item 1 — Notes, reviewed ── -->
+      <div class="lib-card">
+        <div class="lib-item">
+          <div class="lib-color-tab" style="background:#2563eb;"></div>
+          <div class="lib-item-body">
+            <div class="lib-thumb" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
+              <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="lib-info">
+              <div class="lib-badges">
+                <span class="lib-unit">CITS3403</span>
+                <span class="lib-type">Lecture Notes</span>
+              </div>
+              <div class="lib-title">Complete Lecture Notes — Weeks 1–12</div>
+              <div class="lib-sub">by Jessica Thompson · PDF · 84 pages · S1 2024</div>
+              <div class="lib-meta">
+                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 14 Mar 2025</span>
+                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
+              </div>
+            </div>
+            <div class="lib-actions">
+              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
+              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
+              <div class="lib-price-paid">Free</div>
+            </div>
+          </div>
+        </div>
+        <!-- Review — filled -->
+        <div class="review-section">
+          <div class="review-section-label">Your review</div>
+          <div class="review-filled">
+            <div class="review-stars-row">
+              <span class="rev-stars">★★★★★</span>
+              <span class="rev-date">Reviewed 15 Mar 2025</span>
+              <span class="rev-public-badge"><i class="fa-solid fa-globe"></i> Public</span>
+            </div>
+            <div class="review-text">
+              Really comprehensive — covers every lecture and includes the worked examples from the practicals too. Saved me a huge amount of time leading into the mid-sem. The notes on Flask routing and Jinja2 templating are especially clear. Would recommend to anyone in this unit.
+            </div>
+            <div class="review-actions-row">
+              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
+              <button class="rev-action-btn">Make private</button>
+              <span class="rev-helpful">12 people found this helpful</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Item 2 — Textbook, reviewed ── -->
+      <div class="lib-card">
+        <div class="lib-item">
+          <div class="lib-color-tab" style="background:#b45309;"></div>
+          <div class="lib-item-body">
+            <div class="lib-thumb" style="background:linear-gradient(135deg,#1c1917,#b45309);">
+              <i class="fa-solid fa-book"></i>
+            </div>
+            <div class="lib-info">
+              <div class="lib-badges">
+                <span class="lib-unit">CITS3200</span>
+                <span class="lib-type">Textbook</span>
+              </div>
+              <div class="lib-title">Software Engineering: A Practitioner's Approach — 9th Ed.</div>
+              <div class="lib-sub">by Kyle Nguyen · Paperback · Never opened · 2024</div>
+              <div class="lib-meta">
+                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Purchased 2 Feb 2025</span>
+                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
+              </div>
+            </div>
+            <div class="lib-actions">
+              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Details</button>
+              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
+              <div class="lib-price-paid">Paid $55</div>
+            </div>
+          </div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-label">Your review</div>
+          <div class="review-filled">
+            <div class="review-stars-row">
+              <span class="rev-stars">★★★★<span style="color:#eceef5;">★</span></span>
+              <span class="rev-date">Reviewed 20 Feb 2025</span>
+              <span class="rev-public-badge"><i class="fa-solid fa-globe"></i> Public</span>
+            </div>
+            <div class="review-text">
+              Genuinely brand new — still had the shrink wrap on it. Great condition as described. The book itself is solid for the unit, covers agile and project management well. A bit dense but that's the textbook, not the seller's fault. Good value for $55 vs the $120 retail.
+            </div>
+            <div class="review-actions-row">
+              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
+              <button class="rev-action-btn">Make private</button>
+              <span class="rev-helpful">6 people found this helpful</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Item 3 — Notes, reviewed ── -->
+      <div class="lib-card">
+        <div class="lib-item">
+          <div class="lib-color-tab" style="background:#7c3aed;"></div>
+          <div class="lib-item-body">
+            <div class="lib-thumb" style="background:linear-gradient(135deg,#1e1b4b,#7c3aed);">
+              <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="lib-info">
+              <div class="lib-badges">
+                <span class="lib-unit">STAT2401</span>
+                <span class="lib-type">Exam Prep</span>
+              </div>
+              <div class="lib-title">Mid-Sem Cheat Sheet &amp; Practice Questions</div>
+              <div class="lib-sub">by Marcus Lee · PDF · 18 pages · S1 2024</div>
+              <div class="lib-meta">
+                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 20 Mar 2025</span>
+                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
+              </div>
+            </div>
+            <div class="lib-actions">
+              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
+              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
+              <div class="lib-price-paid">Free</div>
+            </div>
+          </div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-label">Your review</div>
+          <div class="review-filled">
+            <div class="review-stars-row">
+              <span class="rev-stars">★★★★★</span>
+              <span class="rev-date">Reviewed 21 Mar 2025</span>
+              <span class="rev-public-badge" style="background:rgba(107,114,128,.1);color:var(--muted);"><i class="fa-solid fa-lock"></i> Private</span>
+            </div>
+            <div class="review-text">
+              The practice questions are really well chosen — very similar to what actually came up. Condensed the whole unit into 18 pages without losing anything important. Used it the night before and felt genuinely prepared.
+            </div>
+            <div class="review-actions-row">
+              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
+              <button class="rev-action-btn">Make public</button>
+              <span class="rev-helpful">Private — not shown on listing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Item 4 — Notes, NOT yet reviewed ── -->
+      <div class="lib-card">
+        <div class="lib-item">
+          <div class="lib-color-tab" style="background:#0d9488;"></div>
+          <div class="lib-item-body">
+            <div class="lib-thumb" style="background:linear-gradient(135deg,#134e4a,#0d9488);">
+              <i class="fa-solid fa-file-lines"></i>
+            </div>
+            <div class="lib-info">
+              <div class="lib-badges">
+                <span class="lib-unit">MATH2401</span>
+                <span class="lib-type">Tutorial</span>
+              </div>
+              <div class="lib-title">Tutorial Worked Solutions — All Weeks</div>
+              <div class="lib-sub">by Aisha Patel · PDF · 56 pages · S2 2024</div>
+              <div class="lib-meta">
+                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 10 Mar 2025</span>
+                <span class="lib-meta-item"><i class="fa-regular fa-circle" style="color:var(--muted);"></i> Not reviewed yet</span>
+              </div>
+            </div>
+            <div class="lib-actions">
+              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
+              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
+              <div class="lib-price-paid">Free</div>
+            </div>
+          </div>
+        </div>
+        <!-- Review — prompt state -->
+        <div class="review-section">
+          <div class="review-section-label">Leave a review</div>
+          <div class="review-prompt">
+            <div class="review-prompt-top">
+              <p>How would you rate these notes?</p>
+              <div class="star-picker">
+                <span class="star-pick">★</span>
+                <span class="star-pick">★</span>
+                <span class="star-pick">★</span>
+                <span class="star-pick">★</span>
+                <span class="star-pick">★</span>
+              </div>
+            </div>
+            <textarea class="review-textarea" rows="3" placeholder="Share what you thought — your review helps other students decide whether to download…"></textarea>
+            <div class="review-submit-row">
+              <label class="review-public-toggle">
+                <div class="toggle-box checked"></div>
+                Make this review public on the listing
+              </label>
+              <button class="btn-submit-review">Submit review</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── RIGHT PANEL ────────────────────────────────── -->
+    <aside class="right">
+
+      <!-- Library stats -->
+      <div class="rcard">
+        <div class="rcard-title">Library overview</div>
+        <div class="stat-block">
+          <div class="stat-cell">
+            <div class="stat-num">23</div>
+            <div class="stat-lbl">Items in library</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-num">17</div>
+            <div class="stat-lbl">Notes files</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-num">11</div>
+            <div class="stat-lbl">Reviews written</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-num stat-gold">$284</div>
+            <div class="stat-lbl">Saved vs retail</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Your rating average -->
+      <div class="rcard">
+        <div class="rcard-title">Your review history</div>
+        <div class="rev-overview">
+          <div class="rev-big-num">4.6</div>
+          <div class="rev-right-col">
+            <div class="rev-big-stars">★★★★★</div>
+            <div class="rev-total">avg across 11 reviews</div>
+          </div>
+        </div>
+        <div class="rev-bar-row">
+          <div class="rev-bar-label">5</div>
+          <div class="rev-bar-track"><div class="rev-bar-fill" style="width:72%;"></div></div>
+          <div class="rev-bar-count">8</div>
+        </div>
+        <div class="rev-bar-row">
+          <div class="rev-bar-label">4</div>
+          <div class="rev-bar-track"><div class="rev-bar-fill" style="width:18%;"></div></div>
+          <div class="rev-bar-count">2</div>
+        </div>
+        <div class="rev-bar-row">
+          <div class="rev-bar-label">3</div>
+          <div class="rev-bar-track"><div class="rev-bar-fill" style="width:9%;"></div></div>
+          <div class="rev-bar-count">1</div>
+        </div>
+        <div class="rev-bar-row">
+          <div class="rev-bar-label">2</div>
+          <div class="rev-bar-track"><div class="rev-bar-fill" style="width:0%;"></div></div>
+          <div class="rev-bar-count">0</div>
+        </div>
+        <div class="rev-bar-row">
+          <div class="rev-bar-label">1</div>
+          <div class="rev-bar-track"><div class="rev-bar-fill" style="width:0%;"></div></div>
+          <div class="rev-bar-count">0</div>
+        </div>
+      </div>
+
+      <!-- Spending summary -->
+      <div class="rcard">
+        <div class="rcard-title">Spending summary</div>
+        <div class="spend-row"><span class="spend-label">Total spent this semester</span><span class="spend-val">$93</span></div>
+        <div class="spend-row"><span class="spend-label">Free items downloaded</span><span class="spend-val">19</span></div>
+        <div class="spend-row"><span class="spend-label">Saved vs retail prices</span><span class="spend-val spend-green">$284</span></div>
+        <div class="spend-row"><span class="spend-label">Items pending review</span><span class="spend-val" style="color:#ef4444;">12</span></div>
+      </div>
+
+      <!-- Marketplace CTA -->
+      <div class="mkt-cta">
+        <h3>Find more for your units</h3>
+        <p>Browse textbooks and notes listed by students in your exact units.</p>
+        <a href="marketplace.html"><button class="btn-mkt"><i class="fa-solid fa-tag"></i> Go to Marketplace</button></a>
+      </div>
+
+      <div class="rcard" style="padding:12px 14px;">
+        <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+          <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
+          &copy; 2025 UniShare · UWA students
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</body>
+</html>
