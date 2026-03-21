@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — UWA Campus Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+  /* ═══════════════════════════════════════════════════
+     UniShare — Landing Page (Light theme)
+  ═══════════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html  { scroll-behavior: smooth; }
+  body  {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f6fa;
+    color: #0d0f1f;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { text-decoration: none; color: inherit; }
+  ul { list-style: none; }
+
+  /* ── Tokens ──────────────────────────────────────── */
+  :root {
+    --dark:       #0d0f1f;
+    --dark-2:     #1d2035;
+    --mid:        #4a5068;
+    --muted:      #8891a8;
+    --border:     rgba(0,0,0,0.07);
+    --border-2:   rgba(0,0,0,0.12);
+    --gold:       #c8950a;
+    --gold-light: #f5c842;
+    --navy:       #003087;
+    --surface:    rgba(0,0,0,0.03);
+    --r-s:  6px;
+    --r-m:  14px;
+    --r-l:  24px;
+    --r-xl: 32px;
+    --t:    0.2s;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── Navbar ──────────────────────────────────────── */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    background: rgba(245,246,250,0.85);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+  }
+  .nav-logo {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.04em;
+    flex: 1;
+  }
+  .nav-logo span { color: var(--gold); }
+
+  .nav-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border-radius: 99px;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all var(--t) var(--ease);
+    letter-spacing: -0.01em;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--mid);
+    border-color: transparent;
+  }
+  .btn-ghost:hover { color: var(--dark); background: var(--surface); }
+
+  .btn-dark {
+    background: var(--dark);
+    color: #fff;
+    border-color: var(--dark);
+  }
+  .btn-dark:hover {
+    background: var(--dark-2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(13,15,31,0.22);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--dark);
+    border-color: var(--border-2);
+  }
+  .btn-outline:hover {
+    background: var(--dark);
+    color: #fff;
+    border-color: var(--dark);
+  }
+
+  /* ── Hero ────────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    padding: 58px 24px 24px; /* account for fixed nav */
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  /* Left panel */
+  .hero-left {
+    flex: 0 0 52%;
+    background: #eceef5;
+    border-radius: var(--r-xl);
+    padding: 64px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Very subtle pattern on left panel */
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  /* Hero brand strip — UWA logo + UniShare wordmark */
+  .hero-brand {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .hero-brand-uwa {
+    height: 124px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .hero-brand-divider {
+    width: 1.5px;
+    height: 80px;
+    background: rgba(0,0,0,0.16);
+    flex-shrink: 0;
+  }
+  .hero-brand-name {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+  .hero-brand-name span { color: var(--gold); }
+
+  .hero-left h1 {
+    font-size: clamp(2.4rem, 3.8vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.07;
+    letter-spacing: -0.04em;
+    color: var(--dark);
+    margin-bottom: 22px;
+    position: relative;
+  }
+
+  .hero-left p {
+    font-size: 1rem;
+    line-height: 1.72;
+    color: var(--mid);
+    max-width: 420px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    position: relative;
+  }
+  .hero-cta .btn { padding: 12px 26px; font-size: 0.9rem; }
+
+  /* Right panel — photo */
+  .hero-right {
+    flex: 1;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    position: relative;
+    min-height: 480px;
+  }
+  .hero-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  /* Subtle gradient overlay at the bottom of photo */
+  .hero-right::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(13,15,31,0.18), transparent);
+    pointer-events: none;
+  }
+
+  /* Live badge floating on photo */
+  .live-badge {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 2;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+    animation: dot-blink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes dot-blink { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+  .live-badge-text { font-size: 0.76rem; font-weight: 600; color: var(--dark); }
+  .live-badge-num  { color: var(--gold); font-weight: 800; }
+
+  /* ── Stats row ───────────────────────────────────── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    padding: 0 24px;
+    margin-bottom: 16px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-right: none;
+    padding: 28px 32px;
+  }
+  .stat:first-child { border-radius: var(--r-l) 0 0 var(--r-l); }
+  .stat:last-child  { border-radius: 0 var(--r-l) var(--r-l) 0; border-right: 1px solid var(--border); }
+
+  .stat-num   { font-size: 2rem; font-weight: 800; color: var(--dark); letter-spacing: -0.04em; line-height: 1; margin-bottom: 5px; }
+  .stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+
+  /* ── Features ────────────────────────────────────── */
+  .section { padding: 80px 24px; }
+
+  .section-header { margin-bottom: 44px; }
+  .section-header h2 {
+    font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    color: var(--dark);
+    margin-bottom: 12px;
+  }
+  .section-header p { font-size: 1rem; color: var(--mid); max-width: 480px; }
+
+  /* Bento */
+  .bento {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-rows: 280px 280px;
+    gap: 12px;
+  }
+
+  .bc {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--r-l);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--t), transform var(--t), border-color var(--t);
+    cursor: default;
+  }
+  .bc:hover {
+    box-shadow: 0 8px 32px rgba(13,15,31,0.09);
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+  }
+  .bc-market { grid-column: 1; grid-row: 1 / 3; justify-content: space-between; }
+  .bc-notes  { grid-column: 2 / 4; grid-row: 1; flex-direction: row; align-items: flex-end; gap: 24px; }
+  .bc-study  { grid-column: 2; grid-row: 2; }
+  .bc-bounty { grid-column: 3; grid-row: 2; background: var(--dark); border-color: var(--dark); }
+  .bc-bounty h3, .bc-bounty p, .bc-bounty .bc-tag { color: rgba(255,255,255,0.9) !important; }
+  .bc-bounty .bc-link { color: var(--gold-light) !important; }
+
+  .bc-bg-num {
+    position: absolute; bottom: 16px; right: 20px;
+    font-size: 5rem; font-weight: 900; line-height: 1;
+    color: rgba(0,0,0,0.04);
+    transition: opacity .4s;
+  }
+  .bc-bounty .bc-bg-num { color: rgba(255,255,255,0.06); }
+  .bc:hover .bc-bg-num { opacity: 0; }
+
+  .bc-tag  { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+  .bc h3   { font-size: 1.05rem; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+  .bc p    { font-size: .84rem; line-height: 1.65; color: var(--mid); margin-bottom: 18px; }
+  .bc-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .8rem; font-weight: 600; color: var(--dark);
+    transition: gap var(--t); margin-top: auto;
+  }
+  .bc-link:hover { gap: 9px; }
+  .bc-link i { font-size: .62rem; }
+
+  /* Marketplace preview items */
+  .bc-items { display: flex; flex-direction: column; gap: 7px; }
+  .bc-item {
+    background: #f5f6fa; border: 1px solid var(--border);
+    border-radius: var(--r-m); padding: 9px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .bc-item-icon { font-size: .88rem; }
+  .bc-item-title { font-size: .75rem; font-weight: 600; color: var(--dark); }
+  .bc-item-sub   { font-size: .67rem; color: var(--muted); display: flex; gap: 4px; align-items: center; margin-top: 2px; }
+  .bc-item-price { margin-left: auto; font-size: .82rem; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+
+  /* Notes bars */
+  .notes-bars { flex-shrink: 0; width: 185px; display: flex; flex-direction: column; gap: 9px; }
+  .nb-row { display: flex; align-items: center; gap: 9px; }
+  .nb-label { font-size: .68rem; color: var(--muted); width: 68px; flex-shrink: 0; font-weight: 500; }
+  .nb-track { flex: 1; height: 4px; background: #eceef5; border-radius: 99px; overflow: hidden; }
+  .nb-fill  { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--navy), #4169e1); }
+  .nb-n     { font-size: .65rem; color: var(--muted); width: 18px; text-align: right; }
+
+  /* Unit pill */
+  .unit-pill {
+    display: inline-block; padding: 1px 7px;
+    background: rgba(0,48,135,0.08);
+    color: var(--navy);
+    border: 1px solid rgba(0,48,135,0.15);
+    border-radius: 99px;
+    font-size: .65rem; font-weight: 700; letter-spacing: .04em;
+  }
+
+  /* ── Metrics ─────────────────────────────────────── */
+  .metrics { padding: 0 24px 80px; }
+  .metrics-inner {
+    background: var(--dark);
+    border-radius: var(--r-xl);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+  }
+  .metric {
+    padding: 44px 36px;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+  }
+  .metric:last-child { border-right: none; }
+  .metric-num   { font-size: 2.4rem; font-weight: 800; color: #fff; letter-spacing: -0.04em; line-height: 1; margin-bottom: 8px; }
+  .metric-num span { color: var(--gold-light); }
+  .metric-label { font-size: .82rem; color: rgba(255,255,255,0.45); }
+
+  /* ── Leaderboard + Rank ──────────────────────────── */
+  .rank-section { padding: 0 24px 80px; }
+  .rank-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+
+  .rank-left {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 44px 40px;
+  }
+  .rank-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .rank-label::before { content: ''; display: block; width: 14px; height: 1px; background: currentColor; }
+  .rank-left h2 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; color: var(--dark); margin-bottom: 14px; }
+  .rank-left > p { font-size: .9rem; color: var(--mid); line-height: 1.7; margin-bottom: 32px; max-width: 360px; }
+
+  .rank-tiers { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+  .rtier {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 14px;
+    border-radius: var(--r-m);
+    border: 1px solid var(--border);
+    background: #f5f6fa;
+    transition: all var(--t);
+  }
+  .rtier:hover { border-color: var(--border-2); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .rtier-info { flex: 1; }
+  .rtier-name { font-size: .82rem; font-weight: 600; color: var(--dark); margin-bottom: 2px; }
+  .rtier-desc { font-size: .72rem; color: var(--muted); }
+  .rtier-xp   { font-size: .72rem; font-weight: 700; color: var(--muted); }
+
+  /* Rank badges */
+  .rank-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 99px;
+    font-size: .7rem; font-weight: 700;
+  }
+  .rb-newbie  { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+  .rb-hustler { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+  .rb-legend  { background: linear-gradient(135deg, #fef9c3, #fde68a); color: #713f12; border: 1px solid #fcd34d; }
+
+  /* Leaderboard panel */
+  .lb-panel {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: var(--r-xl); overflow: hidden;
+  }
+  .lb-head {
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .lb-title { font-size: .88rem; font-weight: 700; color: var(--dark); }
+  .lb-sub   { font-size: .72rem; color: var(--muted); }
+
+  .lb-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 24px; border-bottom: 1px solid var(--border);
+    transition: background var(--t); cursor: pointer;
+  }
+  .lb-row:last-of-type { border-bottom: none; }
+  .lb-row:hover { background: #f5f6fa; }
+
+  .lb-pos { width: 22px; text-align: center; font-size: .88rem; font-weight: 800; flex-shrink: 0; }
+  .p1 { color: #c8950a; } .p2 { color: #94a3b8; } .p3 { color: #b45309; } .p4 { color: #cbd5e1; font-size: .75rem; }
+
+  .lb-av {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .76rem; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .lb-info { flex: 1; }
+  .lb-name  { font-size: .82rem; font-weight: 600; color: var(--dark); }
+  .lb-units { font-size: .7rem; color: var(--muted); }
+  .lb-earn  { font-size: .82rem; font-weight: 700; color: var(--gold); }
+  .lb-meta  { font-size: .68rem; color: var(--muted); }
+
+  .lb-foot {
+    padding: 12px 24px; text-align: center; border-top: 1px solid var(--border);
+  }
+  .lb-foot a { font-size: .78rem; color: var(--muted); font-weight: 500; transition: color var(--t); }
+  .lb-foot a:hover { color: var(--dark); }
+
+  /* ── Testimonials ────────────────────────────────── */
+  .testi { padding: 0 24px 80px; }
+  .testi-header { margin-bottom: 36px; }
+  .testi-header h2 { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; color: var(--dark); margin-bottom: 10px; }
+  .testi-header p  { color: var(--mid); }
+
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .tcard {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--r-l);
+    padding: 28px; display: flex; flex-direction: column; gap: 18px;
+    transition: box-shadow var(--t), transform var(--t);
+  }
+  .tcard:hover { box-shadow: 0 6px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+
+  .tcard-quote {
+    font-size: .88rem; line-height: 1.75; color: var(--dark);
+    position: relative; padding-top: 4px;
+  }
+  .tcard-quote::before {
+    content: '"'; position: absolute; top: -18px; left: -2px;
+    font-size: 3rem; color: rgba(13,15,31,0.08);
+    font-family: Georgia, serif; line-height: 1;
+  }
+
+  .tcard-user { display: flex; align-items: center; gap: 10px; margin-top: auto; }
+  .tcard-av {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .74rem; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .tcard-name   { font-size: .82rem; font-weight: 600; color: var(--dark); }
+  .tcard-detail { font-size: .72rem; color: var(--muted); }
+
+  /* ── CTA ─────────────────────────────────────────── */
+  .cta { padding: 0 24px 80px; }
+  .cta-card {
+    background: var(--dark);
+    border-radius: var(--r-xl);
+    padding: 72px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .cta-left h2 {
+    font-size: 2.2rem; font-weight: 800; letter-spacing: -.04em; color: #fff;
+    margin-bottom: 10px;
+  }
+  .cta-left p { color: rgba(255,255,255,.5); font-size: .95rem; }
+  .cta-btns { display: flex; gap: 10px; flex-shrink: 0; }
+  .btn-white {
+    background: #fff; color: var(--dark); border-color: #fff;
+    padding: 13px 28px; font-size: .9rem; border-radius: 99px;
+    font-weight: 700;
+  }
+  .btn-white:hover { background: #f0f0f0; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,255,255,.2); }
+  .btn-outline-white {
+    background: transparent; color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.2);
+    padding: 13px 28px; font-size: .9rem; border-radius: 99px;
+    font-weight: 600;
+  }
+  .btn-outline-white:hover { border-color: rgba(255,255,255,.45); color: #fff; }
+
+  /* ── Footer ──────────────────────────────────────── */
+  .footer {
+    padding: 52px 24px 32px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px;
+  }
+  .footer-logo { font-size: 1.1rem; font-weight: 800; color: var(--dark); letter-spacing: -.04em; margin-bottom: 12px; }
+  .footer-logo span { color: var(--gold); }
+  .footer-about { font-size: .84rem; color: var(--muted); line-height: 1.7; max-width: 260px; }
+  .footer-col h5 { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .footer-col ul { display: flex; flex-direction: column; gap: 9px; }
+  .footer-col a  { font-size: .84rem; color: var(--mid); transition: color var(--t); }
+  .footer-col a:hover { color: var(--dark); }
+  .footer-bar {
+    border-top: 1px solid var(--border); padding-top: 22px;
+    display: flex; justify-content: space-between;
+    font-size: .78rem; color: var(--muted);
+  }
+
+  /* ── Reveal animation ────────────────────────────── */
+  .reveal { opacity: 0; transform: translateY(18px); animation: reveal .6s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .d1 { animation-delay: .1s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .3s; }
+  @keyframes reveal { to { opacity: 1; transform: none; } }
+
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════ NAVBAR ══════════════════════════════ -->
+  <nav class="nav">
+    <div class="nav-logo">UniShare<span>.</span></div>
+    <div class="nav-btns">
+      <a href="login.html" class="btn btn-ghost">Log in</a>
+      <a href="login.html" class="btn btn-dark">Sign up</a>
+    </div>
+  </nav>
+
+  <!-- ════════════════ HERO ════════════════════════════════ -->
+  <div class="hero">
+
+    <!-- Left panel: copy -->
+    <div class="hero-left reveal">
+      <div class="hero-brand">
+        <img src="images/uwa-logo.png" alt="The University of Western Australia" class="hero-brand-uwa" />
+        <div class="hero-brand-divider"></div>
+        <span class="hero-brand-name">UniShare<span>.</span></span>
+      </div>
+
+      <h1>The sharing platform built for students, by students.</h1>
+
+      <p>
+        Search any unit and find every textbook, note set,
+        and study group available right now — organised by course,
+        verified by the community, and completely free to join.
+      </p>
+
+      <div class="hero-cta">
+        <a href="login.html" class="btn btn-dark">Sign up with UWA ID</a>
+        <a href="marketplace.html" class="btn btn-outline">Browse listings</a>
+      </div>
+    </div>
+
+    <!-- Right panel: photo -->
+    <div class="hero-right reveal d2">
+      <img src="images/campus.jpg" alt="UWA students on campus" />
+
+      <!-- Floating live badge -->
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span class="live-badge-text">
+          <span class="live-badge-num">312</span> students active now
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════ STATS ═══════════════════════════════ -->
+  <div class="stats-row reveal">
+    <div class="stat">
+      <div class="stat-num">580+</div>
+      <div class="stat-label">Textbooks listed this semester</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4,200+</div>
+      <div class="stat-label">Notes shared across all units</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">94%</div>
+      <div class="stat-label">Positive seller ratings</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$12k</div>
+      <div class="stat-label">Exchanged between students</div>
+    </div>
+  </div>
+
+  <!-- ════════════════ FEATURES ════════════════════════════ -->
+  <section class="section">
+    <div class="section-header reveal">
+      <h2>Four tools. One login.</h2>
+      <p>Stop juggling buy/sell groups, Discord servers, and Google Drive links that disappear each semester.</p>
+    </div>
+
+    <div class="bento">
+
+      <!-- Marketplace -->
+      <a href="marketplace.html" class="bc bc-market reveal">
+        <div class="bc-bg-num">01</div>
+        <div class="bc-items">
+          <div class="bc-item">
+            <span class="bc-item-icon">📖</span>
+            <div>
+              <div class="bc-item-title">Intro to Microeconomics, 3rd Ed.</div>
+              <div class="bc-item-sub"><span class="unit-pill">ECON1011</span> <span>Like new</span></div>
+            </div>
+            <div class="bc-item-price">$42</div>
+          </div>
+          <div class="bc-item">
+            <span class="bc-item-icon">📗</span>
+            <div>
+              <div class="bc-item-title">Agile Web Development</div>
+              <div class="bc-item-sub"><span class="unit-pill">CITS3403</span> <span>Good</span></div>
+            </div>
+            <div class="bc-item-price">$28</div>
+          </div>
+          <div class="bc-item">
+            <span class="bc-item-icon">📙</span>
+            <div>
+              <div class="bc-item-title">Engineering Mathematics</div>
+              <div class="bc-item-sub"><span class="unit-pill">MATH1001</span> <span>Highlighted</span></div>
+            </div>
+            <div class="bc-item-price">$20</div>
+          </div>
+        </div>
+        <div>
+          <div class="bc-tag">Marketplace</div>
+          <h3>Textbooks by unit code</h3>
+          <p>Search a unit and see every listing from students in that exact subject.</p>
+          <span class="bc-link">Browse listings <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <!-- Notes -->
+      <a href="notes.html" class="bc bc-notes reveal d1">
+        <div class="bc-bg-num" style="bottom:12px;right:12px;">02</div>
+        <div style="flex:1;">
+          <div class="bc-tag">Notes Hub</div>
+          <h3>Rated notes that actually persist</h3>
+          <p>Student summaries, cheat sheets, and past papers — searchable by unit and semester. Still there next year.</p>
+          <span class="bc-link">Browse notes <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+        <div class="notes-bars">
+          <div class="nb-row">
+            <span class="nb-label">CITS3403</span>
+            <div class="nb-track"><div class="nb-fill" style="width:88%"></div></div>
+            <span class="nb-n">47</span>
+          </div>
+          <div class="nb-row">
+            <span class="nb-label">STAT1520</span>
+            <div class="nb-track"><div class="nb-fill" style="width:70%"></div></div>
+            <span class="nb-n">36</span>
+          </div>
+          <div class="nb-row">
+            <span class="nb-label">ECON1011</span>
+            <div class="nb-track"><div class="nb-fill" style="width:57%"></div></div>
+            <span class="nb-n">30</span>
+          </div>
+          <div class="nb-row">
+            <span class="nb-label">MATH1001</span>
+            <div class="nb-track"><div class="nb-fill" style="width:43%"></div></div>
+            <span class="nb-n">23</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Study Sessions -->
+      <a href="sessions.html" class="bc bc-study reveal d2">
+        <div class="bc-bg-num">03</div>
+        <div class="bc-tag">Study Sessions</div>
+        <h3>Find your study group</h3>
+        <p>Post or join sessions tied to your unit. RSVP, see who's attending, access notes shared after.</p>
+        <span class="bc-link">Find sessions <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+
+      <!-- Bounty Board -->
+      <a href="sessions.html" class="bc bc-bounty reveal d3">
+        <div class="bc-bg-num">04</div>
+        <div class="bc-tag">Bounty Board</div>
+        <h3>Gigs &amp; skill swaps</h3>
+        <p>Lightning offers, peer tutoring trades, and quick tasks. Earn rank and build your campus reputation.</p>
+        <span class="bc-link">View bounties <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ════════════════ METRICS ═════════════════════════════ -->
+  <div class="metrics">
+    <div class="metrics-inner reveal">
+      <div class="metric">
+        <div class="metric-num"><span>580+</span></div>
+        <div class="metric-label">Textbooks listed this semester</div>
+      </div>
+      <div class="metric">
+        <div class="metric-num"><span>4,200+</span></div>
+        <div class="metric-label">Notes shared across all units</div>
+      </div>
+      <div class="metric">
+        <div class="metric-num"><span>94%</span></div>
+        <div class="metric-label">Positive seller ratings on platform</div>
+      </div>
+      <div class="metric">
+        <div class="metric-num"><span>$12k</span></div>
+        <div class="metric-label">Exchanged between students this year</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ RANK + LEADERBOARD ══════════════════ -->
+  <div class="rank-section">
+    <div class="rank-inner">
+
+      <div class="rank-left reveal">
+        <div class="rank-label">Reputation</div>
+        <h2>Rank up as you contribute.</h2>
+        <p>Every listing, note upload, and completed gig builds your campus reputation. Persistent, visible, and meaningful.</p>
+
+        <div class="rank-tiers">
+          <div class="rtier">
+            <span class="rank-badge rb-newbie">Newbie</span>
+            <div class="rtier-info">
+              <div class="rtier-name">Getting started</div>
+              <div class="rtier-desc">Complete your profile and first exchange</div>
+            </div>
+            <span class="rtier-xp">0 XP</span>
+          </div>
+          <div class="rtier">
+            <span class="rank-badge rb-hustler">Hustler</span>
+            <div class="rtier-info">
+              <div class="rtier-name">Active contributor</div>
+              <div class="rtier-desc">Five or more completed exchanges</div>
+            </div>
+            <span class="rtier-xp">500 XP</span>
+          </div>
+          <div class="rtier">
+            <span class="rank-badge rb-legend">Campus Legend</span>
+            <div class="rtier-info">
+              <div class="rtier-name">Top of campus</div>
+              <div class="rtier-desc">Weekly leaderboard — everyone sees your name</div>
+            </div>
+            <span class="rtier-xp">2,000 XP</span>
+          </div>
+        </div>
+
+        <a href="login.html" class="btn btn-dark" style="border-radius:99px;padding:12px 28px;">Start earning rank</a>
+      </div>
+
+      <div class="lb-panel reveal d2">
+        <div class="lb-head">
+          <span class="lb-title">This week's top contributors</span>
+          <span class="lb-sub">Resets every Monday</span>
+        </div>
+        <div class="lb-row">
+          <span class="lb-pos p1">1</span>
+          <div class="lb-av" style="background:linear-gradient(135deg,#f59e0b,#b45309)">JL</div>
+          <div class="lb-info"><div class="lb-name">Jess L.</div><div class="lb-units">CITS3403 · CITS3200</div></div>
+          <div style="text-align:right"><div class="lb-earn">$142</div><div class="lb-meta">18 gigs · ⭐ 4.9</div></div>
+        </div>
+        <div class="lb-row">
+          <span class="lb-pos p2">2</span>
+          <div class="lb-av" style="background:linear-gradient(135deg,#6366f1,#4338ca)">MT</div>
+          <div class="lb-info"><div class="lb-name">Marcus T.</div><div class="lb-units">STAT1520 · ECON1011</div></div>
+          <div style="text-align:right"><div class="lb-earn">$118</div><div class="lb-meta">14 gigs · ⭐ 5.0</div></div>
+        </div>
+        <div class="lb-row">
+          <span class="lb-pos p3">3</span>
+          <div class="lb-av" style="background:linear-gradient(135deg,#ec4899,#be185d)">SK</div>
+          <div class="lb-info"><div class="lb-name">Shreya K.</div><div class="lb-units">MATH1001 · PHYS1001</div></div>
+          <div style="text-align:right"><div class="lb-earn">$95</div><div class="lb-meta">11 gigs · ⭐ 4.8</div></div>
+        </div>
+        <div class="lb-row">
+          <span class="lb-pos p4">4</span>
+          <div class="lb-av" style="background:linear-gradient(135deg,#14b8a6,#0f766e)">RH</div>
+          <div class="lb-info"><div class="lb-name">Ryan H.</div><div class="lb-units">LAWS1113 · LAWS2201</div></div>
+          <div style="text-align:right"><div class="lb-earn">$74</div><div class="lb-meta">9 gigs · ⭐ 4.7</div></div>
+        </div>
+        <div class="lb-row">
+          <span class="lb-pos p4">5</span>
+          <div class="lb-av" style="background:linear-gradient(135deg,#f97316,#c2410c)">AP</div>
+          <div class="lb-info"><div class="lb-name">Aisha P.</div><div class="lb-units">BIOC2001 · BIOC3001</div></div>
+          <div style="text-align:right"><div class="lb-earn">$61</div><div class="lb-meta">7 gigs · ⭐ 4.9</div></div>
+        </div>
+        <div class="lb-foot">
+          <a href="dashboard.html">View full leaderboard →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════ TESTIMONIALS ════════════════════════ -->
+  <div class="testi">
+    <div class="testi-header reveal">
+      <h2>What students are saying.</h2>
+      <p>From the people who use it every semester.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="tcard reveal d1">
+        <p class="tcard-quote">Sold my CITS2200 textbook in under an hour. Searching by unit code is the one thing Facebook Marketplace never figured out — I found a buyer already enrolled in the same unit.</p>
+        <div class="tcard-user">
+          <div class="tcard-av" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">TN</div>
+          <div><div class="tcard-name">Tom N.</div><div class="tcard-detail">Computer Science, Year 2</div></div>
+        </div>
+      </div>
+      <div class="tcard reveal d2">
+        <p class="tcard-quote">Three semesters of STAT1520 notes in one searchable place. I used to spend an hour hunting Discord for links that had already expired. This solved that completely.</p>
+        <div class="tcard-user">
+          <div class="tcard-av" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">PW</div>
+          <div><div class="tcard-name">Priya W.</div><div class="tcard-detail">Data Science, Year 3</div></div>
+        </div>
+      </div>
+      <div class="tcard reveal d3">
+        <p class="tcard-quote">Made around $200 last semester helping people debug Python through the Bounty Board. The leaderboard makes it more motivating than I expected — I actually check it.</p>
+        <div class="tcard-user">
+          <div class="tcard-av" style="background:linear-gradient(135deg,#f59e0b,#b45309)">KM</div>
+          <div><div class="tcard-name">Kai M.</div><div class="tcard-detail">Software Engineering, Year 3</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ CTA ══════════════════════════════════ -->
+  <div class="cta reveal">
+    <div class="cta-card">
+      <div class="cta-left">
+        <h2>Ready to get started?</h2>
+        <p>Sign up with your UWA ID — free, and takes under a minute.</p>
+      </div>
+      <div class="cta-btns">
+        <a href="login.html" class="btn btn-white">Create account</a>
+        <a href="marketplace.html" class="btn btn-outline-white">Browse first</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ FOOTER ══════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">UniShare<span>.</span></div>
+        <p class="footer-about">The campus marketplace for UWA students. Trade textbooks, share notes, find study partners.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="marketplace.html">Marketplace</a></li>
+          <li><a href="notes.html">Notes Hub</a></li>
+          <li><a href="sessions.html">Study Sessions</a></li>
+          <li><a href="sessions.html">Bounty Board</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="login.html">Sign up</a></li>
+          <li><a href="login.html">Log in</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="dashboard.html">Leaderboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Info</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Safety</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <span>© 2025 UniShare</span>
+      <span>CITS3403 — Agile Web Development, UWA</span>
+    </div>
+  </footer>
+
+</body>
+</html>
