@@ -28,48 +28,45 @@
     --t: 0.18s; --ease: cubic-bezier(0.22,1,0.36,1); --r: 12px;
   }
 
-  /* ── Top nav (identical across all pages) ── */
+  /* ── Top nav ── */
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-    height: 56px; background: var(--white);
-    border-bottom: 1px solid var(--border);
+    height: 72px; background: #262626;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     display: flex; align-items: center; padding: 0 20px; gap: 16px;
   }
-  .tb-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; width: 220px; }
-  .tb-uwa   { height: 32px; width: auto; object-fit: contain; }
-  .tb-divider { width: 1px; height: 22px; background: var(--bdr2); flex-shrink: 0; }
-  .tb-logo  { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.04em; color: var(--dark); white-space: nowrap; }
+  .tb-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; width: 240px; }
+  .tb-uwa   { height: 62px; width: auto; object-fit: contain; }
+  .tb-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+  .tb-logo  { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.04em; color: #fff; white-space: nowrap; }
   .tb-logo span { color: var(--gold); }
   .tb-search {
     display: flex; align-items: center; gap: 8px;
-    background: #f3f4f8; border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.15);
     border-radius: 8px; padding: 7px 14px; flex: 1; max-width: 280px;
-    transition: border-color var(--t);
+    transition: all var(--t);
   }
-  .tb-search:focus-within { border-color: var(--gold); background: #fff; }
-  .tb-search i { color: var(--muted); font-size: 0.82rem; }
+  .tb-search:focus-within { border-color: var(--gold); background: rgba(255,255,255,0.15); }
+  .tb-search i { color: rgba(255,255,255,0.5); font-size: 0.82rem; }
   .tb-search input {
     border: none; background: transparent; outline: none;
-    font-family: 'Inter', sans-serif; font-size: 0.84rem; color: var(--dark); width: 100%;
+    font-family: 'Inter', sans-serif; font-size: 0.84rem; color: #fff; width: 100%;
   }
-  .tb-search input::placeholder { color: var(--muted); }
+  .tb-search input::placeholder { color: rgba(255,255,255,0.45); }
   .tb-nav {
     display: flex; align-items: center; flex: 1; justify-content: center; gap: 4px;
   }
   .tb-nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 6px 18px; border-radius: 8px;
-    font-size: 0.68rem; font-weight: 600; color: var(--muted);
+    font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.55);
     cursor: pointer; border: none; background: transparent;
-    font-family: 'Inter', sans-serif; transition: color var(--t); position: relative;
+    font-family: 'Inter', sans-serif; transition: all var(--t); position: relative;
   }
   .tb-nav-item i { font-size: 1.1rem; }
-  .tb-nav-item:hover { color: var(--dark); }
-  .tb-nav-item.active { color: var(--dark); }
-  .tb-nav-item.active::after {
-    content: ''; position: absolute; bottom: -9px; left: 12px; right: 12px;
-    height: 2px; background: var(--dark); border-radius: 2px 2px 0 0;
-  }
+  .tb-nav-item:hover { color: rgba(255,255,255,0.9); background: #29348b; }
+  .tb-nav-item.active { color: #fff; background: #29348b; border-radius: 8px; }
+  .tb-nav-item.active::after { display: none; }
   .tb-badge {
     position: absolute; top: 3px; right: 10px;
     background: #ef4444; color: #fff; font-size: 0.58rem; font-weight: 800;
@@ -77,53 +74,60 @@
     display: flex; align-items: center; justify-content: center;
   }
   .tb-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .tb-icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: transparent; cursor: pointer;
+    color: rgba(255,255,255,0.65); font-size: 0.95rem; transition: background var(--t);
+  }
+  .tb-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .tb-av {
     width: 34px; height: 34px; border-radius: 50%;
-    background: var(--dark); color: #fff; font-size: 0.8rem; font-weight: 700;
+    background: var(--gold); color: #fff; font-size: 0.8rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.25);
   }
 
   /* ── Page wrapper ── */
   .page-wrap {
     max-width: 1140px; margin: 0 auto;
-    padding: 72px 16px 40px;
+    padding: 88px 16px 40px;
     display: grid; grid-template-columns: 220px 1fr 256px;
     gap: 20px; align-items: start;
   }
 
-  /* ── Sidebar (identical) ── */
-  .sidebar { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 10px; }
-  .sb-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-  .sb-profile-banner { height: 58px; background: linear-gradient(135deg,var(--dark) 0%,#2a2d4a 100%); }
+  /* ── Sidebar ── */
+  .sidebar { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 10px; }
+  .sb-card { background: #012f87; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r); overflow: hidden; }
+  .sb-profile-banner { height: 58px; background: linear-gradient(135deg,#010e38 0%,#011e60 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
   .sb-profile-body { padding: 0 16px 16px; }
   .sb-profile-av {
-    width: 52px; height: 52px; border-radius: 50%; background: var(--dark); color: #fff;
+    width: 52px; height: 52px; border-radius: 50%; background: var(--gold); color: #fff;
     font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
-    border: 3px solid #fff; margin-top: -26px; margin-bottom: 8px;
+    border: 3px solid rgba(255,255,255,0.2); margin-top: -26px; margin-bottom: 8px;
   }
-  .sb-profile-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); }
-  .sb-profile-detail { font-size: 0.73rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-  .sb-profile-stats { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sb-profile-name { font-size: 0.9rem; font-weight: 700; color: #fff; }
+  .sb-profile-detail { font-size: 0.73rem; color: rgba(255,255,255,0.5); margin-top: 2px; line-height: 1.4; }
+  .sb-profile-stats { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 12px; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .sb-stat-row { display: flex; justify-content: space-between; align-items: center; }
-  .sb-stat-label { font-size: 0.74rem; color: var(--mid); }
-  .sb-stat-val { font-size: 0.74rem; font-weight: 700; color: var(--navy); }
-  .sb-xp-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; }
+  .sb-stat-label { font-size: 0.74rem; color: rgba(255,255,255,0.5); }
+  .sb-stat-val { font-size: 0.74rem; font-weight: 700; color: var(--gold); }
+  .sb-xp-card { background: #29348b; border: 1px solid rgba(255,255,255,0.12); border-left: 3px solid var(--gold); border-radius: var(--r); padding: 14px 16px; }
   .sb-xp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
-  .sb-xp-label { font-size: 0.74rem; font-weight: 600; color: var(--mid); }
+  .sb-xp-label { font-size: 0.74rem; font-weight: 600; color: rgba(255,255,255,0.6); }
   .sb-xp-pts { font-size: 0.74rem; font-weight: 800; color: var(--gold); }
-  .sb-xp-track { height: 5px; background: #eceef5; border-radius: 99px; overflow: hidden; }
+  .sb-xp-track { height: 5px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
   .sb-xp-fill { height: 100%; width: 68%; background: linear-gradient(90deg,var(--gold),#f5c842); border-radius: 99px; }
-  .sb-xp-sub { font-size: 0.68rem; color: var(--muted); margin-top: 5px; }
-  .sb-nav-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 8px; display: flex; flex-direction: column; gap: 1px; }
+  .sb-xp-sub { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 5px; }
+  .sb-nav-card { background: #011a55; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--r); padding: 8px; display: flex; flex-direction: column; gap: 1px; }
   .sb-link {
     display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px;
-    font-size: 0.84rem; font-weight: 500; color: var(--mid);
+    font-size: 0.84rem; font-weight: 500; color: rgba(255,255,255,0.6);
     transition: all var(--t) var(--ease); cursor: pointer;
   }
-  .sb-link:hover { background: #f3f4f8; color: var(--dark); }
-  .sb-link.active { background: #f3f4f8; color: var(--dark); font-weight: 600; }
-  .sb-link.active i { color: var(--gold); }
-  .sb-link i { width: 17px; text-align: center; font-size: 0.88rem; }
+  .sb-link:hover { background: rgba(255,255,255,0.09); color: #fff; }
+  .sb-link:hover i { color: var(--gold); }
+  .sb-link i { width: 17px; text-align: center; font-size: 0.88rem; transition: color var(--t); }
 
   /* ═══════════════════════════════════════
      MAIN — Personal library
@@ -433,15 +437,17 @@
     </div>
     <nav class="tb-nav">
       <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
-      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
-      <a href="notes.html" class="tb-nav-item active"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-store"></i> Marketplace</a>
+      <a href="notes.html" class="tb-nav-item active"><i class="fa-solid fa-book-bookmark"></i> Library</a>
       <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
       <button class="tb-nav-item" style="position:relative;">
         <i class="fa-solid fa-bell"></i> Alerts
         <span class="tb-badge">3</span>
       </button>
     </nav>
-    <div class="tb-right"><div class="tb-av">R</div></div>
+    <div class="tb-right">
+      <button class="tb-icon-btn"><i class="fa-solid fa-message"></i></button>
+      <div class="tb-av">R</div></div>
   </header>
 
   <div class="page-wrap">
@@ -471,8 +477,8 @@
       </div>
       <div class="sb-nav-card">
         <a href="dashboard.html" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
-        <a href="marketplace.html" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
-        <a href="notes.html" class="sb-link active"><i class="fa-solid fa-file-lines"></i> My Library</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa-solid fa-store"></i> Marketplace</a>
+        <a href="notes.html" class="sb-link active"><i class="fa-solid fa-book-bookmark"></i> My Library</a>
         <a href="sessions.html" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
         <a href="#" class="sb-link"><i class="fa-solid fa-box-archive"></i> My Listings</a>
         <a href="#" class="sb-link"><i class="fa-solid fa-bookmark"></i> Saved</a>
@@ -491,7 +497,7 @@
           <p>Everything you've downloaded or purchased — all in one place.</p>
         </div>
         <a href="marketplace.html">
-          <button class="btn-marketplace"><i class="fa-solid fa-tag"></i> Browse marketplace</button>
+          <button class="btn-marketplace"><i class="fa-solid fa-store"></i> Browse marketplace</button>
         </a>
       </div>
 
@@ -504,7 +510,7 @@
               <span class="ri-unit">CITS3403</span>
             </div>
             <div class="ri-body">
-              <div class="ri-title">Complete Lecture Notes Wks 1–12</div>
+              <div class="ri-title">Complete Lecture Library Wks 1–12</div>
               <div class="ri-time">2 hours ago</div>
             </div>
           </div>
@@ -851,7 +857,7 @@
       <div class="mkt-cta">
         <h3>Find more for your units</h3>
         <p>Browse textbooks and notes listed by students in your exact units.</p>
-        <a href="marketplace.html"><button class="btn-mkt"><i class="fa-solid fa-tag"></i> Go to Marketplace</button></a>
+        <a href="marketplace.html"><button class="btn-mkt"><i class="fa-solid fa-store"></i> Go to Marketplace</button></a>
       </div>
 
       <div class="rcard" style="padding:12px 14px;">
