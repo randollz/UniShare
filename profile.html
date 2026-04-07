@@ -11,7 +11,28 @@
   <link rel="stylesheet" href="shared.css" />
 
   <style>
-  /* reset + :root → shared.css */
+  /* ── Light-theme token overrides for profile page ── */
+  :root {
+    --white:   #ffffff;
+    --bg:      #f3f4f8;
+    --dark:    #0d0f1f;
+    --dark2:   #1e2138;
+    --muted:   #8891a8;
+    --mid:     #5a6078;
+    --border:  #e5e8f0;
+    --bdr2:    #cdd1e0;
+    --r:       12px;
+    --gold:    #c8950a;
+
+    /* override shared.css dark-theme body tokens */
+    --text:    #0d0f1f;
+    --text-2:  #5a6078;
+    --surface: #ffffff;
+  }
+  body {
+    background: var(--bg);
+    color: var(--dark);
+  }
 
     /* ═══════════════════════════════════════
      TOP NAVBAR
