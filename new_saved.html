@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — Saved</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+
+  <style>
+  /* reset + :root → shared.css */
+
+  .page-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 88px 16px 40px;
+    display: grid;
+    grid-template-columns: 220px 1fr 248px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* ── Page head ───────────────────────── */
+  .page-head {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .page-head p {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .btn-ghost-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    white-space: nowrap;
+  }
+  .btn-ghost-page:hover {
+    border-color: var(--bdr2);
+    background: #f3f4f8;
+    color: var(--dark);
+  }
+
+  /* ── Summary stats ───────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px 18px;
+  }
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+  }
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-top: 4px;
+  }
+  .stat-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Tabs ────────────────────────────── */
+  .tab-bar {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    text-align: center;
+  }
+  .tab-btn:hover { color: var(--dark); }
+  .tab-btn.active {
+    background: var(--dark);
+    color: #fff;
+  }
+  .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    border-radius: 99px;
+    background: #f0f1f5;
+    color: var(--mid);
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+  .tab-btn.active .tab-count {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+
+  /* ── Filter row ──────────────────────── */
+  .filter-row {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f8;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    flex: 1;
+    min-width: 190px;
+    transition: border-color var(--t);
+  }
+  .filter-search:focus-within {
+    border-color: var(--gold);
+    background: #fff;
+  }
+  .filter-search i {
+    color: var(--muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .filter-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    color: var(--dark);
+  }
+  .filter-search input::placeholder { color: var(--muted); }
+
+  .filter-select {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--mid);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--t);
+  }
+  .filter-select:focus { border-color: var(--gold); }
+
+  .view-toggle {
+    display: flex;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .vt-btn {
+    width: 30px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.84rem;
+    transition: all var(--t) var(--ease);
+  }
+  .vt-btn.active {
+    background: #f3f4f8;
+    color: var(--dark);
+  }
+
+  .results-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .results-meta strong {
+    color: var(--dark);
+    font-weight: 600;
+  }
+
+  /* ── Panels ──────────────────────────── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Notes grid ──────────────────────── */
+  .saved-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .saved-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    transition: box-shadow var(--t), transform var(--t), border-color var(--t);
+  }
+  .saved-card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .sc-topbar {
+    height: 4px;
+  }
+  .sc-topbar.blue  { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .sc-topbar.green { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .sc-topbar.gold  { background: linear-gradient(90deg, #c8950a, #f5c842); }
+  .sc-topbar.purple{ background: linear-gradient(90deg, #9333ea, #c084fc); }
+
+  .sc-body { padding: 16px 16px 14px; }
+
+  .sc-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .sc-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .sc-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .sc-icon.blue   { background: #e8edf8; }
+  .sc-icon.green  { background: #e8f5ec; }
+  .sc-icon.gold   { background: #fef9e7; }
+  .sc-icon.purple { background: #f5eef8; }
+
+  .sc-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
+  .sc-author {
+    font-size: 0.74rem;
+    color: var(--mid);
+    margin-top: 3px;
+  }
+
+  .sc-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .unit-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(0,48,135,0.07);
+    color: #003087;
+    border: 1px solid rgba(0,48,135,0.15);
+    border-radius: 99px;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .mini-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+  .mini-badge.free {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  .sc-info {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .sc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sc-price {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: -0.03em;
+  }
+  .sc-price.free { color: #16a34a; }
+
+  .sc-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-mini {
+    padding: 6px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: #f3f4f8;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .btn-mini:hover {
+    color: var(--dark);
+    border-color: var(--bdr2);
+  }
+  .btn-mini.primary {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: #fff;
+  }
+  .btn-mini.primary:hover {
+    background: var(--dark2);
+  }
+  .btn-icon-mini {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: #f3f4f8;
+    color: #c8950a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: all var(--t) var(--ease);
+  }
+  .btn-icon-mini:hover {
+    background: #fff3cd;
+    border-color: rgba(200,149,10,0.2);
+  }
+
+  /* ── Notes list view ─────────────────── */
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .list-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: box-shadow var(--t), border-color var(--t);
+  }
+  .list-item:hover {
+    box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .list-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .list-thumb.blue  { background: #e8edf8; }
+  .list-thumb.green { background: #e8f5ec; }
+  .list-thumb.gold  { background: #fef9e7; }
+
+  .list-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .list-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .list-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+  }
+
+  .list-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Session cards ───────────────────── */
+  .session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .session-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    transition: box-shadow var(--t), border-color var(--t);
+  }
+  .session-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .session-accent {
+    height: 4px;
+  }
+  .session-accent.blue   { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .session-accent.purple { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+  .session-accent.gray   { background: linear-gradient(90deg, #9ca3af, #d1d5db); }
+
+  .session-body {
+    padding: 16px 18px 14px;
+  }
+
+  .session-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .session-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .session-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .session-icon.blue   { background: #3B6EF5; }
+  .session-icon.purple { background: #8b5cf6; }
+  .session-icon.gray   { background: #9ca3af; }
+
+  .session-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--dark);
+    letter-spacing: -0.02em;
+  }
+
+  .session-details {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .status-open {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34,197,94,0.18);
+  }
+  .status-full {
+    background: rgba(239,68,68,0.09);
+    color: #dc2626;
+    border: 1px solid rgba(239,68,68,0.16);
+  }
+
+  .session-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Collections ─────────────────────── */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .collection-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px;
+    transition: box-shadow var(--t), transform var(--t), border-color var(--t);
+    cursor: pointer;
+  }
+  .collection-card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .collection-icons {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+  }
+
+  .collection-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .collection-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .collection-add {
+    border-style: dashed;
+    border-width: 1.5px;
+    border-color: rgba(0,48,135,0.18);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 136px;
+  }
+  .collection-add:hover {
+    border-color: #003087;
+    background: rgba(0,48,135,0.03);
+  }
+  .collection-add-inner {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+  .collection-add-inner i {
+    display: block;
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: #003087;
+  }
+
+  /* ── Right rail ──────────────────────── */
+  .right-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 84px;
+  }
+
+  .side-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+
+  .side-card-body {
+    padding: 16px 18px;
+  }
+
+  .side-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--mid);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .mini-row strong {
+    color: var(--dark);
+    font-weight: 700;
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #011a55 0%, #003087 100%);
+    color: #fff;
+    border: none;
+  }
+  .tip-card .side-card-body { padding: 18px; }
+  .tip-card .side-title {
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 10px;
+  }
+  .tip-title {
+    font-size: 0.96rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tip-text {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.76);
+    margin-bottom: 12px;
+  }
+  .tip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .tip-btn:hover { background: rgba(255,255,255,0.18); }
+
+  @media (max-width: 1024px) {
+    .page-wrap {
+      grid-template-columns: 220px 1fr;
+    }
+    .right-rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .page-wrap {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      display: none;
+    }
+    .stats-grid,
+    .saved-grid,
+    .collections-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .tab-bar {
+      flex-direction: column;
+    }
+  }
+  </style>
+</head>
+
+<body class="app-page">
+  <header class="topbar">
+    <div class="tb-left">
+      <div class="tb-brand">
+        <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
+        <div class="tb-divider"></div>
+        <div class="tb-logo">Uni<span>Share</span></div>
+      </div>
+    </div>
+
+    <div class="tb-center">
+      <div class="tb-search">
+        <i class="fa fa-search"></i>
+        <input type="text" placeholder="Search notes, units…" />
+      </div>
+    </div>
+
+    <div class="tb-right">
+      <button class="tb-icon-btn"><i class="fa fa-bell"></i></button>
+      <div class="tb-av">JS</div>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">JS</div>
+          <div class="sb-profile-name">Jake Smith</div>
+          <div class="sb-profile-detail">Computer Science · 2nd Year<br>University of Western Australia</div>
+
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row"><span class="sb-stat-label">Saved Notes</span><span class="sb-stat-val">9</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Saved Sessions</span><span class="sb-stat-val">3</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Collections</span><span class="sb-stat-val">4</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Hustler · Rank #14</span>
+          <span class="sb-xp-pts">820 XP</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">180 XP to Legend</div>
+      </div>
+
+      <div class="sb-nav-card">
+        <a href="dashboard.html" class="sb-link"><i class="fa fa-house"></i>Dashboard</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa fa-store"></i>Marketplace</a>
+        <a href="my-listings.html" class="sb-link"><i class="fa fa-tag"></i>My Listings</a>
+        <a href="saved.html" class="sb-link active"><i class="fa fa-bookmark"></i>Saved</a>
+        <a href="leaderboard.html" class="sb-link"><i class="fa fa-trophy"></i>Leaderboard</a>
+        <a href="settings.html" class="sb-link"><i class="fa fa-gear"></i>Settings</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page-head">
+        <div>
+          <h1>Saved</h1>
+          <p>Your bookmarked notes, sessions, and collections in one place.</p>
+        </div>
+        <button class="btn-ghost-page">
+          <i class="fa fa-folder-plus"></i>
+          New Collection
+        </button>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Saved Notes</div>
+          <div class="stat-value">9</div>
+          <div class="stat-sub">Across 4 subjects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Saved Sessions</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">2 still open</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Collections</div>
+          <div class="stat-value">4</div>
+          <div class="stat-sub">Updated this week</div>
+        </div>
+      </section>
+
+      <section class="tab-bar">
+        <button class="tab-btn active" data-tab="tab-notes">Notes <span class="tab-count">9</span></button>
+        <button class="tab-btn" data-tab="tab-sessions">Sessions <span class="tab-count">3</span></button>
+        <button class="tab-btn" data-tab="tab-collections">Collections <span class="tab-count">4</span></button>
+      </section>
+
+      <section class="filter-row">
+        <div class="filter-search">
+          <i class="fa fa-search"></i>
+          <input type="text" placeholder="Search saved items…" />
+        </div>
+
+        <select class="filter-select">
+          <option>Saved: Newest</option>
+          <option>Price: Low to High</option>
+          <option>Most Popular</option>
+        </select>
+
+        <div class="view-toggle" id="notesViewToggle">
+          <button class="vt-btn active" data-view="grid" title="Grid view"><i class="fa fa-grip"></i></button>
+          <button class="vt-btn" data-view="list" title="List view"><i class="fa fa-list"></i></button>
+        </div>
+      </section>
+
+      <div class="results-meta">
+        <span><strong>9 saved notes</strong> available</span>
+        <span>Use collections to group resources for each unit or exam period.</span>
+      </div>
+
+      <!-- Notes -->
+      <section class="tab-panel active" id="tab-notes">
+        <div class="saved-grid" id="notesGrid">
+          <article class="saved-card">
+            <div class="sc-topbar blue"></div>
+            <div class="sc-body">
+              <div class="sc-header">
+                <div class="sc-meta">
+                  <div class="sc-icon blue">📄</div>
+                  <div>
+                    <div class="sc-title">CITS2401 – Python Complete Notes</div>
+                    <div class="sc-author">Maya K. · ★★★★★ 4.9</div>
+                    <div class="sc-sub">
+                      <span class="unit-pill">CITS2401</span>
+                      <span class="sc-info">PDF · 48 pages</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn-icon-mini" title="Unsave"><i class="fa fa-bookmark"></i></button>
+              </div>
+
+              <div class="sc-footer">
+                <div class="sc-price">$12.00</div>
+                <div class="sc-actions">
+                  <button class="btn-mini">Preview</button>
+                  <button class="btn-mini primary">Buy</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="saved-card">
+            <div class="sc-topbar green"></div>
+            <div class="sc-body">
+              <div class="sc-header">
+                <div class="sc-meta">
+                  <div class="sc-icon green">📊</div>
+                  <div>
+                    <div class="sc-title">STAT1520 – Statistics Cheat Sheets</div>
+                    <div class="sc-author">Alex L. · ★★★★☆ 4.6</div>
+                    <div class="sc-sub">
+                      <span class="unit-pill">STAT1520</span>
+                      <span class="sc-info">PDF · 12 pages</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn-icon-mini" title="Unsave"><i class="fa fa-bookmark"></i></button>
+              </div>
+
+              <div class="sc-footer">
+                <div class="sc-price">$8.00</div>
+                <div class="sc-actions">
+                  <button class="btn-mini">Preview</button>
+                  <button class="btn-mini primary">Buy</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="saved-card">
+            <div class="sc-topbar gold"></div>
+            <div class="sc-body">
+              <div class="sc-header">
+                <div class="sc-meta">
+                  <div class="sc-icon gold">📐</div>
+                  <div>
+                    <div class="sc-title">MATH1722 – Calculus Formula Sheet</div>
+                    <div class="sc-author">Jamie P. · ★★★★★ 5.0</div>
+                    <div class="sc-sub">
+                      <span class="unit-pill">MATH1722</span>
+                      <span class="mini-badge free">Free</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn-icon-mini" title="Unsave"><i class="fa fa-bookmark"></i></button>
+              </div>
+
+              <div class="sc-footer">
+                <div class="sc-price free">Free</div>
+                <div class="sc-actions">
+                  <button class="btn-mini">Preview</button>
+                  <button class="btn-mini primary">Download</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="saved-card">
+            <div class="sc-topbar purple"></div>
+            <div class="sc-body">
+              <div class="sc-header">
+                <div class="sc-meta">
+                  <div class="sc-icon purple">📘</div>
+                  <div>
+                    <div class="sc-title">LAWS1100 – Contract Law Full Notes</div>
+                    <div class="sc-author">Sofia R. · ★★★★★ 4.8</div>
+                    <div class="sc-sub">
+                      <span class="unit-pill">LAWS1100</span>
+                      <span class="sc-info">PDF · 96 pages</span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn-icon-mini" title="Unsave"><i class="fa fa-bookmark"></i></button>
+              </div>
+
+              <div class="sc-footer">
+                <div class="sc-price">$18.00</div>
+                <div class="sc-actions">
+                  <button class="btn-mini">Preview</button>
+                  <button class="btn-mini primary">Buy</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="saved-list" id="notesList" style="display:none;">
+          <article class="list-item">
+            <div class="list-thumb blue">📄</div>
+            <div class="list-info">
+              <div class="list-title">CITS2401 – Python Complete Notes</div>
+              <div class="list-sub">
+                <span>Maya K. · ★★★★★ 4.9</span>
+                <span>CITS2401</span>
+                <span>PDF · 48 pages</span>
+              </div>
+            </div>
+            <div class="list-right">
+              <div class="sc-price">$12.00</div>
+              <button class="btn-mini">Preview</button>
+              <button class="btn-mini primary">Buy</button>
+            </div>
+          </article>
+
+          <article class="list-item">
+            <div class="list-thumb green">📊</div>
+            <div class="list-info">
+              <div class="list-title">STAT1520 – Statistics Cheat Sheets</div>
+              <div class="list-sub">
+                <span>Alex L. · ★★★★☆ 4.6</span>
+                <span>STAT1520</span>
+                <span>PDF · 12 pages</span>
+              </div>
+            </div>
+            <div class="list-right">
+              <div class="sc-price">$8.00</div>
+              <button class="btn-mini">Preview</button>
+              <button class="btn-mini primary">Buy</button>
+            </div>
+          </article>
+
+          <article class="list-item">
+            <div class="list-thumb gold">📐</div>
+            <div class="list-info">
+              <div class="list-title">MATH1722 – Calculus Formula Sheet</div>
+              <div class="list-sub">
+                <span>Jamie P. · ★★★★★ 5.0</span>
+                <span>MATH1722</span>
+                <span>Free resource</span>
+              </div>
+            </div>
+            <div class="list-right">
+              <div class="sc-price free">Free</div>
+              <button class="btn-mini">Preview</button>
+              <button class="btn-mini primary">Download</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Sessions -->
+      <section class="tab-panel" id="tab-sessions">
+        <div class="session-list">
+          <article class="session-card">
+            <div class="session-accent blue"></div>
+            <div class="session-body">
+              <div class="session-header">
+                <div class="session-meta">
+                  <div class="session-icon blue">🎯</div>
+                  <div>
+                    <div class="session-title">CITS2401 – Exam Study Group</div>
+                    <div class="session-details">
+                      <span>Sat 21 Jun · 2:00 PM</span>
+                      <span>Reid Library, G14</span>
+                      <span>8/12 spots</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-pill status-open">Open</span>
+              </div>
+
+              <div class="session-actions">
+                <button class="btn-mini primary">RSVP</button>
+                <button class="btn-mini">Details</button>
+                <button class="btn-mini">Remove</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="session-card">
+            <div class="session-accent purple"></div>
+            <div class="session-body">
+              <div class="session-header">
+                <div class="session-meta">
+                  <div class="session-icon purple">📐</div>
+                  <div>
+                    <div class="session-title">MATH1722 – Calculus Problem Session</div>
+                    <div class="session-details">
+                      <span>Mon 23 Jun · 10:00 AM</span>
+                      <span>Online (Zoom)</span>
+                      <span>5/10 spots</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-pill status-open">Open</span>
+              </div>
+
+              <div class="session-actions">
+                <button class="btn-mini primary">RSVP</button>
+                <button class="btn-mini">Details</button>
+                <button class="btn-mini">Remove</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="session-card">
+            <div class="session-accent gray"></div>
+            <div class="session-body">
+              <div class="session-header">
+                <div class="session-meta">
+                  <div class="session-icon gray">⚖️</div>
+                  <div>
+                    <div class="session-title">LAWS1100 – Moot Court Prep</div>
+                    <div class="session-details">
+                      <span>Fri 18 Jun · 4:00 PM</span>
+                      <span>LB117</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="status-pill status-full">Full</span>
+              </div>
+
+              <div class="session-actions">
+                <button class="btn-mini">Waitlist</button>
+                <button class="btn-mini">Details</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Collections -->
+      <section class="tab-panel" id="tab-collections">
+        <div class="collections-grid">
+          <article class="collection-card">
+            <div class="collection-icons">📄 📊 📐</div>
+            <div class="collection-title">Semester 1 Prep</div>
+            <div class="collection-sub">6 items · Updated 2 days ago</div>
+          </article>
+
+          <article class="collection-card">
+            <div class="collection-icons">⚖️ 📘</div>
+            <div class="collection-title">Law Materials</div>
+            <div class="collection-sub">3 items · Updated 1 week ago</div>
+          </article>
+
+          <article class="collection-card">
+            <div class="collection-icons">🎯 📚</div>
+            <div class="collection-title">Exam Week Resources</div>
+            <div class="collection-sub">8 items · Updated today</div>
+          </article>
+
+          <article class="collection-card collection-add">
+            <div class="collection-add-inner">
+              <i class="fa fa-plus"></i>
+              New Collection
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <aside class="right-rail">
+      <section class="side-card">
+        <div class="side-card-body">
+          <div class="side-title">Saved Summary</div>
+          <div class="mini-row"><span>Saved notes</span><strong>9</strong></div>
+          <div class="mini-row"><span>Open sessions</span><strong>2</strong></div>
+          <div class="mini-row"><span>Collections</span><strong>4</strong></div>
+          <div class="mini-row"><span>Free resources</span><strong>3</strong></div>
+        </div>
+      </section>
+
+      <section class="side-card tip-card">
+        <div class="side-card-body">
+          <div class="side-title">Study Tip</div>
+          <div class="tip-title">Organise by unit</div>
+          <div class="tip-text">
+            Create separate collections for each subject so your saved notes and sessions stay easy to find before exams.
+          </div>
+          <button class="tip-btn">
+            <i class="fa fa-folder-plus"></i>
+            Create collection
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(panel => panel.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    const viewButtons = document.querySelectorAll('.vt-btn');
+    const notesGrid = document.getElementById('notesGrid');
+    const notesList = document.getElementById('notesList');
+
+    viewButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        viewButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const view = btn.dataset.view;
+        if (view === 'grid') {
+          notesGrid.style.display = 'grid';
+          notesList.style.display = 'none';
+        } else {
+          notesGrid.style.display = 'none';
+          notesList.style.display = 'flex';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
