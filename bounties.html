@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Bounty Board — UniShare{% endblock %}
+{% block content %}
+<div class="page-inner">
+    <div class="page-header">
+        <h1>Bounty Board</h1>
+        {% if current_user %}<a href="{{ url_for('create_bounty') }}" class="btn btn-dark">+ Post bounty</a>{% endif %}
+    </div>
+    {% if bounties %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for b in bounties %}
+        <div class="session-card">
+            <div style="flex:1">
+                {% if b.unit_code %}<span class="unit-pill">{{ b.unit_code }}</span>{% endif %}
+                <h3 style="margin-top:6px">{{ b.title }}</h3>
+                {% if b.description %}<p style="font-size:.85rem;color:var(--mid);margin-top:4px">{{ b.description }}</p>{% endif %}
+                <p style="font-size:.78rem;color:var(--muted);margin-top:8px">Posted by <a href="{{ url_for('profile', user_id=b.poster_id) }}">{{ b.first_name }} {{ b.last_name[0] }}.</a></p>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:1.2rem;font-weight:800;color:var(--gold)">${{ "%.0f"|format(b.reward) }}</div>
+                {% if current_user and current_user.id != b.poster_id %}
+                <form method="POST" action="{{ url_for('claim_bounty', bounty_id=b.id) }}" style="margin-top:8px">
+                    <button class="btn btn-dark btn-sm">Claim</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><p>No open bounties right now.</p></div>
+    {% endif %}
+</div>
+{% endblock %}
