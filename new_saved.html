@@ -799,25 +799,26 @@
 
 <body class="app-page">
   <header class="topbar">
-    <div class="tb-left">
-      <div class="tb-brand">
-        <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
-        <div class="tb-divider"></div>
-        <div class="tb-logo">Uni<span>Share</span></div>
-      </div>
+    <div class="tb-brand">
+      <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
+      <div class="tb-divider"></div>
+      <span class="tb-logo">UniShare<span>.</span></span>
     </div>
-
-    <div class="tb-center">
-      <div class="tb-search">
-        <i class="fa fa-search"></i>
-        <input type="text" placeholder="Search notes, units…" />
-      </div>
+    <div class="tb-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search units, notes, listings…" />
     </div>
-
-    <div class="tb-right">
-      <button class="tb-icon-btn"><i class="fa fa-bell"></i></button>
-      <div class="tb-av">JS</div>
-    </div>
+    <nav class="tb-nav">
+      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="notes.html" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+      <button class="tb-nav-item" style="position:relative;">
+        <i class="fa-solid fa-bell"></i> Alerts
+        <span class="tb-badge">3</span>
+      </button>
+    </nav>
+    <div class="tb-right"><a href="profile.html" class="tb-av">JS</a></div>
   </header>
 
   <div class="page-wrap">
@@ -1258,5 +1259,43 @@
       });
     });
   </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 </html>
