@@ -1,143 +1,436 @@
-{% extends 'base.html' %}
-{% block title %}Dashboard — UniShare{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
 
-{% block content %}
-<div class="page-inner">
-    <!-- User hero -->
-    <div class="profile-hero">
-        <div class="profile-av large" style="background:linear-gradient(135deg,#f59e0b,#b45309)">
-            {{ user.first_name[0] }}{{ user.last_name[0] }}
-        </div>
-        <div>
-            <h1>{{ user.first_name }} {{ user.last_name }}</h1>
-            <div style="display:flex;gap:12px;align-items:center;margin-top:6px;">
-                <span class="rank-badge rb-{{ user.rank|lower|replace(' ','-') }}">{{ user.rank }}</span>
-                <span style="color:var(--muted);font-size:.85rem;">{{ user.xp }} XP</span>
-                {% if user.rating_count > 0 %}
-                <span style="color:var(--muted);font-size:.85rem;">⭐ {{ "%.1f"|format(user.rating_sum / user.rating_count) }}</span>
-                {% endif %}
-            </div>
-        </div>
-        <a href="{{ url_for('settings') }}" class="btn btn-ghost" style="margin-left:auto">Settings</a>
+  <style>
+  .page-wrap {
+    max-width: 1140px; margin: 0 auto;
+    padding: 88px 16px 40px;
+    display: grid; grid-template-columns: 220px 1fr 260px;
+    gap: 20px; align-items: start;
+  }
+  .feed { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+  .sort-bar {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); font-size: 0.8rem; color: var(--muted);
+  }
+  .sort-bar strong { color: var(--dark); font-weight: 600; }
+  .sort-bar select {
+    margin-left: auto; border: none; background: transparent;
+    font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
+    color: var(--mid); cursor: pointer; outline: none;
+  }
+
+  .compose {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 14px 16px;
+  }
+  .compose-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .compose-av {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--dark); color: #fff;
+    font-size: 0.86rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .compose-input {
+    flex: 1; padding: 10px 16px; border-radius: 99px;
+    border: 1.5px solid var(--bdr2); background: #f3f4f8;
+    font-family: 'Inter', sans-serif; font-size: 0.86rem; color: var(--mid);
+    outline: none; cursor: pointer; transition: all var(--t) var(--ease);
+  }
+  .compose-input:focus { border-color: var(--gold); background: #fff; }
+  .compose-actions { display: flex; gap: 2px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .compose-btn {
+    display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 600; color: var(--mid);
+    border: none; background: transparent; font-family: 'Inter', sans-serif; cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .compose-btn:hover { background: #f3f4f8; color: var(--dark); }
+  .compose-btn i { font-size: 0.82rem; }
+
+  .post-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden; transition: box-shadow var(--t);
+  }
+  .post-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+  .post-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 18px 10px; }
+  .post-meta { display: flex; align-items: center; gap: 11px; }
+  .post-av { width: 42px; height: 42px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .post-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); }
+  .post-detail { font-size: 0.73rem; color: var(--muted); margin-top: 1px; }
+  .post-time-more { display: flex; align-items: center; gap: 8px; }
+  .post-time { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+  .post-more { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: background var(--t); }
+  .post-more:hover { background: #f3f4f8; color: var(--dark); }
+
+  .post-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 18px 10px; }
+  .pill-sell   { background: rgba(34,197,94,0.1);  color: #16a34a; }
+  .pill-notes  { background: rgba(59,130,246,0.1);  color: #2563eb; }
+  .pill-group  { background: rgba(139,92,246,0.1);  color: #7c3aed; }
+  .pill-bounty { background: rgba(200,149,10,0.12); color: var(--gold); }
+
+  .post-body { padding: 0 18px 14px; font-size: 0.88rem; color: var(--mid); line-height: 1.72; }
+  .post-body strong { color: var(--dark); font-weight: 600; }
+  .post-image-placeholder { width: 100%; aspect-ratio: 16/8; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 500; gap: 8px; }
+  .post-image-placeholder i { font-size: 1.1rem; }
+
+  .post-listing { margin: 0 18px 14px; background: #f3f4f8; border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .pl-title { font-size: 0.87rem; font-weight: 700; color: var(--dark); }
+  .pl-sub   { font-size: 0.73rem; color: var(--muted); margin-top: 3px; }
+  .pl-price { font-size: 1.05rem; font-weight: 800; color: var(--gold); white-space: nowrap; flex-shrink: 0; }
+  .pl-free  { color: #16a34a; }
+  .unit-badge { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 0.67rem; font-weight: 700; background: var(--dark); color: #fff; margin-right: 3px; }
+
+  .post-reactions { padding: 6px 18px 10px; display: flex; align-items: center; gap: 4px; font-size: 0.73rem; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .reaction-icons { display: flex; }
+  .ri { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; margin-right: -4px; }
+
+  .post-actions { display: flex; padding: 4px 10px; }
+  .post-action { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 6px; border-radius: 8px; border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 0.79rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all var(--t) var(--ease); }
+  .post-action:hover { background: #f3f4f8; color: var(--dark); }
+  .post-action i { font-size: 0.84rem; }
+
+  /* My listings section */
+  .my-listings-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+  .my-listings-section h3 { font-size: 0.85rem; font-weight: 700; color: var(--dark); margin-bottom: 12px; }
+  .my-listing-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .my-listing-row:last-child { border-bottom: none; }
+  .my-listing-title { font-weight: 600; color: var(--dark); }
+  .my-listing-price { color: var(--gold); font-weight: 700; }
+
+  .right { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 12px; }
+  .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+  .rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+  .unit-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .unit-row:last-child { border-bottom: none; }
+  .unit-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .unit-code { font-size: 0.83rem; font-weight: 700; color: var(--dark); }
+  .unit-name { font-size: 0.71rem; color: var(--muted); }
+  .unit-new  { margin-left: auto; font-size: 0.7rem; color: var(--gold); font-weight: 700; }
+
+  .trend-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+  .trend-n { font-size: 0.78rem; font-weight: 800; color: var(--muted); width: 16px; flex-shrink: 0; }
+  .trend-tag { font-size: 0.83rem; font-weight: 600; color: var(--dark); }
+  .trend-ct  { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+
+  .suggest-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .sug-av { width: 36px; height: 36px; border-radius: 50%; font-size: 0.78rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sug-name { font-size: 0.83rem; font-weight: 600; color: var(--dark); }
+  .sug-detail { font-size: 0.7rem; color: var(--muted); }
+  .sug-btn { margin-left: auto; padding: 4px 12px; border-radius: 99px; border: 1.5px solid var(--bdr2); background: transparent; font-family: 'Inter', sans-serif; font-size: 0.73rem; font-weight: 600; color: var(--mid); cursor: pointer; white-space: nowrap; transition: all var(--t) var(--ease); flex-shrink: 0; }
+  .sug-btn:hover { border-color: var(--dark); color: var(--dark); }
+
+  .rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .rcard-footer a { color: var(--muted); }
+  .rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+
+  /* Leaderboard in right panel */
+  .lb-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-pos { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; flex-shrink: 0; background: #f3f4f8; color: var(--mid); }
+  .lb-pos.p1 { background: var(--gold); color: #fff; }
+  .lb-pos.p2 { background: #94a3b8; color: #fff; }
+  .lb-pos.p3 { background: #b87333; color: #fff; }
+  .lb-av-sm { width: 30px; height: 30px; border-radius: 50%; font-size: 0.7rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--dark); }
+  .lb-name { font-size: 0.82rem; font-weight: 700; color: var(--dark); }
+  .lb-xp { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: var(--gold); white-space: nowrap; }
+
+  </style>
+</head>
+<body class="app-page">
+
+  <!-- TOP NAV -->
+  <header class="topbar">
+    <div class="tb-brand">
+      <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
+      <div class="tb-divider"></div>
+      <span class="tb-logo">UniShare<span>.</span></span>
     </div>
-
-    <!-- Dashboard tabs -->
-    <div class="dash-tabs">
-        <button class="dash-tab active" onclick="showTab('listings',this)">My Listings ({{ my_listings|length }})</button>
-        <button class="dash-tab" onclick="showTab('saved',this)">Saved ({{ saved|length }})</button>
-        <button class="dash-tab" onclick="showTab('sessions',this)">Sessions ({{ my_sessions|length }})</button>
-        <button class="dash-tab" onclick="showTab('leaderboard',this)">Leaderboard</button>
+    <div class="tb-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search units, notes, listings…" />
     </div>
-
-    <!-- My Listings -->
-    <div id="tab-listings" class="tab-content">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2>My Listings</h2>
-            <a href="{{ url_for('create_listing') }}" class="btn btn-dark">+ New listing</a>
-        </div>
-        {% if my_listings %}
-        <div class="card-grid">
-            {% for l in my_listings %}
-            <div class="listing-card">
-                <div class="listing-card-top">
-                    <span class="unit-pill">{{ l.unit_code }}</span>
-                    <span class="condition-badge">{{ l.condition }}</span>
-                </div>
-                <h3 class="listing-title">{{ l.title }}</h3>
-                <div class="listing-footer">
-                    <span class="listing-price">${{ "%.2f"|format(l.price) }}</span>
-                    <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}"
-                          onsubmit="return confirm('Remove this listing?')">
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state"><p>No listings yet.</p><a href="{{ url_for('create_listing') }}" class="btn btn-dark">Post your first listing</a></div>
-        {% endif %}
+    <nav class="tb-nav">
+      <a href="{{ url_for('dashboard') }}" class="tb-nav-item active"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="{{ url_for('marketplace') }}" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="{{ url_for('notes') }}" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="{{ url_for('study_sessions') }}" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+    </nav>
+    <div class="tb-right">
+      <a href="{{ url_for('profile', user_id=user.id) }}" class="tb-av">{{ user.first_name[0] }}</a>
     </div>
+  </header>
 
-    <!-- Saved -->
-    <div id="tab-saved" class="tab-content" style="display:none">
-        <h2 style="margin-bottom:16px">Saved Listings</h2>
-        {% if saved %}
-        <div class="card-grid">
-            {% for l in saved %}
-            <div class="listing-card">
-                <div class="listing-card-top">
-                    <span class="unit-pill">{{ l.unit_code }}</span>
-                    <span class="condition-badge">{{ l.condition }}</span>
-                </div>
-                <h3 class="listing-title">{{ l.title }}</h3>
-                <div class="listing-footer">
-                    <span class="listing-price">${{ "%.2f"|format(l.price) }}</span>
-                    <a href="{{ url_for('profile', user_id=l.seller_id) }}" class="btn btn-ghost btn-sm">Seller</a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state"><p>Nothing saved yet.</p><a href="{{ url_for('marketplace') }}" class="btn btn-dark">Browse marketplace</a></div>
-        {% endif %}
-    </div>
+  <div class="page-wrap">
 
-    <!-- Sessions -->
-    <div id="tab-sessions" class="tab-content" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2>My Sessions</h2>
-            <a href="{{ url_for('create_session') }}" class="btn btn-dark">+ New session</a>
-        </div>
-        {% if my_sessions %}
-        {% for s in my_sessions %}
-        <div class="session-card">
-            <div>
-                <span class="unit-pill">{{ s.unit_code }}</span>
-                <h3>{{ s.title }}</h3>
-                <p style="color:var(--muted);font-size:.83rem;margin-top:4px;">
-                    📅 {{ s.session_date }} {% if s.location %}· 📍 {{ s.location }}{% endif %}
-                </p>
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">{{ user.first_name[0] }}</div>
+          <div class="sb-profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+          <div class="sb-profile-detail">UWA · Perth, WA</div>
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row">
+              <span class="sb-stat-label">Listings active</span>
+              <span class="sb-stat-val">{{ my_listings|length }}</span>
             </div>
+            <div class="sb-stat-row">
+              <span class="sb-stat-label">Saved items</span>
+              <span class="sb-stat-val">{{ saved|length }}</span>
+            </div>
+            <div class="sb-stat-row">
+              <span class="sb-stat-label">Sessions joined</span>
+              <span class="sb-stat-val">{{ my_sessions|length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Your XP — {{ user.rank }}</span>
+          <span class="sb-xp-pts">{{ user.xp }} pts</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">Keep sharing to level up</div>
+      </div>
+      <div class="sb-nav-card">
+        <a href="{{ url_for('dashboard') }}" class="sb-link active"><i class="fa-solid fa-house"></i> Feed</a>
+        <a href="{{ url_for('marketplace') }}" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
+        <a href="{{ url_for('notes') }}" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
+        <a href="{{ url_for('study_sessions') }}" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
+        <a href="{{ url_for('bounties') }}" class="sb-link"><i class="fa-solid fa-bolt"></i> Bounties</a>
+        <a href="{{ url_for('settings') }}" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="{{ url_for('logout') }}" class="sb-link"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+      </div>
+    </aside>
+
+    <!-- MAIN FEED -->
+    <main class="feed">
+
+      <div class="sort-bar">
+        <strong>Your feed</strong>
+        <span>· recent activity from the platform</span>
+      </div>
+
+      <!-- Quick compose -->
+      <div class="compose">
+        <div class="compose-row">
+          <div class="compose-av">{{ user.first_name[0] }}</div>
+          <input class="compose-input" type="text" placeholder="Share a listing, note, or update…" readonly />
+        </div>
+        <div class="compose-actions">
+          <a href="{{ url_for('create_listing') }}" class="compose-btn"><i class="fa-solid fa-tag"></i> Sell</a>
+          <a href="{{ url_for('create_note') }}" class="compose-btn"><i class="fa-solid fa-file-lines"></i> Notes</a>
+          <a href="{{ url_for('create_session') }}" class="compose-btn"><i class="fa-solid fa-users"></i> Study session</a>
+          <a href="{{ url_for('create_bounty') }}" class="compose-btn"><i class="fa-solid fa-bolt"></i> Bounty</a>
+        </div>
+      </div>
+
+      <!-- My listings -->
+      {% if my_listings %}
+      <div class="my-listings-section">
+        <h3>My listings</h3>
+        {% for l in my_listings %}
+        <div class="my-listing-row">
+          <div>
+            <div class="my-listing-title">{{ l.title }}</div>
+            <div style="font-size:0.72rem;color:var(--muted);">{{ l.unit_code }} · {{ l.condition }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="my-listing-price">${{ '%.2f'|format(l.price) }}</span>
+            <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}" style="display:inline;">
+              <button type="submit" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:0.75rem;" onclick="return confirm('Delete this listing?')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
         </div>
         {% endfor %}
-        {% else %}
-        <div class="empty-state"><p>No sessions RSVP'd.</p><a href="{{ url_for('study_sessions') }}" class="btn btn-dark">Browse sessions</a></div>
-        {% endif %}
-    </div>
+      </div>
+      {% endif %}
 
-    <!-- Leaderboard -->
-    <div id="tab-leaderboard" class="tab-content" style="display:none">
-        <h2 style="margin-bottom:16px">Top Contributors</h2>
-        <div class="lb-panel">
-            <div class="lb-head">
-                <span class="lb-title">All-time XP ranking</span>
+      <!-- Feed posts (hardcoded demo content) -->
+      <div class="post-card">
+        <div class="post-top">
+          <div class="post-meta">
+            <div class="post-av" style="background:#1d4ed8;">J</div>
+            <div>
+              <div class="post-name">Jessica Thompson</div>
+              <div class="post-detail">Computer Science · 2nd year</div>
             </div>
-            {% for u in top_users %}
-            <a href="{{ url_for('profile', user_id=u.id) }}" class="lb-row">
-                <span class="lb-pos {{ ['p1','p2','p3','p4','p4','p4','p4','p4','p4','p4'][loop.index0] }}">{{ loop.index }}</span>
-                <div class="lb-av" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
-                    {{ u.first_name[0] }}{{ u.last_name[0] }}
-                </div>
-                <div class="lb-info">
-                    <div class="lb-name">{{ u.first_name }} {{ u.last_name }}</div>
-                    <div class="lb-units">{{ u.rank }}</div>
-                </div>
-                <div style="text-align:right">
-                    <div class="lb-earn">{{ u.xp }} XP</div>
-                </div>
-            </a>
-            {% endfor %}
+          </div>
+          <div class="post-time-more">
+            <span class="post-time">2h ago</span>
+            <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
+          </div>
         </div>
-    </div>
-</div>
+        <span class="post-pill pill-sell"><i class="fa-solid fa-tag"></i> Selling</span>
+        <div class="post-body">
+          Selling my <strong>CITS3403 textbook</strong> — barely used, bought it at the start of semester and ended up using the online version the whole time.
+        </div>
+        <div class="post-image-placeholder" style="background: linear-gradient(135deg,#1d3a6e,#2a52a0);">
+          <i class="fa-solid fa-book"></i> Agile Web Development with Rails 7
+        </div>
+        <div class="post-listing" style="margin-top:14px;">
+          <div>
+            <div class="pl-title">Agile Web Development with Rails 7</div>
+            <div class="pl-sub"><span class="unit-badge">CITS3403</span> Paperback · Near new</div>
+          </div>
+          <div class="pl-price">$38</div>
+        </div>
+        <div class="post-reactions">
+          <div class="reaction-icons">
+            <div class="ri" style="background:#3b82f6;">👍</div>
+            <div class="ri" style="background:#f59e0b;">⭐</div>
+          </div>
+          &nbsp;24 reactions · 6 comments
+        </div>
+        <div class="post-actions">
+          <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
+          <button class="post-action"><i class="fa-regular fa-comment"></i> Comment</button>
+          <a href="{{ url_for('marketplace') }}" class="post-action"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>
+        </div>
+      </div>
 
-<script>
-function showTab(name, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-    document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + name).style.display = '';
-    btn.classList.add('active');
-}
-</script>
-{% endblock %}
+      <div class="post-card">
+        <div class="post-top">
+          <div class="post-meta">
+            <div class="post-av" style="background:#7c3aed;">M</div>
+            <div>
+              <div class="post-name">Marcus Lee</div>
+              <div class="post-detail">Data Science · 3rd year</div>
+            </div>
+          </div>
+          <div class="post-time-more">
+            <span class="post-time">4h ago</span>
+            <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
+          </div>
+        </div>
+        <span class="post-pill pill-notes"><i class="fa-solid fa-file-lines"></i> Notes</span>
+        <div class="post-body">
+          Just uploaded my full <strong>STAT2401 lecture notes</strong> from S1 2024. Covers everything up to the mid-semester exam. Completely free — hope it helps.
+        </div>
+        <div class="post-listing" style="margin-top:0;">
+          <div>
+            <div class="pl-title">STAT2401 — Full semester notes (S1 2024)</div>
+            <div class="pl-sub"><span class="unit-badge">STAT2401</span> PDF · 84 pages</div>
+          </div>
+          <div class="pl-price pl-free">Free</div>
+        </div>
+        <div class="post-actions">
+          <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
+          <button class="post-action"><i class="fa-regular fa-comment"></i> Comment</button>
+          <a href="{{ url_for('notes') }}" class="post-action"><i class="fa-solid fa-download"></i> Browse Notes</a>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div class="post-top">
+          <div class="post-meta">
+            <div class="post-av" style="background:#b45309;">K</div>
+            <div>
+              <div class="post-name">Kyle Nguyen</div>
+              <div class="post-detail">Cybersecurity · 2nd year</div>
+            </div>
+          </div>
+          <div class="post-time-more">
+            <span class="post-time">Yesterday</span>
+            <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
+          </div>
+        </div>
+        <span class="post-pill pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
+        <div class="post-body">
+          Struggling with networking content in <strong>CITS1003</strong>. Looking for someone to run through the key concepts. Happy to pay for the session.
+        </div>
+        <div class="post-listing">
+          <div>
+            <div class="pl-title">CITS1003 — Networking tutoring</div>
+            <div class="pl-sub"><span class="unit-badge">CITS1003</span> 1–2 sessions · Flexible timing</div>
+          </div>
+          <div class="pl-price">$25 / hr</div>
+        </div>
+        <div class="post-actions">
+          <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
+          <a href="{{ url_for('bounties') }}" class="post-action"><i class="fa-solid fa-hand-point-up"></i> View Bounties</a>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right">
+
+      <!-- Leaderboard -->
+      <div class="rcard">
+        <div class="rcard-title">Top earners</div>
+        {% for u in top_users %}
+        <div class="lb-row">
+          <span class="lb-pos {% if loop.index == 1 %}p1{% elif loop.index == 2 %}p2{% elif loop.index == 3 %}p3{% endif %}">{{ loop.index }}</span>
+          <div class="lb-av-sm">{{ u.first_name[0] }}</div>
+          <div><div class="lb-name">{{ u.first_name }} {{ u.last_name }}</div></div>
+          <div class="lb-xp">{{ u.xp }} XP</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- My sessions -->
+      {% if my_sessions %}
+      <div class="rcard">
+        <div class="rcard-title">Your sessions</div>
+        {% for s in my_sessions %}
+        <div class="unit-row">
+          <div class="unit-dot" style="background:#7c3aed;"></div>
+          <div>
+            <div class="unit-code" style="font-size:0.8rem;">{{ s.title }}</div>
+            <div class="unit-name">{{ s.unit_code }} · {{ s.location or 'TBD' }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Saved listings -->
+      {% if saved %}
+      <div class="rcard">
+        <div class="rcard-title">Saved listings</div>
+        {% for l in saved[:3] %}
+        <div class="trend-row">
+          <div class="trend-n">{{ loop.index }}</div>
+          <div class="trend-tag" style="font-size:0.78rem;">{{ l.title }}</div>
+          <div class="trend-ct">${{ '%.0f'|format(l.price) }}</div>
+        </div>
+        {% endfor %}
+        {% if saved|length > 3 %}
+        <div style="margin-top:8px;font-size:0.72rem;color:var(--muted);">+{{ saved|length - 3 }} more</div>
+        {% endif %}
+        <div class="rcard-footer">
+          <a href="{{ url_for('marketplace') }}">Browse marketplace →</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="rcard">
+        <div class="rcard-footer" style="margin-top:0;padding-top:0;border-top:none;">
+          <a href="{{ url_for('about') }}">About</a> · <a href="{{ url_for('privacy') }}">Privacy</a> · <a href="{{ url_for('contact') }}">Help</a><br/>
+          &copy; 2025 UniShare · UWA students
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+</body>
+</html>
