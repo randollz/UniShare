@@ -13,12 +13,6 @@
   <style>
   /* reset + :root → shared.css */
 
-      /* ═══════════════════════════════════════
-     TOP NAV BAR
-  ═══════════════════════════════════════ */
-  /* topbar → shared.css */
-  
-
   /* ═══════════════════════════════════════
      PAGE WRAPPER
   ═══════════════════════════════════════ */
@@ -32,18 +26,11 @@
     align-items: start;
   }
 
-    /* ═══════════════════════════════════════
-     LEFT SIDEBAR
-  ═══════════════════════════════════════ */
-  /* sidebar → shared.css */
-  
-
   /* ═══════════════════════════════════════
      MAIN CONTENT — Marketplace
   ═══════════════════════════════════════ */
   .main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
-  /* ── Page heading ── */
   .page-head {
     background: var(--white); border: 1px solid var(--border);
     border-radius: var(--r); padding: 20px 22px;
@@ -54,7 +41,6 @@
   }
   .page-head p { font-size: 0.83rem; color: var(--muted); }
 
-  /* ── Filter / tab bar ── */
   .filter-bar {
     background: var(--white); border: 1px solid var(--border);
     border-radius: var(--r); padding: 12px 16px;
@@ -99,30 +85,26 @@
     background: var(--dark); color: #fff;
     font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
     cursor: pointer; transition: all var(--t) var(--ease);
-    white-space: nowrap;
+    white-space: nowrap; text-decoration: none;
   }
   .btn-post:hover { background: var(--dark2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,15,31,.18); }
 
-  /* ── Results meta ── */
   .results-meta {
     display: flex; align-items: center; justify-content: space-between;
     font-size: 0.78rem; color: var(--muted);
   }
   .results-meta strong { color: var(--dark); font-weight: 600; }
 
-  /* ── Listings grid ── */
   .listings-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  /* ── Listing card ── */
   .listing-card {
     background: var(--white); border: 1px solid var(--border);
     border-radius: var(--r); overflow: hidden;
     transition: box-shadow var(--t), transform var(--t);
-    cursor: pointer;
     display: flex; flex-direction: column;
   }
   .listing-card:hover {
@@ -130,7 +112,6 @@
     transform: translateY(-2px);
   }
 
-  /* Image area */
   .lc-image {
     width: 100%; aspect-ratio: 4 / 3;
     display: flex; align-items: center; justify-content: center;
@@ -144,7 +125,6 @@
   }
   .lc-image-inner i { font-size: 1.6rem; color: rgba(255,255,255,0.45); }
 
-  /* Badges over image */
   .lc-badges {
     position: absolute; top: 10px; left: 10px;
     display: flex; gap: 5px;
@@ -159,12 +139,12 @@
     padding: 2px 8px; border-radius: 4px;
     font-size: 0.65rem; font-weight: 700;
   }
-  .cond-new      { background: rgba(16,185,129,0.9); color: #fff; }
-  .cond-likenew  { background: rgba(59,130,246,0.9); color: #fff; }
-  .cond-good     { background: rgba(245,158,11,0.9); color: #fff; }
+  .cond-new      { background: rgba(16,185,129,0.9);  color: #fff; }
+  .cond-likenew  { background: rgba(59,130,246,0.9);  color: #fff; }
+  .cond-good     { background: rgba(245,158,11,0.9);  color: #fff; }
   .cond-fair     { background: rgba(107,114,128,0.9); color: #fff; }
+  .cond-acceptable { background: rgba(107,114,128,0.9); color: #fff; }
 
-  /* Save button over image */
   .lc-save {
     position: absolute; top: 10px; right: 10px;
     width: 30px; height: 30px; border-radius: 50%;
@@ -175,7 +155,6 @@
   }
   .lc-save:hover { color: var(--gold); background: #fff; }
 
-  /* Body */
   .lc-body { padding: 14px 14px 10px; flex: 1; display: flex; flex-direction: column; }
   .lc-title {
     font-size: 0.87rem; font-weight: 700; color: var(--dark);
@@ -188,11 +167,7 @@
     display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
   }
   .lc-price { font-size: 1.15rem; font-weight: 800; color: var(--dark); }
-  .lc-price-free { font-size: 1.05rem; font-weight: 800; color: #16a34a; }
-  .lc-price-orig { font-size: 0.78rem; color: var(--muted); text-decoration: line-through; }
-  .lc-price-save { font-size: 0.72rem; font-weight: 700; color: #16a34a; }
 
-  /* Seller row */
   .lc-seller {
     display: flex; align-items: center; gap: 8px;
     padding-top: 10px; border-top: 1px solid var(--border);
@@ -213,6 +188,14 @@
     transition: all var(--t) var(--ease);
   }
   .lc-contact:hover { border-color: var(--dark); color: var(--dark); background: #f3f4f8; }
+  .lc-delete {
+    margin-left: 4px; padding: 5px 10px; border-radius: 7px;
+    border: 1.5px solid rgba(239,68,68,0.25); background: transparent;
+    font-family: 'Inter', sans-serif; font-size: 0.74rem; font-weight: 600;
+    color: #ef4444; cursor: pointer; white-space: nowrap;
+    transition: all var(--t) var(--ease);
+  }
+  .lc-delete:hover { background: rgba(239,68,68,0.06); }
 
   /* ═══════════════════════════════════════
      RIGHT PANEL
@@ -221,7 +204,6 @@
   .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
   .rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 
-  /* Post a listing CTA */
   .cta-post {
     background: var(--dark); border-radius: var(--r); padding: 20px 18px;
     display: flex; flex-direction: column; gap: 10px;
@@ -234,16 +216,15 @@
     background: var(--gold); color: #fff;
     font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 700;
     cursor: pointer; transition: all var(--t) var(--ease); letter-spacing: -0.01em;
+    text-decoration: none;
   }
   .btn-cta-post:hover { background: #b07d06; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(200,149,10,.3); }
 
-  /* Price stats */
   .price-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
   .price-stat-row:last-child { border-bottom: none; }
   .psr-label { font-size: 0.78rem; color: var(--mid); }
   .psr-val { font-size: 0.82rem; font-weight: 700; color: var(--dark); }
 
-  /* Recently sold */
   .sold-row { display: flex; align-items: center; gap: 9px; padding: 6px 0; }
   .sold-img {
     width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
@@ -258,10 +239,34 @@
     padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
   }
 
-  /* Footer */
   .rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
   .rcard-footer a { color: var(--muted); }
   .rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+
+  .empty-state {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 48px 24px;
+    text-align: center; color: var(--muted);
+  }
+  .empty-state p { font-size: 0.9rem; margin-bottom: 14px; }
+
+  .flash-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .flash { padding: 10px 16px; border-radius: 10px; font-size: 0.83rem; font-weight: 500; }
+  .flash-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .flash-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .flash-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+  {% set bg_colors = [
+    'linear-gradient(135deg,#1e3a5f,#2563eb)',
+    'linear-gradient(135deg,#1e3a5f,#7c3aed)',
+    'linear-gradient(135deg,#134e4a,#0d9488)',
+    'linear-gradient(135deg,#500724,#be185d)',
+    'linear-gradient(135deg,#1c1917,#b45309)',
+    'linear-gradient(135deg,#0c1445,#3b6ef5)',
+    'linear-gradient(135deg,#052e16,#16a34a)',
+    'linear-gradient(135deg,#1e1b4b,#6d28d9)'
+  ] %}
+  {% set av_colors = ['#1d4ed8','#7c3aed','#0d9488','#be185d','#b45309','#3b6ef5','#16a34a','#6d28d9'] %}
   </style>
 </head>
 <body class="app-page">
@@ -278,16 +283,20 @@
       <input type="text" placeholder="Search units, notes, listings…" />
     </div>
     <nav class="tb-nav">
-      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
-      <a href="marketplace.html" class="tb-nav-item active"><i class="fa-solid fa-tag"></i> Marketplace</a>
-      <a href="notes.html" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
-      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
-      <button class="tb-nav-item" style="position:relative;">
-        <i class="fa-solid fa-bell"></i> Alerts
-        <span class="tb-badge">3</span>
-      </button>
+      <a href="{{ url_for('dashboard') }}" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="{{ url_for('marketplace') }}" class="tb-nav-item active"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="{{ url_for('notes') }}" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="{{ url_for('study_sessions') }}" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
     </nav>
-    <div class="tb-right"><a href="profile.html" class="tb-av">R</a></div>
+    <div class="tb-right">
+      {% if current_user %}
+        <a href="{{ url_for('profile', user_id=current_user.id) }}" class="tb-av">
+          {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+        </a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-post" style="padding:8px 14px;">Sign in</a>
+      {% endif %}
+    </div>
   </header>
 
   <!-- ══ PAGE LAYOUT ════════════════════════════════════ -->
@@ -295,41 +304,50 @@
 
     <!-- ── LEFT SIDEBAR ─────────────────────────────── -->
     <aside class="sidebar">
+      {% if current_user %}
       <div class="sb-card">
         <div class="sb-profile-banner"></div>
         <div class="sb-profile-body">
-          <div class="sb-profile-av">R</div>
-          <div class="sb-profile-name">Randall Heng</div>
-          <div class="sb-profile-detail">Computer Science &amp; Data Science<br/>UWA · Perth, WA</div>
+          <div class="sb-profile-av">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</div>
+          <div class="sb-profile-name">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+          <div class="sb-profile-detail">University of Western Australia</div>
           <div class="sb-profile-stats">
-            <div class="sb-stat-row"><span class="sb-stat-label">Active listings</span><span class="sb-stat-val">3</span></div>
-            <div class="sb-stat-row"><span class="sb-stat-label">Items sold</span><span class="sb-stat-val">11</span></div>
-            <div class="sb-stat-row"><span class="sb-stat-label">Saved items</span><span class="sb-stat-val">8</span></div>
+            <div class="sb-stat-row">
+              <span class="sb-stat-label">XP</span>
+              <span class="sb-stat-val">{{ current_user.xp }}</span>
+            </div>
+            <div class="sb-stat-row">
+              <span class="sb-stat-label">Rank</span>
+              <span class="sb-stat-val">{{ current_user.rank }}</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="sb-xp-card">
-        <div class="sb-xp-top">
-          <span class="sb-xp-label">Your XP — Silver</span>
-          <span class="sb-xp-pts">1,340 pts</span>
-        </div>
-        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
-        <div class="sb-xp-sub">660 pts to reach <strong>Gold</strong></div>
-      </div>
+      {% endif %}
       <div class="sb-nav-card">
-        <a href="dashboard.html" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
-        <a href="marketplace.html" class="sb-link active"><i class="fa-solid fa-tag"></i> Marketplace</a>
-        <a href="notes.html" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
-        <a href="sessions.html" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-box-archive"></i> My Listings</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-bookmark"></i> Saved</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="{{ url_for('dashboard') }}" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
+        <a href="{{ url_for('marketplace') }}" class="sb-link active"><i class="fa-solid fa-tag"></i> Marketplace</a>
+        <a href="{{ url_for('notes') }}" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
+        <a href="{{ url_for('study_sessions') }}" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
+        <a href="{{ url_for('bounties') }}" class="sb-link"><i class="fa-solid fa-bolt"></i> Bounties</a>
+        {% if current_user %}
+        <a href="{{ url_for('settings') }}" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        {% endif %}
       </div>
     </aside>
 
     <!-- ── MAIN CONTENT ──────────────────────────────── -->
     <main class="main">
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-list">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
 
       <!-- Heading -->
       <div class="page-head">
@@ -338,246 +356,139 @@
       </div>
 
       <!-- Filters -->
-      <div class="filter-bar">
+      <form class="filter-bar" method="GET" action="{{ url_for('marketplace') }}">
         <div class="cat-tabs">
-          <button class="cat-tab active">All listings</button>
-          <button class="cat-tab">Textbooks</button>
-          <button class="cat-tab">Notes</button>
-          <button class="cat-tab">Electronics</button>
-          <button class="cat-tab">Stationery</button>
-          <button class="cat-tab">Other</button>
+          <button type="submit" class="cat-tab active">All listings</button>
+          <button type="submit" name="condition" value="New" class="cat-tab {% if condition == 'New' %}active{% endif %}">New</button>
+          <button type="submit" name="condition" value="Like new" class="cat-tab {% if condition == 'Like new' %}active{% endif %}">Like new</button>
+          <button type="submit" name="condition" value="Good" class="cat-tab {% if condition == 'Good' %}active{% endif %}">Good</button>
+          <button type="submit" name="condition" value="Acceptable" class="cat-tab {% if condition == 'Acceptable' %}active{% endif %}">Acceptable</button>
         </div>
         <div class="filter-row">
           <div class="filter-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search by unit code, title, or keyword…" />
+            <input type="text" name="q" value="{{ q }}" placeholder="Search by unit code, title, or keyword…" />
           </div>
-          <select class="filter-select">
-            <option>Unit: All</option>
-            <option>CITS3403</option>
-            <option>CITS3200</option>
-            <option>STAT2401</option>
-            <option>MATH2401</option>
+          <select class="filter-select" name="unit" onchange="this.form.submit()">
+            <option value="">Unit: All</option>
+            <option value="CITS3403" {% if unit == 'CITS3403' %}selected{% endif %}>CITS3403</option>
+            <option value="CITS3200" {% if unit == 'CITS3200' %}selected{% endif %}>CITS3200</option>
+            <option value="CITS2200" {% if unit == 'CITS2200' %}selected{% endif %}>CITS2200</option>
+            <option value="CITS2002" {% if unit == 'CITS2002' %}selected{% endif %}>CITS2002</option>
+            <option value="STAT2401" {% if unit == 'STAT2401' %}selected{% endif %}>STAT2401</option>
+            <option value="MATH1012" {% if unit == 'MATH1012' %}selected{% endif %}>MATH1012</option>
           </select>
-          <select class="filter-select">
-            <option>Sort: Recent</option>
-            <option>Sort: Price ↑</option>
-            <option>Sort: Price ↓</option>
-            <option>Sort: Condition</option>
+          <select class="filter-select" name="sort" onchange="this.form.submit()">
+            <option value="newest"     {% if sort == 'newest'     %}selected{% endif %}>Sort: Recent</option>
+            <option value="price_asc"  {% if sort == 'price_asc'  %}selected{% endif %}>Sort: Price ↑</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Sort: Price ↓</option>
           </select>
-          <button class="btn-post"><i class="fa-solid fa-plus"></i> Post listing</button>
+          {% if current_user %}
+          <a href="{{ url_for('create_listing') }}" class="btn-post"><i class="fa-solid fa-plus"></i> Post listing</a>
+          {% endif %}
         </div>
-      </div>
+      </form>
 
       <!-- Results count -->
       <div class="results-meta">
-        <span>Showing <strong>24 listings</strong> across all your units</span>
-        <span>Updated just now</span>
+        <span>Showing <strong>{{ listings|length }} listing{{ 's' if listings|length != 1 }}</strong></span>
+        {% if q or unit or condition %}<a href="{{ url_for('marketplace') }}" style="color:var(--muted);font-size:.75rem;">Clear filters ×</a>{% endif %}
       </div>
 
       <!-- Listings grid -->
+      {% if listings %}
       <div class="listings-grid">
-
-        <!-- Card 1 — Textbook -->
+        {% for l in listings %}
+        {% set idx = loop.index0 % 8 %}
+        {% set colors = [
+          'linear-gradient(135deg,#1e3a5f,#2563eb)',
+          'linear-gradient(135deg,#1e3a5f,#7c3aed)',
+          'linear-gradient(135deg,#134e4a,#0d9488)',
+          'linear-gradient(135deg,#500724,#be185d)',
+          'linear-gradient(135deg,#1c1917,#b45309)',
+          'linear-gradient(135deg,#0c1445,#3b6ef5)',
+          'linear-gradient(135deg,#052e16,#16a34a)',
+          'linear-gradient(135deg,#1e1b4b,#6d28d9)'
+        ] %}
+        {% set avcolors = ['#1d4ed8','#7c3aed','#0d9488','#be185d','#b45309','#3b6ef5','#16a34a','#6d28d9'] %}
         <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#1e3a5f,#2563eb);">
+          <div class="lc-image" style="background: {{ colors[idx] }};">
             <div class="lc-image-inner">
               <i class="fa-solid fa-book"></i>
-              Photo of textbook
+              {{ l.title[:20] }}…
             </div>
             <div class="lc-badges">
-              <span class="lc-unit">CITS3403</span>
-              <span class="lc-cond cond-likenew">Like new</span>
+              <span class="lc-unit">{{ l.unit_code }}</span>
+              <span class="lc-cond cond-{{ l.condition|lower|replace(' ', '') }}">{{ l.condition }}</span>
             </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
+            {% if current_user %}
+            <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+              <button type="submit" class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
+            </form>
+            {% endif %}
           </div>
           <div class="lc-body">
-            <div class="lc-title">Agile Web Development with Rails 7</div>
-            <div class="lc-sub">Paperback · 2023 edition</div>
+            <div class="lc-title">{{ l.title }}</div>
+            {% if l.description %}
+            <div class="lc-sub">{{ l.description[:60] }}{% if l.description|length > 60 %}…{% endif %}</div>
+            {% endif %}
             <div class="lc-price-row">
-              <span class="lc-price">$38</span>
-              <span class="lc-price-orig">$89</span>
-              <span class="lc-price-save">Save 57%</span>
+              <span class="lc-price">${{ "%.0f"|format(l.price) }}</span>
             </div>
             <div class="lc-seller">
-              <div class="lc-av" style="background:#1d4ed8;">J</div>
-              <div>
-                <div class="lc-seller-name">Jessica Thompson</div>
-                <div class="lc-seller-time">2 hours ago</div>
+              <div class="lc-av" style="background: {{ avcolors[idx] }};">
+                {{ l.first_name[0] }}
               </div>
+              <div>
+                <a href="{{ url_for('profile', user_id=l.seller_id) }}" class="lc-seller-name" style="text-decoration:none;">
+                  {{ l.first_name }} {{ l.last_name[0] }}.
+                </a>
+                <div class="lc-seller-time">{{ l.unit_code }}</div>
+              </div>
+              {% if current_user and current_user.id == l.seller_id %}
+              <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}"
+                    onsubmit="return confirm('Remove this listing?')" style="margin-left:auto;">
+                <button type="submit" class="lc-delete">Delete</button>
+              </form>
+              {% else %}
               <button class="lc-contact">Contact</button>
+              {% endif %}
             </div>
           </div>
         </div>
+        {% endfor %}
+      </div>
 
-        <!-- Card 2 — Notes PDF -->
-        <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#1e3a5f,#7c3aed);">
-            <div class="lc-image-inner">
-              <i class="fa-solid fa-file-pdf"></i>
-              Notes preview
-            </div>
-            <div class="lc-badges">
-              <span class="lc-unit">STAT2401</span>
-              <span class="lc-cond cond-new">PDF</span>
-            </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="lc-body">
-            <div class="lc-title">STAT2401 Full Semester Notes — S1 2024</div>
-            <div class="lc-sub">PDF · 84 pages · includes all worked examples</div>
-            <div class="lc-price-row">
-              <span class="lc-price-free">Free</span>
-            </div>
-            <div class="lc-seller">
-              <div class="lc-av" style="background:#7c3aed;">M</div>
-              <div>
-                <div class="lc-seller-name">Marcus Lee</div>
-                <div class="lc-seller-time">4 hours ago</div>
-              </div>
-              <button class="lc-contact">Download</button>
-            </div>
-          </div>
-        </div>
+      {% else %}
+      <div class="empty-state">
+        <p>No listings found{% if q or unit or condition %} for your search{% endif %}.</p>
+        {% if current_user %}
+        <a href="{{ url_for('create_listing') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+          <i class="fa-solid fa-plus"></i> Post the first listing
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
 
-        <!-- Card 3 — Calculator -->
-        <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#134e4a,#0d9488);">
-            <div class="lc-image-inner">
-              <i class="fa-solid fa-calculator"></i>
-              Photo of calculator
-            </div>
-            <div class="lc-badges">
-              <span class="lc-unit">MATH2401</span>
-              <span class="lc-cond cond-good">Good</span>
-            </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="lc-body">
-            <div class="lc-title">Casio fx-991EX ClassWiz Scientific Calculator</div>
-            <div class="lc-sub">Electronics · Minor scuff on back</div>
-            <div class="lc-price-row">
-              <span class="lc-price">$22</span>
-              <span class="lc-price-orig">$55</span>
-              <span class="lc-price-save">Save 60%</span>
-            </div>
-            <div class="lc-seller">
-              <div class="lc-av" style="background:#0d9488;">A</div>
-              <div>
-                <div class="lc-seller-name">Aisha Patel</div>
-                <div class="lc-seller-time">Yesterday</div>
-              </div>
-              <button class="lc-contact">Contact</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4 — Textbook -->
-        <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#500724,#be185d);">
-            <div class="lc-image-inner">
-              <i class="fa-solid fa-book-open"></i>
-              Photo of textbook
-            </div>
-            <div class="lc-badges">
-              <span class="lc-unit">PHIL1001</span>
-              <span class="lc-cond cond-good">Good</span>
-            </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="lc-body">
-            <div class="lc-title">Think: A Compelling Introduction to Philosophy</div>
-            <div class="lc-sub">Paperback · Some annotations in pencil</div>
-            <div class="lc-price-row">
-              <span class="lc-price">$15</span>
-              <span class="lc-price-orig">$52</span>
-              <span class="lc-price-save">Save 71%</span>
-            </div>
-            <div class="lc-seller">
-              <div class="lc-av" style="background:#be185d;">S</div>
-              <div>
-                <div class="lc-seller-name">Sophie Wang</div>
-                <div class="lc-seller-time">2 days ago</div>
-              </div>
-              <button class="lc-contact">Contact</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 5 — Textbook -->
-        <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#1c1917,#b45309);">
-            <div class="lc-image-inner">
-              <i class="fa-solid fa-book"></i>
-              Photo of textbook
-            </div>
-            <div class="lc-badges">
-              <span class="lc-unit">CITS3200</span>
-              <span class="lc-cond cond-new">New</span>
-            </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="lc-body">
-            <div class="lc-title">Software Engineering: A Practitioner's Approach</div>
-            <div class="lc-sub">Paperback · 9th edition · never opened</div>
-            <div class="lc-price-row">
-              <span class="lc-price">$55</span>
-              <span class="lc-price-orig">$120</span>
-              <span class="lc-price-save">Save 54%</span>
-            </div>
-            <div class="lc-seller">
-              <div class="lc-av" style="background:#b45309;">K</div>
-              <div>
-                <div class="lc-seller-name">Kyle Nguyen</div>
-                <div class="lc-seller-time">3 days ago</div>
-              </div>
-              <button class="lc-contact">Contact</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 6 — Notes -->
-        <div class="listing-card">
-          <div class="lc-image" style="background: linear-gradient(135deg,#0c1445,#3b6ef5);">
-            <div class="lc-image-inner">
-              <i class="fa-solid fa-file-lines"></i>
-              Notes preview
-            </div>
-            <div class="lc-badges">
-              <span class="lc-unit">CITS1003</span>
-              <span class="lc-cond cond-new">PDF</span>
-            </div>
-            <button class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="lc-body">
-            <div class="lc-title">CITS1003 Intro to Cybersecurity — Complete Notes</div>
-            <div class="lc-sub">PDF · 62 pages · HD grade achieved</div>
-            <div class="lc-price-row">
-              <span class="lc-price">$8</span>
-            </div>
-            <div class="lc-seller">
-              <div class="lc-av" style="background:#3b6ef5;">L</div>
-              <div>
-                <div class="lc-seller-name">Lena Park</div>
-                <div class="lc-seller-time">4 days ago</div>
-              </div>
-              <button class="lc-contact">Contact</button>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /listings-grid -->
     </main>
 
     <!-- ── RIGHT PANEL ────────────────────────────────── -->
     <aside class="right">
 
-      <!-- Post a listing -->
+      <!-- Post a listing CTA -->
+      {% if current_user %}
       <div class="cta-post">
         <h3>Got something to sell?</h3>
         <p>Post a listing and reach every student enrolled in that unit.</p>
-        <button class="btn-cta-post"><i class="fa-solid fa-plus"></i> Post a listing</button>
+        <a href="{{ url_for('create_listing') }}" class="btn-cta-post"><i class="fa-solid fa-plus"></i> Post a listing</a>
       </div>
+      {% else %}
+      <div class="cta-post">
+        <h3>Join UniShare</h3>
+        <p>Sign up to post listings, save items, and connect with students in your units.</p>
+        <a href="{{ url_for('login') }}" class="btn-cta-post"><i class="fa-solid fa-user"></i> Create account</a>
+      </div>
+      {% endif %}
 
       <!-- Price stats -->
       <div class="rcard">
@@ -599,12 +510,12 @@
           <span class="psr-val">$18–$35</span>
         </div>
         <div class="price-stat-row">
-          <span class="psr-label">Free listings this week</span>
-          <span class="psr-val" style="color:#16a34a;">34</span>
+          <span class="psr-label">Active listings</span>
+          <span class="psr-val" style="color:#16a34a;">{{ listings|length }}</span>
         </div>
       </div>
 
-      <!-- Recently sold -->
+      <!-- Recently sold placeholder -->
       <div class="rcard">
         <div class="rcard-title">Recently sold</div>
         <div class="sold-row">
@@ -637,7 +548,6 @@
           </div>
           <span class="sold-badge">Sold</span>
         </div>
-
         <div class="rcard-footer">
           <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
           &copy; 2025 UniShare · UWA students
@@ -649,3 +559,4 @@
   </div><!-- /page-wrap -->
 </body>
 </html>
+
