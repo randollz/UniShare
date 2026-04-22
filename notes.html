@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}" />
 
   <style>
   /* reset + :root → shared.css */
@@ -130,12 +130,6 @@
   /* Results meta */
   .results-meta { font-size: 0.78rem; color: var(--muted); }
   .results-meta strong { color: var(--dark); font-weight: 600; }
-
-  /* ── Library item card ── */
-  .lib-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); overflow: hidden;
-  }
 
   /* Item row (top of card) */
   .lib-item {
@@ -331,13 +325,17 @@
     </div>
     <div class="tb-search">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Search your library…" />
+      <select class="filter-select" name="unit">
+        <option value="">Unit: All</option>
+        <option value="CITS3403" {% if unit=='CITS3403' %}selected{% endif %}>CITS3403</option>
+        <option value="STAT2401" {% if unit=='STAT2401' %}selected{% endif %}>STAT2401</option>
+      </select>
     </div>
     <nav class="tb-nav">
-      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
-      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
-      <a href="notes.html" class="tb-nav-item active"><i class="fa-solid fa-file-lines"></i> Notes</a>
-      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+        <a href="{{ url_for('dashboard') }}" ...>
+        <a href="{{ url_for('marketplace') }}" ...>
+        <a href="{{ url_for('study_sessions') }}" ...>
+        <a href="{{ url_for('profile', user_id=current_user.id) }}" ...>
       <button class="tb-nav-item" style="position:relative;">
         <i class="fa-solid fa-bell"></i> Alerts
         <span class="tb-badge">3</span>
@@ -355,9 +353,30 @@
       <div class="sb-card">
         <div class="sb-profile-banner"></div>
         <div class="sb-profile-body">
-          <div class="sb-profile-av">R</div>
-          <div class="sb-profile-name">Randall Heng</div>
-          <div class="sb-profile-detail">Computer Science &amp; Data Science<br/>UWA · Perth, WA</div>
+          <div class="sb-profile-av">
+            {% if current_user %}
+              {{ current_user.first_name[0] }}
+            {% else %}
+              G
+            {% endif %}
+          </div>
+
+          <div class="sb-profile-name">
+            {% if current_user %}
+              {{ current_user.first_name }}
+            {% else %}
+              Guest
+            {% endif %}
+          </div>
+
+          <div class="sb-profile-detail">
+            {% if current_user %}
+              Rank: {{ current_user.rank }}<br/>
+              XP: {{ current_user.xp }}
+            {% else %}
+              Please log in
+            {% endif %}
+          </div>
           <div class="sb-profile-stats">
             <div class="sb-stat-row"><span class="sb-stat-label">Items in library</span><span class="sb-stat-val">23</span></div>
             <div class="sb-stat-row"><span class="sb-stat-label">Reviews written</span><span class="sb-stat-val">11</span></div>
@@ -374,14 +393,15 @@
         <div class="sb-xp-sub">660 pts to reach <strong>Gold</strong></div>
       </div>
       <div class="sb-nav-card">
-        <a href="dashboard.html" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
-        <a href="marketplace.html" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
-        <a href="notes.html" class="sb-link active"><i class="fa-solid fa-file-lines"></i> Notes</a>
-        <a href="sessions.html" class="sb-link"><i class="fa-solid fa-users"></i> Study Sessions</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-box-archive"></i> My Listings</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-bookmark"></i> Saved</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="{{ url_for('dashboard') }}" ...>
+        <a href="{{ url_for('marketplace') }}" ...>
+        <a href="{{ url_for('study_sessions') }}" ...>
+        <a href="{{ url_for('profile', user_id=current_user.id) }}" ...>
+        <a href="{{ url_for('dashboard') }}" class="sb-link">
+        <a href="{{ url_for('marketplace') }}" class="sb-link">
+        <a href="{{ url_for('notes') }}" class="sb-link active">
+        <a href="{{ url_for('study_sessions') }}" class="sb-link">
+        <a href="{{ url_for('settings') }}" class="sb-link">
       </div>
     </aside>
 
@@ -394,11 +414,17 @@
           <h1>My Library</h1>
           <p>Everything you've downloaded or purchased — all in one place.</p>
         </div>
-        <a href="marketplace.html">
+        <a href="{{ url_for('marketplace') }}">
           <button class="btn-marketplace"><i class="fa-solid fa-store"></i> Browse marketplace</button>
         </a>
       </div>
 
+      {% if current_user %}
+      <a href="{{ url_for('create_note') }}" class="btn-marketplace">
+        <i class="fa-solid fa-plus"></i> Share Notes
+      </a>
+      {% endif %}
+      
       <!-- Recently opened -->
       <div class="recent-strip">
         <div class="strip-label">Recently opened</div>
@@ -460,197 +486,71 @@
       </div>
 
       <!-- Filter -->
-      <div class="filter-row">
-        <div class="filter-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search your library…" />
-        </div>
-        <select class="filter-select">
-          <option>Unit: All</option>
-          <option>CITS3403</option>
-          <option>STAT2401</option>
-          <option>MATH2401</option>
-          <option>CITS3200</option>
-        </select>
-        <select class="filter-select">
-          <option>Sort: Recent</option>
-          <option>Sort: A–Z</option>
-          <option>Sort: Reviewed</option>
-          <option>Sort: Unreviewed</option>
-        </select>
-      </div>
+      <form method="GET" class="filter-row">
+  <div class="filter-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" name="q" value="{{ q }}" placeholder="Search notes…" />
+  </div>
+  <select class="filter-select" name="unit">
+    <option value="">Unit: All</option>
+  </select>
+  <button type="submit" class="lib-btn lib-btn-dl">Search</button>
+</form>
 
       <div class="results-meta">Showing <strong>23 items</strong> in your library</div>
-
-      <!-- ── Item 1 — Notes, reviewed ── -->
+    
+    <!-- Library item card -->
+      
+      {% for n in notes %}
       <div class="lib-card">
         <div class="lib-item">
+          
           <div class="lib-color-tab" style="background:#2563eb;"></div>
+      
           <div class="lib-item-body">
+      
             <div class="lib-thumb" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
               <i class="fa-solid fa-file-pdf"></i>
             </div>
+      
             <div class="lib-info">
               <div class="lib-badges">
-                <span class="lib-unit">CITS3403</span>
-                <span class="lib-type">Lecture Notes</span>
+                <span class="lib-unit">{{ n.unit_code }}</span>
+                <span class="lib-type">{{ n.semester }}</span>
               </div>
-              <div class="lib-title">Complete Lecture Notes — Weeks 1–12</div>
-              <div class="lib-sub">by Jessica Thompson · PDF · 84 pages · S1 2024</div>
+      
+              <div class="lib-title">{{ n.title }}</div>
+      
+              <div class="lib-sub">
+                by 
+                <a href="{{ url_for('profile', user_id=n.author_id) }}">
+                  {{ n.first_name }} {{ n.last_name }}
+                </a>
+              </div>
+      
               <div class="lib-meta">
-                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 14 Mar 2025</span>
-                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
+                <span class="lib-meta-item">
+                  <i class="fa-solid fa-thumbs-up"></i> {{ n.upvotes }} upvotes
+                </span>
               </div>
             </div>
+      
             <div class="lib-actions">
-              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
-              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-              <div class="lib-price-paid">Free</div>
+      
+              <!-- Upvote button -->
+              <form method="POST" action="{{ url_for('upvote_note', note_id=n.id) }}">
+                <button type="submit" class="lib-btn lib-btn-dl">
+                  <i class="fa-solid fa-arrow-up"></i> Upvote ({{ n.upvotes }})
+                </button>
+              </form>
+      
             </div>
-          </div>
-        </div>
-        <!-- Review — filled -->
-        <div class="review-section">
-          <div class="review-section-label">Your review</div>
-          <div class="review-filled">
-            <div class="review-stars-row">
-              <span class="rev-stars">★★★★★</span>
-              <span class="rev-date">Reviewed 15 Mar 2025</span>
-              <span class="rev-public-badge"><i class="fa-solid fa-globe"></i> Public</span>
-            </div>
-            <div class="review-text">
-              Really comprehensive — covers every lecture and includes the worked examples from the practicals too. Saved me a huge amount of time leading into the mid-sem. The notes on Flask routing and Jinja2 templating are especially clear. Would recommend to anyone in this unit.
-            </div>
-            <div class="review-actions-row">
-              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
-              <button class="rev-action-btn">Make private</button>
-              <span class="rev-helpful">12 people found this helpful</span>
-            </div>
+      
           </div>
         </div>
       </div>
+      {% endfor %}
 
-      <!-- ── Item 2 — Textbook, reviewed ── -->
-      <div class="lib-card">
-        <div class="lib-item">
-          <div class="lib-color-tab" style="background:#b45309;"></div>
-          <div class="lib-item-body">
-            <div class="lib-thumb" style="background:linear-gradient(135deg,#1c1917,#b45309);">
-              <i class="fa-solid fa-book"></i>
-            </div>
-            <div class="lib-info">
-              <div class="lib-badges">
-                <span class="lib-unit">CITS3200</span>
-                <span class="lib-type">Textbook</span>
-              </div>
-              <div class="lib-title">Software Engineering: A Practitioner's Approach — 9th Ed.</div>
-              <div class="lib-sub">by Kyle Nguyen · Paperback · Never opened · 2024</div>
-              <div class="lib-meta">
-                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Purchased 2 Feb 2025</span>
-                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
-              </div>
-            </div>
-            <div class="lib-actions">
-              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Details</button>
-              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-              <div class="lib-price-paid">Paid $55</div>
-            </div>
-          </div>
-        </div>
-        <div class="review-section">
-          <div class="review-section-label">Your review</div>
-          <div class="review-filled">
-            <div class="review-stars-row">
-              <span class="rev-stars">★★★★<span style="color:#eceef5;">★</span></span>
-              <span class="rev-date">Reviewed 20 Feb 2025</span>
-              <span class="rev-public-badge"><i class="fa-solid fa-globe"></i> Public</span>
-            </div>
-            <div class="review-text">
-              Genuinely brand new — still had the shrink wrap on it. Great condition as described. The book itself is solid for the unit, covers agile and project management well. A bit dense but that's the textbook, not the seller's fault. Good value for $55 vs the $120 retail.
-            </div>
-            <div class="review-actions-row">
-              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
-              <button class="rev-action-btn">Make private</button>
-              <span class="rev-helpful">6 people found this helpful</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Item 3 — Notes, reviewed ── -->
-      <div class="lib-card">
-        <div class="lib-item">
-          <div class="lib-color-tab" style="background:#7c3aed;"></div>
-          <div class="lib-item-body">
-            <div class="lib-thumb" style="background:linear-gradient(135deg,#1e1b4b,#7c3aed);">
-              <i class="fa-solid fa-file-pdf"></i>
-            </div>
-            <div class="lib-info">
-              <div class="lib-badges">
-                <span class="lib-unit">STAT2401</span>
-                <span class="lib-type">Exam Prep</span>
-              </div>
-              <div class="lib-title">Mid-Sem Cheat Sheet &amp; Practice Questions</div>
-              <div class="lib-sub">by Marcus Lee · PDF · 18 pages · S1 2024</div>
-              <div class="lib-meta">
-                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 20 Mar 2025</span>
-                <span class="lib-meta-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Reviewed</span>
-              </div>
-            </div>
-            <div class="lib-actions">
-              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
-              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-              <div class="lib-price-paid">Free</div>
-            </div>
-          </div>
-        </div>
-        <div class="review-section">
-          <div class="review-section-label">Your review</div>
-          <div class="review-filled">
-            <div class="review-stars-row">
-              <span class="rev-stars">★★★★★</span>
-              <span class="rev-date">Reviewed 21 Mar 2025</span>
-              <span class="rev-public-badge" style="background:rgba(107,114,128,.1);color:var(--muted);"><i class="fa-solid fa-lock"></i> Private</span>
-            </div>
-            <div class="review-text">
-              The practice questions are really well chosen — very similar to what actually came up. Condensed the whole unit into 18 pages without losing anything important. Used it the night before and felt genuinely prepared.
-            </div>
-            <div class="review-actions-row">
-              <button class="rev-action-btn"><i class="fa-solid fa-pen"></i> Edit review</button>
-              <button class="rev-action-btn">Make public</button>
-              <span class="rev-helpful">Private — not shown on listing</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Item 4 — Notes, NOT yet reviewed ── -->
-      <div class="lib-card">
-        <div class="lib-item">
-          <div class="lib-color-tab" style="background:#0d9488;"></div>
-          <div class="lib-item-body">
-            <div class="lib-thumb" style="background:linear-gradient(135deg,#134e4a,#0d9488);">
-              <i class="fa-solid fa-file-lines"></i>
-            </div>
-            <div class="lib-info">
-              <div class="lib-badges">
-                <span class="lib-unit">MATH2401</span>
-                <span class="lib-type">Tutorial</span>
-              </div>
-              <div class="lib-title">Tutorial Worked Solutions — All Weeks</div>
-              <div class="lib-sub">by Aisha Patel · PDF · 56 pages · S2 2024</div>
-              <div class="lib-meta">
-                <span class="lib-meta-item"><i class="fa-solid fa-download"></i> Downloaded 10 Mar 2025</span>
-                <span class="lib-meta-item"><i class="fa-regular fa-circle" style="color:var(--muted);"></i> Not reviewed yet</span>
-              </div>
-            </div>
-            <div class="lib-actions">
-              <button class="lib-btn lib-btn-dl"><i class="fa-solid fa-arrow-down-to-line"></i> Open</button>
-              <button class="lib-btn"><i class="fa-solid fa-share-nodes"></i> Share</button>
-              <div class="lib-price-paid">Free</div>
-            </div>
-          </div>
-        </div>
         <!-- Review — prompt state -->
         <div class="review-section">
           <div class="review-section-label">Leave a review</div>
@@ -675,7 +575,6 @@
             </div>
           </div>
         </div>
-      </div>
 
     </main>
 
@@ -755,7 +654,7 @@
       <div class="mkt-cta">
         <h3>Find more for your units</h3>
         <p>Browse textbooks and notes listed by students in your exact units.</p>
-        <a href="marketplace.html"><button class="btn-mkt"><i class="fa-solid fa-store"></i> Go to Marketplace</button></a>
+        <a href="{{ url_for('marketplace') }}"><button class="btn-mkt"><i class="fa-solid fa-store"></i> Go to Marketplace</button></a>
       </div>
 
       <div class="rcard" style="padding:12px 14px;">
