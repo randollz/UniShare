@@ -385,24 +385,38 @@ def study_sessions():
 @app.route('/create_session', methods=['GET', 'POST'])
 @login_required
 def create_session():
+    errors = {}
+    form = {}
+
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('location', ''),
-             request.form.get('session_date', ''),
-             int(request.form.get('max_attendees', 10)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Study session posted!', 'success')
-        return redirect(url_for('study_sessions'))
-    return render_template('create_session.html', current_user=get_current_user())
+        form['title'],         errors['title']         = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],     errors['unit_code']     = validate_unit_code(request.form.get('unit_code'))
+        form['location'],      errors['location']      = validate_optional_text(request.form.get('location'), 'Location', max_len=200)
+        form['session_date'],  errors['session_date']  = validate_session_date(request.form.get('session_date'))
+        form['max_attendees'], errors['max_attendees'] = validate_positive_int(request.form.get('max_attendees', '10'), 'Max attendees', min_value=2, max_value=200)
+        form['description'],   errors['description']   = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['location'],
+                 form['session_date'], form['max_attendees'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Study session posted!', 'success')
+            return redirect(url_for('study_sessions'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_session.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 
 @app.route('/rsvp_session/<int:session_id>', methods=['POST'])
