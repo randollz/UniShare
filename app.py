@@ -219,7 +219,6 @@ def marketplace():
 def create_listing():
     errors = {}
     form = {}
-
     if request.method == 'POST':
         form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=100)
         form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
@@ -313,23 +312,36 @@ def notes():
 @app.route('/create_note', methods=['GET', 'POST'])
 @login_required
 def create_note():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('semester', ''),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Notes shared!', 'success')
-        return redirect(url_for('notes'))
-    return render_template('create_note.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['semester'],    errors['semester']    = validate_optional_text(request.form.get('semester'), 'Semester', max_len=50)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['semester'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Notes shared!', 'success')
+            return redirect(url_for('notes'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_note.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/upvote_note/<int:note_id>', methods=['POST'])
 @login_required
