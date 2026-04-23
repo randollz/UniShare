@@ -196,14 +196,12 @@
 <script>
   const CURRENT_USER_ID = {{ current_user.id }};
   const OTHER_USER_ID   = {{ other_user.id }};
-  const POLL_URL        = `/messages/${OTHER_USER_ID}/poll`;
-  const SEND_URL        = `/messages/${OTHER_USER_ID}/send`;
+  const POLL_URL        = `/api/messages/${OTHER_USER_ID}/poll`;
+  const SEND_URL        = `/api/messages/${OTHER_USER_ID}/send`;
 
-  let lastMsgId = (function () {
-    const wrappers = document.querySelectorAll('[data-msg-id]');
-    if (!wrappers.length) return 0;
-    return Math.max(...[...wrappers].map(el => parseInt(el.dataset.msgId, 10)));
-  })();
+  // Seed lastTimestamp from the SSR-rendered thread so the first poll only
+  // fetches messages that arrive after the page load.
+  let lastTimestamp = "{{ (thread[-1].created_at if thread else '1970-01-01 00:00:00') | string }}";
 
   function scrollBottom() {
     const el = document.getElementById('thread-messages');
@@ -211,26 +209,25 @@
   }
   scrollBottom();
 
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function appendMessage(msg) {
-    const isMine = msg.sender_id === CURRENT_USER_ID;
+    const isMine  = msg.sender_id === CURRENT_USER_ID;
     const wrapper = document.createElement('div');
     wrapper.className = `msg-wrapper ${isMine ? 'mine' : 'theirs'}`;
-    wrapper.dataset.msgId = msg.id;
     wrapper.innerHTML = `
       <div class="msg-bubble ${isMine ? 'mine' : 'theirs'}">${escapeHtml(msg.body)}</div>
       <span class="msg-time">${msg.created_at}</span>
     `;
     document.getElementById('thread-messages').appendChild(wrapper);
-    if (msg.id > lastMsgId) lastMsgId = msg.id;
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if (msg.created_at > lastTimestamp) lastTimestamp = msg.created_at;
   }
 
   async function poll() {
     try {
-      const res  = await fetch(`${POLL_URL}?after=${lastMsgId}`);
+      const res  = await fetch(`${POLL_URL}?since=${encodeURIComponent(lastTimestamp)}`);
       const msgs = await res.json();
       if (msgs.length) {
         msgs.forEach(appendMessage);
@@ -255,8 +252,8 @@
         body: JSON.stringify({ body })
       });
       if (res.ok) {
-        // Immediately poll to pick up our own message
-        await poll();
+        const msg = await res.json();
+        appendMessage(msg);
         scrollBottom();
       }
     } catch (_) {}

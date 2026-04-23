@@ -189,6 +189,24 @@ p { color: var(--text-2); }
 
 .nav-right { display: flex; align-items: center; gap: 8px; }
 
+.nav-messages-link { position: relative; }
+.unread-badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  min-width: 16px; height: 16px;
+  padding: 0 4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* ── Tags ────────────────────────────────────────────────────── */
 .tag {
   display: inline-flex; align-items: center; gap: 4px;

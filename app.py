@@ -13,6 +13,24 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-fallback')
 
 
 # ─────────────────────────────────────────────────────────────
+# Context processors
+# ─────────────────────────────────────────────────────────────
+
+@app.context_processor
+def inject_unread_count():
+    user_id = session.get('user_id')
+    if not user_id:
+        return {'unread_count': 0}
+    db = get_db()
+    count = db.execute(
+        'SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND read = 0',
+        (user_id,)
+    ).fetchone()[0]
+    db.close()
+    return {'unread_count': count}
+
+
+# ─────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────
 
@@ -584,6 +602,60 @@ def messages_poll(other_id):
     db.execute(
         'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND id > ?',
         (other_id, user['id'], after_id)
+    )
+    db.commit()
+    db.close()
+
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/messages/<int:other_id>/send', methods=['POST'])
+@login_required
+def api_messages_send(other_id):
+    user = get_current_user()
+    body = request.json.get('body', '').strip() if request.is_json else request.form.get('body', '').strip()
+    if not body:
+        return jsonify({'error': 'empty'}), 400
+
+    db = get_db()
+    cur = db.execute(
+        'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
+        (user['id'], other_id, body)
+    )
+    db.commit()
+    row = db.execute('SELECT id, body, created_at FROM messages WHERE id = ?', (cur.lastrowid,)).fetchone()
+    db.close()
+
+    return jsonify({
+        'id':          row['id'],
+        'body':        row['body'],
+        'created_at':  row['created_at'],
+        'sender_id':   user['id'],
+        'sender_name': f"{user['first_name']} {user['last_name']}",
+    })
+
+
+@app.route('/api/messages/<int:other_id>/poll')
+@login_required
+def api_messages_poll(other_id):
+    """Return messages newer than ?since=<timestamp> as JSON for client-side polling."""
+    user  = get_current_user()
+    since = request.args.get('since', '1970-01-01 00:00:00')
+    db    = get_db()
+
+    rows = db.execute(
+        '''SELECT m.id, m.sender_id, m.body, m.created_at
+           FROM messages m
+           WHERE ((m.sender_id = ? AND m.receiver_id = ?)
+               OR (m.sender_id = ? AND m.receiver_id = ?))
+             AND m.created_at > ?
+           ORDER BY m.created_at ASC''',
+        (user['id'], other_id, other_id, user['id'], since)
+    ).fetchall()
+
+    db.execute(
+        'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND created_at > ?',
+        (other_id, user['id'], since)
     )
     db.commit()
     db.close()
