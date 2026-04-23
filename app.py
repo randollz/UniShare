@@ -4,6 +4,10 @@ from flask import (Flask, render_template, request, redirect,
                    url_for, session, flash, g)
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db
+from validators import (validate_required_text, validate_optional_text,
+                        validate_unit_code, validate_price, validate_positive_int,
+                        validate_email, validate_password, validate_session_date,
+                        validate_choice, LISTING_CONDITIONS)
 
 app = Flask(__name__, template_folder='.', static_folder='.', static_url_path='')
 app.secret_key = 'unishare-demo-secret-key'
@@ -213,23 +217,39 @@ def marketplace():
 @app.route('/create_listing', methods=['GET', 'POST'])
 @login_required
 def create_listing():
+    errors = {}
+    form = {}
+
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             float(request.form['price']),
-             request.form['condition'],
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Listing posted!', 'success')
-        return redirect(url_for('marketplace'))
-    return render_template('create_listing.html', current_user=get_current_user())
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=100)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['price'],       errors['price']       = validate_price(request.form.get('price'))
+        form['condition'],   errors['condition']   = validate_choice(request.form.get('condition'), 'Condition', LISTING_CONDITIONS)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        # Strip keys where error is None so template can do {% if errors.title %}
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['price'],
+                 form['condition'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Listing posted!', 'success')
+            return redirect(url_for('marketplace'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_listing.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form,
+                           conditions=LISTING_CONDITIONS)
 
 
 @app.route('/delete_listing/<int:listing_id>', methods=['POST'])
