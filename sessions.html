@@ -11,49 +11,19 @@
   <link rel="stylesheet" href="shared.css" />
 
   <style>
-  /* reset + :root → shared.css */
-
-      /* ═══════════════════════════════════════
-     TOP NAV BAR
-  ═══════════════════════════════════════ */
-  /* topbar → shared.css */
-  
-
-  /* ═══════════════════════════════════════
-     PAGE WRAPPER
-  ═══════════════════════════════════════ */
   .page-wrap {
-    max-width: 1140px;
-    margin: 0 auto;
+    max-width: 1140px; margin: 0 auto;
     padding: 88px 16px 40px;
-    display: grid;
-    grid-template-columns: 220px 1fr 260px;
-    gap: 20px;
-    align-items: start;
+    display: grid; grid-template-columns: 220px 1fr 260px;
+    gap: 20px; align-items: start;
   }
-
-    /* ═══════════════════════════════════════
-     LEFT SIDEBAR
-  ═══════════════════════════════════════ */
-  /* sidebar → shared.css */
-  
-
-  /* ═══════════════════════════════════════
-     MAIN CONTENT
-  ═══════════════════════════════════════ */
   .main-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
-  /* Page header card */
   .page-header-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px 20px 0;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px 20px 0;
   }
-  .phc-top {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 16px;
-  }
+  .phc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
   .phc-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
   .phc-sub { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
   .btn-post {
@@ -61,21 +31,16 @@
     padding: 9px 16px; border-radius: 8px;
     background: var(--dark); color: #fff;
     font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
-    border: none; cursor: pointer; letter-spacing: -0.01em;
+    border: none; cursor: pointer; text-decoration: none;
     transition: all var(--t) var(--ease); flex-shrink: 0;
   }
-  .btn-post:hover { background: var(--dark2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(13,15,31,0.15); }
+  .btn-post:hover { background: var(--dark2); transform: translateY(-1px); }
 
-  /* Tab bar */
-  .tab-bar {
-    display: flex; gap: 0; border-top: 1px solid var(--border);
-    margin-top: 4px;
-  }
+  .tab-bar { display: flex; border-top: 1px solid var(--border); margin-top: 4px; }
   .tab-item {
     padding: 12px 20px; font-size: 0.83rem; font-weight: 600;
     color: var(--muted); cursor: pointer; border: none; background: transparent;
-    font-family: 'Inter', sans-serif;
-    border-bottom: 2px solid transparent;
+    font-family: 'Inter', sans-serif; border-bottom: 2px solid transparent;
     transition: all var(--t); position: relative; top: 1px;
   }
   .tab-item:hover { color: var(--dark); }
@@ -88,7 +53,6 @@
   }
   .tab-item.active .tab-count { background: var(--dark); color: #fff; }
 
-  /* Filter row */
   .filter-row {
     background: var(--white); border: 1px solid var(--border);
     border-radius: var(--r); padding: 10px 14px;
@@ -112,19 +76,14 @@
     color: var(--mid); outline: none; cursor: pointer;
   }
 
-  /* ── Session card ── */
+  /* Session card */
   .session-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    overflow: hidden;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
     transition: box-shadow var(--t), border-color var(--t);
   }
   .session-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
-
-  /* Coloured top bar per subject */
   .sc-accent { height: 4px; }
-
   .sc-body { padding: 16px 18px 14px; }
   .sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
   .sc-meta { display: flex; align-items: center; gap: 10px; }
@@ -133,90 +92,51 @@
     color: #fff; font-size: 0.85rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .sc-host-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
+  .sc-host-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); text-decoration: none; }
+  .sc-host-name:hover { text-decoration: underline; }
   .sc-host-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
   .sc-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .sc-pill {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 4px 10px; border-radius: 99px;
-    font-size: 0.71rem; font-weight: 700; letter-spacing: 0.01em;
+    font-size: 0.71rem; font-weight: 700;
   }
   .sc-pill-session { background: rgba(124,58,237,0.1); color: #6d28d9; }
   .sc-pill-online  { background: rgba(16,185,129,0.1); color: #059669; }
   .sc-pill-inperson{ background: rgba(59,130,246,0.1); color: #2563eb; }
-  .sc-pill-full    { background: rgba(239,68,68,0.09); color: #dc2626; }
-
   .sc-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 5px; letter-spacing: -0.02em; }
   .sc-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.55; margin-bottom: 12px; }
-
-  /* Info grid */
-  .sc-info {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 7px 14px; margin-bottom: 14px;
-  }
+  .sc-info { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 14px; margin-bottom: 14px; }
   .sc-info-item { display: flex; align-items: center; gap: 7px; }
   .sc-info-item i { font-size: 0.78rem; color: var(--muted); width: 14px; text-align: center; }
   .sc-info-item span { font-size: 0.79rem; color: var(--mid); }
   .sc-info-item strong { color: var(--dark); }
-
-  /* Tags row */
   .sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .sc-tag {
-    padding: 3px 9px; border-radius: 6px;
-    background: #f0f1f5; color: var(--mid);
-    font-size: 0.72rem; font-weight: 600;
-  }
-
-  /* Attendees strip */
-  .sc-attendees {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-  }
-  .sc-att-avs { display: flex; }
-  .sc-att-av {
-    width: 26px; height: 26px; border-radius: 50%;
-    color: #fff; font-size: 0.63rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid #fff; margin-left: -6px;
-  }
-  .sc-att-av:first-child { margin-left: 0; }
+  .sc-tag { padding: 3px 9px; border-radius: 6px; background: #f0f1f5; color: var(--mid); font-size: 0.72rem; font-weight: 600; }
+  .sc-attendees { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
   .sc-att-label { font-size: 0.76rem; color: var(--muted); }
-  .sc-att-spots {
-    margin-left: auto;
-    font-size: 0.76rem; font-weight: 700;
-  }
-  .sc-att-spots.open  { color: #059669; }
-  .sc-att-spots.few   { color: #d97706; }
-  .sc-att-spots.full  { color: #dc2626; }
-
-  /* Action row */
+  .sc-att-spots { margin-left: auto; font-size: 0.76rem; font-weight: 700; }
+  .sc-att-spots.open { color: #059669; } .sc-att-spots.few { color: #d97706; }
   .sc-actions { display: flex; gap: 6px; border-top: 1px solid var(--border); padding-top: 12px; }
   .sc-btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 14px; border-radius: 8px;
     font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
-    border: none; cursor: pointer;
-    transition: all var(--t) var(--ease);
+    border: none; cursor: pointer; transition: all var(--t) var(--ease);
   }
   .sc-btn-join { background: var(--dark); color: #fff; }
   .sc-btn-join:hover { background: var(--dark2); transform: translateY(-1px); }
-  .sc-btn-join-disabled { background: #f0f1f5; color: var(--muted); cursor: not-allowed; }
   .sc-btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
   .sc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
-  .sc-btn-save { margin-left: auto; background: transparent; color: var(--muted); border: none; padding: 8px 10px; }
-  .sc-btn-save:hover { color: var(--dark); background: #f3f4f8; border-radius: 8px; }
 
-  /* ── Bounty card ── */
+  /* Bounty card */
   .bounty-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    overflow: hidden;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
     transition: box-shadow var(--t), border-color var(--t);
   }
   .bounty-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
-
-  .bc-accent { height: 4px; background: linear-gradient(90deg, #b45309, #f59e0b); }
-
+  .bc-accent { height: 4px; background: linear-gradient(90deg,#b45309,#f59e0b); }
   .bc-body { padding: 16px 18px 14px; }
   .bc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   .bc-left { display: flex; align-items: center; gap: 10px; }
@@ -224,44 +144,27 @@
     width: 38px; height: 38px; border-radius: 50%;
     color: #fff; font-size: 0.85rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: linear-gradient(135deg,#b45309,#d97706);
   }
-  .bc-poster-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
+  .bc-poster-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); text-decoration: none; }
+  .bc-poster-name:hover { text-decoration: underline; }
   .bc-poster-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
-  .bc-reward {
-    display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0;
-  }
+  .bc-reward { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
   .bc-reward-amt { font-size: 1.15rem; font-weight: 800; color: var(--gold); letter-spacing: -0.03em; }
   .bc-reward-label { font-size: 0.67rem; color: var(--muted); }
   .bc-pill-bounty {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 4px 10px; border-radius: 99px;
     background: rgba(245,158,11,0.12); color: #b45309;
-    font-size: 0.71rem; font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 0.71rem; font-weight: 700; margin-bottom: 8px;
   }
   .bc-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 5px; letter-spacing: -0.02em; }
   .bc-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.55; margin-bottom: 12px; }
-  .bc-info { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
-  .bc-info-item { display: flex; align-items: center; gap: 6px; }
-  .bc-info-item i { font-size: 0.78rem; color: var(--muted); }
-  .bc-info-item span { font-size: 0.79rem; color: var(--mid); }
-  .bc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .bc-tag { padding: 3px 9px; border-radius: 6px; background: #f0f1f5; color: var(--mid); font-size: 0.72rem; font-weight: 600; }
-  .bc-footer {
-    display: flex; align-items: center; gap: 8px;
-    border-top: 1px solid var(--border); padding-top: 12px;
-  }
-  .bc-bids {
-    font-size: 0.77rem; color: var(--muted);
-  }
-  .bc-bids strong { color: var(--dark); }
-  .bc-expires { font-size: 0.73rem; color: var(--muted); }
-  .bc-expires i { font-size: 0.7rem; }
+  .bc-footer { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); padding-top: 12px; }
   .bc-btn-offer {
-    margin-left: auto;
-    display: inline-flex; align-items: center; gap: 6px;
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 16px; border-radius: 8px;
-    background: linear-gradient(135deg, #b45309, #d97706);
+    background: linear-gradient(135deg,#b45309,#d97706);
     color: #fff; font-family: 'Inter', sans-serif;
     font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
     transition: all var(--t) var(--ease);
@@ -277,696 +180,337 @@
   }
   .bc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
 
-  /* ═══════════════════════════════════════
-     RIGHT PANEL
-  ═══════════════════════════════════════ */
+  /* Right panel */
   .right { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 12px; }
   .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
   .rcard-title { font-size: 0.84rem; font-weight: 700; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.02em; }
-
-  /* Stats 2×2 */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-box {
-    background: #f5f6fa; border-radius: 10px;
-    padding: 11px 12px;
-  }
+  .stat-box { background: #f5f6fa; border-radius: 10px; padding: 11px 12px; }
   .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
   .stat-lbl { font-size: 0.69rem; color: var(--muted); margin-top: 1px; line-height: 1.3; }
-
-  /* Upcoming sessions mini list */
-  .upcoming-item {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-  }
-  .upcoming-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .upcoming-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
-  }
-  .upcoming-info {}
-  .upcoming-name { font-size: 0.81rem; font-weight: 600; color: var(--dark); }
-  .upcoming-detail { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-  .upcoming-time {
-    margin-left: auto; flex-shrink: 0;
-    font-size: 0.72rem; font-weight: 700; color: var(--mid);
-    white-space: nowrap;
-  }
-
-  /* Active bounties */
-  .bounty-mini {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 0; border-bottom: 1px solid var(--border);
-  }
-  .bounty-mini:last-child { border-bottom: none; padding-bottom: 0; }
-  .bounty-mini-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(245,158,11,0.12);
-    display: flex; align-items: center; justify-content: center;
-    color: #b45309; font-size: 0.82rem; flex-shrink: 0;
-  }
-  .bounty-mini-info { flex: 1; min-width: 0; }
-  .bounty-mini-title { font-size: 0.8rem; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bounty-mini-unit { font-size: 0.69rem; color: var(--muted); margin-top: 1px; }
-  .bounty-mini-amt { font-size: 0.82rem; font-weight: 800; color: var(--gold); flex-shrink: 0; }
-
-  /* Post a session CTA */
-  .cta-card {
-    background: var(--dark);
-    border-radius: var(--r);
-    padding: 18px 16px;
-  }
+  .cta-card { background: var(--dark); border-radius: var(--r); padding: 18px 16px; }
   .cta-title { font-size: 0.9rem; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.03em; }
   .cta-sub { font-size: 0.77rem; color: rgba(255,255,255,0.55); line-height: 1.55; margin-bottom: 14px; }
   .cta-btn {
     display: block; width: 100%; padding: 10px; border-radius: 9px;
     background: var(--gold); color: #fff; text-align: center;
     font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
-    border: none; cursor: pointer; letter-spacing: -0.01em;
+    border: none; cursor: pointer; text-decoration: none;
     transition: all var(--t) var(--ease);
   }
   .cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
   .cta-btn + .cta-btn { margin-top: 7px; background: rgba(255,255,255,0.1); }
   .cta-btn + .cta-btn:hover { background: rgba(255,255,255,0.16); }
+
+  .empty-state {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 48px 24px;
+    text-align: center; color: var(--muted);
+  }
+  .empty-state p { font-size: 0.9rem; margin-bottom: 14px; }
+
+  .flash-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .flash { padding: 10px 16px; border-radius: 10px; font-size: 0.83rem; font-weight: 500; }
+  .flash-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .flash-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .flash-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
   </style>
 </head>
 <body class="app-page">
 
-  <!-- ═══ TOP NAVBAR ════════════════════════════════════════ -->
+  <!-- TOP NAV -->
   <header class="topbar">
-    <!-- Brand -->
     <div class="tb-brand">
       <img src="images/uwa-logo.png" alt="UWA" class="tb-uwa" />
       <div class="tb-divider"></div>
       <span class="tb-logo">UniShare<span>.</span></span>
     </div>
-
-    <!-- Search -->
     <div class="tb-search">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" placeholder="Search sessions, bounties, units…" />
     </div>
-
-    <!-- Nav icons -->
     <nav class="tb-nav">
-      <a href="dashboard.html" class="tb-nav-item">
-        <i class="fa-solid fa-house"></i>
-        Feed
-      </a>
-      <a href="marketplace.html" class="tb-nav-item">
-        <i class="fa-solid fa-tag"></i>
-        Marketplace
-      </a>
-      <a href="notes.html" class="tb-nav-item">
-        <i class="fa-solid fa-file-lines"></i>
-        Notes
-      </a>
-      <a href="sessions.html" class="tb-nav-item active">
-        <i class="fa-solid fa-users"></i>
-        Sessions
-      </a>
-      <button class="tb-nav-item" style="position:relative;">
-        <i class="fa-solid fa-bell"></i>
-        Alerts
-        <span class="tb-badge">3</span>
-      </button>
+      <a href="{{ url_for('dashboard') }}" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="{{ url_for('marketplace') }}" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="{{ url_for('notes') }}" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="{{ url_for('study_sessions') }}" class="tb-nav-item active"><i class="fa-solid fa-users"></i> Sessions</a>
     </nav>
-
-    <!-- Right -->
     <div class="tb-right">
-      <button class="tb-icon-btn"><i class="fa-solid fa-message"></i></button>
-      <a href="profile.html" class="tb-av">R</a>
+      {% if current_user %}
+        <a href="{{ url_for('profile', user_id=current_user.id) }}" class="tb-av">
+          {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+        </a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn-post" style="padding:8px 14px;">Sign in</a>
+      {% endif %}
     </div>
   </header>
 
-  <!-- ═══ PAGE WRAP ═════════════════════════════════════════ -->
   <div class="page-wrap">
 
-    <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
+    <!-- LEFT SIDEBAR -->
     <aside class="sidebar">
-
-      <!-- Profile card -->
+      {% if current_user %}
       <div class="sb-card">
         <div class="sb-profile-banner"></div>
         <div class="sb-profile-body">
-          <div class="sb-profile-av">R</div>
-          <div class="sb-profile-name">Randall Z.</div>
-          <div class="sb-profile-detail">Computer Science · 2nd year<br/>University of Western Australia</div>
+          <div class="sb-profile-av">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</div>
+          <div class="sb-profile-name">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+          <div class="sb-profile-detail">University of Western Australia</div>
           <div class="sb-profile-stats">
             <div class="sb-stat-row">
-              <span class="sb-stat-label">Sessions hosted</span>
-              <span class="sb-stat-val">4</span>
+              <span class="sb-stat-label">XP</span>
+              <span class="sb-stat-val">{{ current_user.xp }}</span>
             </div>
             <div class="sb-stat-row">
-              <span class="sb-stat-label">Sessions attended</span>
-              <span class="sb-stat-val">11</span>
-            </div>
-            <div class="sb-stat-row">
-              <span class="sb-stat-label">Bounties completed</span>
-              <span class="sb-stat-val">2</span>
+              <span class="sb-stat-label">Rank</span>
+              <span class="sb-stat-val">{{ current_user.rank }}</span>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- XP -->
-      <div class="sb-xp-card">
-        <div class="sb-xp-top">
-          <span class="sb-xp-label">Your XP — Silver</span>
-          <span class="sb-xp-pts">1,340 pts</span>
-        </div>
-        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
-        <div class="sb-xp-sub">660 pts to reach <strong>Gold</strong></div>
-      </div>
-
-      <!-- Quick links -->
+      {% endif %}
       <div class="sb-nav-card">
-        <a href="dashboard.html" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
-        <a href="marketplace.html" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
-        <a href="notes.html" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
-        <a href="sessions.html" class="sb-link active"><i class="fa-solid fa-users"></i> Study Sessions</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-box-archive"></i> My Listings</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-bookmark"></i> Saved</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
-        <a href="#" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        <a href="{{ url_for('dashboard') }}" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
+        <a href="{{ url_for('marketplace') }}" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
+        <a href="{{ url_for('notes') }}" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
+        <a href="{{ url_for('study_sessions') }}" class="sb-link active"><i class="fa-solid fa-users"></i> Study Sessions</a>
+        <a href="{{ url_for('bounties') }}" class="sb-link"><i class="fa-solid fa-bolt"></i> Bounties</a>
+        {% if current_user %}
+        <a href="{{ url_for('settings') }}" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
+        {% endif %}
       </div>
-
     </aside>
 
-    <!-- ── MAIN CONTENT ──────────────────────────────────── -->
+    <!-- MAIN CONTENT -->
     <main class="main-col">
 
-      <!-- Page header + tabs -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-list">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
       <div class="page-header-card">
         <div class="phc-top">
           <div>
             <div class="phc-title">Sessions &amp; Bounties</div>
             <div class="phc-sub">Find study groups, book tutors, or post a bounty for help you need</div>
           </div>
-          <button class="btn-post"><i class="fa-solid fa-plus"></i> Post</button>
+          {% if current_user %}
+          <a href="{{ url_for('create_session') }}" class="btn-post">
+            <i class="fa-solid fa-plus"></i> Post Session
+          </a>
+          {% endif %}
         </div>
         <div class="tab-bar">
           <button class="tab-item active" onclick="switchTab(this,'sessions-list','bounties-list')">
-            Study Sessions <span class="tab-count">14</span>
+            Study Sessions <span class="tab-count">{{ sessions|length }}</span>
           </button>
           <button class="tab-item" onclick="switchTab(this,'bounties-list','sessions-list')">
-            Bounties <span class="tab-count">8</span>
+            Bounties
           </button>
         </div>
       </div>
 
-      <!-- Filter row -->
-      <div class="filter-row">
+      <!-- Filter -->
+      <form class="filter-row" method="GET" action="{{ url_for('study_sessions') }}">
         <div class="filter-search">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search by unit, topic, or host…" />
+          <input type="text" name="unit" value="{{ unit }}" placeholder="Filter by unit code e.g. CITS3403" style="text-transform:uppercase" />
         </div>
-        <select class="filter-select">
-          <option>All units</option>
-          <option>CITS3403</option>
-          <option>CITS3200</option>
-          <option>MATH1012</option>
-          <option>STAT2401</option>
-          <option>PHIL1001</option>
-        </select>
-        <select class="filter-select">
-          <option>All formats</option>
-          <option>In person</option>
-          <option>Online</option>
-        </select>
-        <select class="filter-select">
-          <option>Sort: Soonest</option>
-          <option>Sort: Most spots</option>
-          <option>Sort: Most popular</option>
-        </select>
-      </div>
+        <button type="submit" class="btn-post" style="padding:8px 14px;">Filter</button>
+        {% if unit %}
+        <a href="{{ url_for('study_sessions') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
+        {% endif %}
+      </form>
 
-      <!-- ── SESSIONS LIST ───────────────────────────────── -->
+      <!-- SESSIONS LIST -->
       <div id="sessions-list">
+        {% set accent_colors = [
+          'linear-gradient(90deg,#1d4ed8,#3b82f6)',
+          'linear-gradient(90deg,#0d9488,#34d399)',
+          'linear-gradient(90deg,#7c3aed,#a78bfa)',
+          'linear-gradient(90deg,#be185d,#f472b6)',
+          'linear-gradient(90deg,#b45309,#f59e0b)',
+          'linear-gradient(90deg,#059669,#34d399)',
+          'linear-gradient(90deg,#2563eb,#60a5fa)',
+          'linear-gradient(90deg,#6d28d9,#8b5cf6)'
+        ] %}
+        {% set av_colors = ['#1d4ed8','#0d9488','#7c3aed','#be185d','#b45309','#059669','#2563eb','#6d28d9'] %}
 
-        <!-- Session 1 — CITS3403 finals group -->
-        <div class="session-card" style="margin-bottom:12px;">
-          <div class="sc-accent" style="background: linear-gradient(90deg,#1d4ed8,#3b82f6);"></div>
-          <div class="sc-body">
-            <div class="sc-header">
-              <div class="sc-meta">
-                <div class="sc-av" style="background:#1d4ed8;">J</div>
-                <div>
-                  <div class="sc-host-name">Jessica Thompson</div>
-                  <div class="sc-host-detail">Computer Science · 2nd year · ⭐ 4.9 host rating</div>
+        {% if sessions %}
+          {% for s in sessions %}
+          {% set idx = loop.index0 % 8 %}
+          <div class="session-card">
+            <div class="sc-accent" style="background: {{ accent_colors[idx] }};"></div>
+            <div class="sc-body">
+              <div class="sc-header">
+                <div class="sc-meta">
+                  <div class="sc-av" style="background: {{ av_colors[idx] }};">
+                    {{ s.first_name[0] }}{{ s.last_name[0] }}
+                  </div>
+                  <div>
+                    <a href="{{ url_for('profile', user_id=s.host_id) }}" class="sc-host-name">
+                      {{ s.first_name }} {{ s.last_name[0] }}.
+                    </a>
+                    <div class="sc-host-detail">Host · {{ s.rsvp_count }} attending</div>
+                  </div>
+                </div>
+                <div class="sc-badges">
+                  <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
+                  {% if s.location and 'online' in s.location|lower %}
+                  <span class="sc-pill sc-pill-online"><i class="fa-solid fa-wifi"></i> Online</span>
+                  {% else %}
+                  <span class="sc-pill sc-pill-inperson"><i class="fa-solid fa-location-dot"></i> In person</span>
+                  {% endif %}
                 </div>
               </div>
-              <div class="sc-badges">
-                <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
-                <span class="sc-pill sc-pill-inperson"><i class="fa-solid fa-location-dot"></i> In person</span>
-              </div>
-            </div>
-            <div class="sc-title">CITS3403 Final Exam Prep — Past Papers Walkthrough</div>
-            <div class="sc-desc">Covering the last 3 years of past papers with a focus on JavaScript async patterns and Flask REST APIs. Bring your own laptop. We'll take turns working through questions and explaining answers as a group.</div>
-            <div class="sc-info">
-              <div class="sc-info-item"><i class="fa-regular fa-calendar"></i><span><strong>Fri 28 Mar</strong> · 2:00 pm – 5:00 pm</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-location-dot"></i><span>Reid Library · Room G14</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-book"></i><span><strong>CITS3403</strong> Agile Web Development</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-clock"></i><span>3 hours · free to join</span></div>
-            </div>
-            <div class="sc-tags">
-              <span class="sc-tag">JavaScript</span>
-              <span class="sc-tag">Flask</span>
-              <span class="sc-tag">Past papers</span>
-              <span class="sc-tag">Finals prep</span>
-            </div>
-            <div class="sc-attendees">
-              <div class="sc-att-avs">
-                <div class="sc-att-av" style="background:#1d4ed8;">J</div>
-                <div class="sc-att-av" style="background:#7c3aed;">M</div>
-                <div class="sc-att-av" style="background:#0d9488;">A</div>
-                <div class="sc-att-av" style="background:#be185d;">S</div>
-              </div>
-              <span class="sc-att-label">4 going</span>
-              <span class="sc-att-spots few">2 spots left</span>
-            </div>
-            <div class="sc-actions">
-              <button class="sc-btn sc-btn-join"><i class="fa-solid fa-arrow-right"></i> Join session</button>
-              <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-comment"></i> Message host</button>
-              <button class="sc-btn sc-btn-save"><i class="fa-regular fa-bookmark"></i></button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Session 2 — MATH1012 online -->
-        <div class="session-card" style="margin-bottom:12px;">
-          <div class="sc-accent" style="background: linear-gradient(90deg,#0d9488,#34d399);"></div>
-          <div class="sc-body">
-            <div class="sc-header">
-              <div class="sc-meta">
-                <div class="sc-av" style="background:#0d9488;">A</div>
-                <div>
-                  <div class="sc-host-name">Aisha Patel</div>
-                  <div class="sc-host-detail">Engineering · 1st year · ⭐ 4.7 host rating</div>
+              <div class="sc-title">{{ s.title }}</div>
+              {% if s.description %}
+              <div class="sc-desc">{{ s.description }}</div>
+              {% endif %}
+
+              <div class="sc-info">
+                <div class="sc-info-item">
+                  <i class="fa-regular fa-calendar"></i>
+                  <span><strong>{{ s.session_date }}</strong></span>
+                </div>
+                {% if s.location %}
+                <div class="sc-info-item">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <span>{{ s.location }}</span>
+                </div>
+                {% endif %}
+                <div class="sc-info-item">
+                  <i class="fa-solid fa-book"></i>
+                  <span><strong>{{ s.unit_code }}</strong></span>
+                </div>
+                <div class="sc-info-item">
+                  <i class="fa-solid fa-users"></i>
+                  <span>{{ s.rsvp_count }} attending{% if s.max_attendees %} / {{ s.max_attendees }} max{% endif %}</span>
                 </div>
               </div>
-              <div class="sc-badges">
-                <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
-                <span class="sc-pill sc-pill-online"><i class="fa-solid fa-wifi"></i> Online</span>
+
+              <div class="sc-tags">
+                <span class="sc-tag">{{ s.unit_code }}</span>
               </div>
-            </div>
-            <div class="sc-title">MATH1012 Week 11 — Differential Equations &amp; Review</div>
-            <div class="sc-desc">Zoom session focusing on Week 11 content before the final. We'll go through the workshop problems together and I'll share my full summary notes PDF at the end of the session. Open to everyone.</div>
-            <div class="sc-info">
-              <div class="sc-info-item"><i class="fa-regular fa-calendar"></i><span><strong>Sat 22 Mar</strong> · 10:00 am – 12:00 pm</span></div>
-              <div class="sc-info-item"><i class="fa-brands fa-zoom"></i><span>Zoom · link sent on join</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-book"></i><span><strong>MATH1012</strong> Mathematics 1</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-clock"></i><span>2 hours · free to join</span></div>
-            </div>
-            <div class="sc-tags">
-              <span class="sc-tag">Differential equations</span>
-              <span class="sc-tag">Calculus</span>
-              <span class="sc-tag">Workshop Q&amp;A</span>
-            </div>
-            <div class="sc-attendees">
-              <div class="sc-att-avs">
-                <div class="sc-att-av" style="background:#0d9488;">A</div>
-                <div class="sc-att-av" style="background:#1d4ed8;">L</div>
-                <div class="sc-att-av" style="background:#b45309;">D</div>
+
+              <div class="sc-attendees">
+                <span class="sc-att-label">{{ s.rsvp_count }} going</span>
+                {% if s.max_attendees %}
+                  {% set spots = s.max_attendees - s.rsvp_count %}
+                  {% if spots <= 0 %}
+                  <span class="sc-att-spots" style="color:#dc2626;">Full</span>
+                  {% elif spots <= 2 %}
+                  <span class="sc-att-spots few">{{ spots }} spot{{ 's' if spots != 1 }} left</span>
+                  {% else %}
+                  <span class="sc-att-spots open">{{ spots }} spots left</span>
+                  {% endif %}
+                {% endif %}
               </div>
-              <span class="sc-att-label">3 going</span>
-              <span class="sc-att-spots open">7 spots left</span>
-            </div>
-            <div class="sc-actions">
-              <button class="sc-btn sc-btn-join"><i class="fa-solid fa-arrow-right"></i> Join session</button>
-              <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-comment"></i> Message host</button>
-              <button class="sc-btn sc-btn-save"><i class="fa-regular fa-bookmark"></i></button>
+
+              <div class="sc-actions">
+                {% if current_user and current_user.id != s.host_id %}
+                <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
+                  <button type="submit" class="sc-btn sc-btn-join">
+                    <i class="fa-solid fa-arrow-right"></i> Join session
+                  </button>
+                </form>
+                {% elif not current_user %}
+                <a href="{{ url_for('login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
+                {% else %}
+                <span class="sc-btn" style="background:#f0f1f5;color:var(--muted);cursor:default;">
+                  <i class="fa-solid fa-star"></i> You're hosting
+                </span>
+                {% endif %}
+                <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-bookmark"></i> Save</button>
+              </div>
             </div>
           </div>
-        </div>
+          {% endfor %}
 
-        <!-- Session 3 — STAT2401 tutor-led (paid) -->
-        <div class="session-card" style="margin-bottom:12px;">
-          <div class="sc-accent" style="background: linear-gradient(90deg,#7c3aed,#a78bfa);"></div>
-          <div class="sc-body">
-            <div class="sc-header">
-              <div class="sc-meta">
-                <div class="sc-av" style="background:#7c3aed;">M</div>
-                <div>
-                  <div class="sc-host-name">Marcus Lee</div>
-                  <div class="sc-host-detail">Data Science · 3rd year · ⭐ 5.0 tutor rating</div>
-                </div>
-              </div>
-              <div class="sc-badges">
-                <span class="sc-pill" style="background:rgba(124,58,237,0.1);color:#6d28d9;"><i class="fa-solid fa-chalkboard-user"></i> Tutoring</span>
-                <span class="sc-pill sc-pill-online"><i class="fa-solid fa-wifi"></i> Online</span>
-              </div>
-            </div>
-            <div class="sc-title">STAT2401 — 1-on-1 Statistics Tutoring (Probability &amp; Inference)</div>
-            <div class="sc-desc">Personalised tutoring for STAT2401. Achieved HD last semester and can walk you through probability theory, confidence intervals, and hypothesis testing. Flexible timing — DM to book your slot. First 30 min free.</div>
-            <div class="sc-info">
-              <div class="sc-info-item"><i class="fa-regular fa-calendar"></i><span>Flexible scheduling</span></div>
-              <div class="sc-info-item"><i class="fa-brands fa-zoom"></i><span>Zoom · Microsoft Teams</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-book"></i><span><strong>STAT2401</strong> Applied Statistics</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-dollar-sign"></i><span><strong>$30 / hour</strong> · first 30 min free</span></div>
-            </div>
-            <div class="sc-tags">
-              <span class="sc-tag">Probability</span>
-              <span class="sc-tag">Hypothesis testing</span>
-              <span class="sc-tag">R language</span>
-              <span class="sc-tag">1-on-1</span>
-            </div>
-            <div class="sc-actions">
-              <button class="sc-btn sc-btn-join"><i class="fa-solid fa-calendar-plus"></i> Book session</button>
-              <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-comment"></i> Message Marcus</button>
-              <button class="sc-btn sc-btn-save"><i class="fa-regular fa-bookmark"></i></button>
-            </div>
-          </div>
+        {% else %}
+        <div class="empty-state">
+          <p>No sessions yet{% if unit %} for {{ unit }}{% endif %}.</p>
+          {% if current_user %}
+          <a href="{{ url_for('create_session') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+            <i class="fa-solid fa-plus"></i> Create the first one
+          </a>
+          {% endif %}
         </div>
-
-        <!-- Session 4 — PHIL1001 full -->
-        <div class="session-card" style="margin-bottom:12px;">
-          <div class="sc-accent" style="background: linear-gradient(90deg,#be185d,#f472b6);"></div>
-          <div class="sc-body">
-            <div class="sc-header">
-              <div class="sc-meta">
-                <div class="sc-av" style="background:#be185d;">S</div>
-                <div>
-                  <div class="sc-host-name">Sophie Wang</div>
-                  <div class="sc-host-detail">Philosophy &amp; Politics · 3rd year · ⭐ 4.8 host rating</div>
-                </div>
-              </div>
-              <div class="sc-badges">
-                <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
-                <span class="sc-pill sc-pill-full"><i class="fa-solid fa-ban"></i> Full</span>
-              </div>
-            </div>
-            <div class="sc-title">PHIL1001 Ethics Unit — Essay Workshop &amp; Argument Structuring</div>
-            <div class="sc-desc">Working through the ethics unit together ahead of the essay deadline. Focus on argument structure, how to use Kant vs. consequentialist frameworks, and common mistakes the markers flag. Waitlist available.</div>
-            <div class="sc-info">
-              <div class="sc-info-item"><i class="fa-regular fa-calendar"></i><span><strong>Sun 23 Mar</strong> · 1:00 pm – 3:30 pm</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-location-dot"></i><span>Social Sciences Library · L2</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-book"></i><span><strong>PHIL1001</strong> Introduction to Philosophy</span></div>
-              <div class="sc-info-item"><i class="fa-solid fa-clock"></i><span>2.5 hours · free</span></div>
-            </div>
-            <div class="sc-tags">
-              <span class="sc-tag">Ethics</span>
-              <span class="sc-tag">Essay writing</span>
-              <span class="sc-tag">Kant</span>
-              <span class="sc-tag">Consequentialism</span>
-            </div>
-            <div class="sc-attendees">
-              <div class="sc-att-avs">
-                <div class="sc-att-av" style="background:#be185d;">S</div>
-                <div class="sc-att-av" style="background:#1d4ed8;">J</div>
-                <div class="sc-att-av" style="background:#0d9488;">A</div>
-                <div class="sc-att-av" style="background:#7c3aed;">M</div>
-                <div class="sc-att-av" style="background:#b45309;">K</div>
-              </div>
-              <span class="sc-att-label">5 going</span>
-              <span class="sc-att-spots full">Full — join waitlist</span>
-            </div>
-            <div class="sc-actions">
-              <button class="sc-btn sc-btn-join-disabled" disabled><i class="fa-solid fa-hourglass-half"></i> Join waitlist</button>
-              <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-comment"></i> Message host</button>
-              <button class="sc-btn sc-btn-save"><i class="fa-regular fa-bookmark"></i></button>
-            </div>
-          </div>
-        </div>
-
+        {% endif %}
       </div>
       <!-- /sessions-list -->
 
-      <!-- ── BOUNTIES LIST (hidden by default) ─────────────── -->
+      <!-- BOUNTIES LIST (hidden by default) -->
       <div id="bounties-list" style="display:none;">
-
-        <!-- Bounty 1 — CITS1003 networking -->
-        <div class="bounty-card" style="margin-bottom:12px;">
-          <div class="bc-accent"></div>
-          <div class="bc-body">
-            <div class="bc-header">
-              <div class="bc-left">
-                <div class="bc-av" style="background:#b45309;">K</div>
-                <div>
-                  <div class="bc-poster-name">Kyle Nguyen</div>
-                  <div class="bc-poster-detail">Cybersecurity · 2nd year</div>
-                </div>
-              </div>
-              <div class="bc-reward">
-                <div class="bc-reward-amt">$25/hr</div>
-                <div class="bc-reward-label">offered rate</div>
-              </div>
-            </div>
-            <span class="bc-pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
-            <div class="bc-title">CITS1003 — Networking fundamentals before final exam</div>
-            <div class="bc-desc">Struggling with the networking module — specifically subnetting, TCP/IP stack, and the OSI model. Looking for someone who got an HD or high D to run a 2-hour session this week. Happy to meet on campus or online, whatever works for you.</div>
-            <div class="bc-info">
-              <div class="bc-info-item"><i class="fa-solid fa-book"></i><span><strong>CITS1003</strong></span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-clock"></i><span>2 hours · flexible timing</span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-location-dot"></i><span>On campus or online</span></div>
-            </div>
-            <div class="bc-tags">
-              <span class="bc-tag">Networking</span>
-              <span class="bc-tag">Subnetting</span>
-              <span class="bc-tag">OSI model</span>
-              <span class="bc-tag">TCP/IP</span>
-            </div>
-            <div class="bc-footer">
-              <div>
-                <div class="bc-bids"><strong>3 offers</strong> received</div>
-                <div class="bc-expires"><i class="fa-regular fa-clock"></i> Expires in 4 days</div>
-              </div>
-              <button class="bc-btn-ghost"><i class="fa-regular fa-comment"></i> Message</button>
-              <button class="bc-btn-offer"><i class="fa-solid fa-hand-point-up"></i> Offer help</button>
-            </div>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:.83rem;color:var(--muted);">Open bounties from students</span>
+          {% if current_user %}
+          <a href="{{ url_for('create_bounty') }}" class="btn-post" style="padding:8px 14px;">
+            <i class="fa-solid fa-plus"></i> Post Bounty
+          </a>
+          {% endif %}
         </div>
-
-        <!-- Bounty 2 — CITS3403 Flask/SQLAlchemy -->
-        <div class="bounty-card" style="margin-bottom:12px;">
-          <div class="bc-accent"></div>
-          <div class="bc-body">
-            <div class="bc-header">
-              <div class="bc-left">
-                <div class="bc-av" style="background:#1d4ed8;">L</div>
-                <div>
-                  <div class="bc-poster-name">Liam Brooks</div>
-                  <div class="bc-poster-detail">Computer Science · 1st year</div>
-                </div>
-              </div>
-              <div class="bc-reward">
-                <div class="bc-reward-amt">$30/hr</div>
-                <div class="bc-reward-label">offered rate</div>
-              </div>
-            </div>
-            <span class="bc-pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
-            <div class="bc-title">CITS3403 — Help debugging Flask + SQLAlchemy relationships</div>
-            <div class="bc-desc">My group project keeps throwing SQLAlchemy relationship errors and I've been stuck for two days. Need someone to sit with me and help diagnose the issue. It's probably something about my foreign keys or back-references — not sure. The project is on GitHub.</div>
-            <div class="bc-info">
-              <div class="bc-info-item"><i class="fa-solid fa-book"></i><span><strong>CITS3403</strong></span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-clock"></i><span>1–2 hours · ASAP</span></div>
-              <div class="bc-info-item"><i class="fa-brands fa-zoom"></i><span>Online preferred</span></div>
-            </div>
-            <div class="bc-tags">
-              <span class="bc-tag">Flask</span>
-              <span class="bc-tag">SQLAlchemy</span>
-              <span class="bc-tag">Python</span>
-              <span class="bc-tag">Debugging</span>
-            </div>
-            <div class="bc-footer">
-              <div>
-                <div class="bc-bids"><strong>5 offers</strong> received</div>
-                <div class="bc-expires"><i class="fa-regular fa-clock"></i> Expires in 2 days</div>
-              </div>
-              <button class="bc-btn-ghost"><i class="fa-regular fa-comment"></i> Message</button>
-              <button class="bc-btn-offer"><i class="fa-solid fa-hand-point-up"></i> Offer help</button>
-            </div>
-          </div>
+        <div class="empty-state">
+          <p>View all bounties on the dedicated board.</p>
+          <a href="{{ url_for('bounties') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+            <i class="fa-solid fa-bolt"></i> Go to Bounty Board
+          </a>
         </div>
-
-        <!-- Bounty 3 — MATH1012 exam prep -->
-        <div class="bounty-card" style="margin-bottom:12px;">
-          <div class="bc-accent"></div>
-          <div class="bc-body">
-            <div class="bc-header">
-              <div class="bc-left">
-                <div class="bc-av" style="background:#0d9488;">D</div>
-                <div>
-                  <div class="bc-poster-name">Dana Morris</div>
-                  <div class="bc-poster-detail">Engineering · 1st year</div>
-                </div>
-              </div>
-              <div class="bc-reward">
-                <div class="bc-reward-amt">$20/hr</div>
-                <div class="bc-reward-label">offered rate</div>
-              </div>
-            </div>
-            <span class="bc-pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
-            <div class="bc-title">MATH1012 — Integration by parts &amp; series convergence tutoring</div>
-            <div class="bc-desc">The final is next week and I'm really lost on integration by parts and the series convergence tests. Looking for a patient tutor who can explain things step-by-step. Ideally someone who's recently done this unit and remembers the tricky parts.</div>
-            <div class="bc-info">
-              <div class="bc-info-item"><i class="fa-solid fa-book"></i><span><strong>MATH1012</strong></span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-clock"></i><span>2–3 sessions · flexible</span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-location-dot"></i><span>Reid Library or online</span></div>
-            </div>
-            <div class="bc-tags">
-              <span class="bc-tag">Integration</span>
-              <span class="bc-tag">Series</span>
-              <span class="bc-tag">Calculus</span>
-              <span class="bc-tag">Exam prep</span>
-            </div>
-            <div class="bc-footer">
-              <div>
-                <div class="bc-bids"><strong>2 offers</strong> received</div>
-                <div class="bc-expires"><i class="fa-regular fa-clock"></i> Expires in 6 days</div>
-              </div>
-              <button class="bc-btn-ghost"><i class="fa-regular fa-comment"></i> Message</button>
-              <button class="bc-btn-offer"><i class="fa-solid fa-hand-point-up"></i> Offer help</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bounty 4 — Essay editing -->
-        <div class="bounty-card" style="margin-bottom:12px;">
-          <div class="bc-accent"></div>
-          <div class="bc-body">
-            <div class="bc-header">
-              <div class="bc-left">
-                <div class="bc-av" style="background:#be185d;">R</div>
-                <div>
-                  <div class="bc-poster-name">Rachel Kim</div>
-                  <div class="bc-poster-detail">Law · 2nd year</div>
-                </div>
-              </div>
-              <div class="bc-reward">
-                <div class="bc-reward-amt">$40</div>
-                <div class="bc-reward-label">flat rate</div>
-              </div>
-            </div>
-            <span class="bc-pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
-            <div class="bc-title">LAWS2204 — Feedback on 2,500-word contract law essay</div>
-            <div class="bc-desc">Looking for a law student (2nd year+) to give substantive feedback on my contract law essay before submission. It needs someone who knows how to structure legal arguments and reference case law correctly. Willing to pay a flat $40 for a thorough review within 48 hours.</div>
-            <div class="bc-info">
-              <div class="bc-info-item"><i class="fa-solid fa-book"></i><span><strong>LAWS2204</strong></span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-clock"></i><span>Within 48 hours</span></div>
-              <div class="bc-info-item"><i class="fa-solid fa-file-lines"></i><span>Online · Google Docs</span></div>
-            </div>
-            <div class="bc-tags">
-              <span class="bc-tag">Essay feedback</span>
-              <span class="bc-tag">Contract law</span>
-              <span class="bc-tag">LAWS2204</span>
-            </div>
-            <div class="bc-footer">
-              <div>
-                <div class="bc-bids"><strong>1 offer</strong> received</div>
-                <div class="bc-expires"><i class="fa-regular fa-clock"></i> Expires in 1 day</div>
-              </div>
-              <button class="bc-btn-ghost"><i class="fa-regular fa-comment"></i> Message</button>
-              <button class="bc-btn-offer"><i class="fa-solid fa-hand-point-up"></i> Offer help</button>
-            </div>
-          </div>
-        </div>
-
       </div>
       <!-- /bounties-list -->
 
     </main>
 
-    <!-- ── RIGHT PANEL ──────────────────────────────────── -->
+    <!-- RIGHT PANEL -->
     <aside class="right">
-
-      <!-- Stats -->
       <div class="rcard">
-        <div class="rcard-title">Your stats this semester</div>
+        <div class="rcard-title">Session stats</div>
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="stat-num">11</div>
-            <div class="stat-lbl">Sessions attended</div>
+            <div class="stat-num">{{ sessions|length }}</div>
+            <div class="stat-lbl">Active sessions</div>
           </div>
           <div class="stat-box">
-            <div class="stat-num">4</div>
-            <div class="stat-lbl">Sessions hosted</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-num">2</div>
-            <div class="stat-lbl">Bounties completed</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-num">$60</div>
-            <div class="stat-lbl">Earned tutoring</div>
+            <div class="stat-num">{{ sessions|sum(attribute='rsvp_count') if sessions else 0 }}</div>
+            <div class="stat-lbl">Total RSVPs</div>
           </div>
         </div>
       </div>
 
-      <!-- Upcoming sessions -->
-      <div class="rcard">
-        <div class="rcard-title">Your upcoming sessions</div>
-        <div class="upcoming-item">
-          <div class="upcoming-dot" style="background:#1d4ed8;"></div>
-          <div class="upcoming-info">
-            <div class="upcoming-name">CITS3403 Finals Prep</div>
-            <div class="upcoming-detail">Reid Library · G14</div>
-          </div>
-          <div class="upcoming-time">Fri 2pm</div>
-        </div>
-        <div class="upcoming-item">
-          <div class="upcoming-dot" style="background:#0d9488;"></div>
-          <div class="upcoming-info">
-            <div class="upcoming-name">MATH1012 Week 11</div>
-            <div class="upcoming-detail">Online · Zoom</div>
-          </div>
-          <div class="upcoming-time">Sat 10am</div>
-        </div>
-        <div class="upcoming-item">
-          <div class="upcoming-dot" style="background:#7c3aed;"></div>
-          <div class="upcoming-info">
-            <div class="upcoming-name">STAT2401 Tutoring</div>
-            <div class="upcoming-detail">1-on-1 · Online</div>
-          </div>
-          <div class="upcoming-time">Mon 4pm</div>
-        </div>
-      </div>
-
-      <!-- Active bounties -->
-      <div class="rcard">
-        <div class="rcard-title">Trending bounties</div>
-        <div class="bounty-mini">
-          <div class="bounty-mini-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="bounty-mini-info">
-            <div class="bounty-mini-title">CITS3403 Flask debugging</div>
-            <div class="bounty-mini-unit">5 offers · expires soon</div>
-          </div>
-          <div class="bounty-mini-amt">$30/hr</div>
-        </div>
-        <div class="bounty-mini">
-          <div class="bounty-mini-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="bounty-mini-info">
-            <div class="bounty-mini-title">CITS1003 Networking</div>
-            <div class="bounty-mini-unit">3 offers · 4 days left</div>
-          </div>
-          <div class="bounty-mini-amt">$25/hr</div>
-        </div>
-        <div class="bounty-mini">
-          <div class="bounty-mini-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="bounty-mini-info">
-            <div class="bounty-mini-title">LAWS2204 Essay review</div>
-            <div class="bounty-mini-unit">1 offer · expires tomorrow</div>
-          </div>
-          <div class="bounty-mini-amt">$40</div>
-        </div>
-      </div>
-
-      <!-- CTA -->
+      {% if current_user %}
       <div class="cta-card">
         <div class="cta-title">Got something to offer?</div>
-        <div class="cta-sub">Host a study session or post a tutoring listing and earn XP — or cash — helping your peers.</div>
-        <button class="cta-btn"><i class="fa-solid fa-calendar-plus"></i> Post a session</button>
-        <button class="cta-btn"><i class="fa-solid fa-bolt"></i> Create a bounty</button>
+        <div class="cta-sub">Host a study session or post a bounty and earn XP helping your peers.</div>
+        <a href="{{ url_for('create_session') }}" class="cta-btn">
+          <i class="fa-solid fa-calendar-plus"></i> Post a session
+        </a>
+        <a href="{{ url_for('create_bounty') }}" class="cta-btn">
+          <i class="fa-solid fa-bolt"></i> Create a bounty
+        </a>
       </div>
-
+      {% else %}
+      <div class="cta-card">
+        <div class="cta-title">Join UniShare</div>
+        <div class="cta-sub">Sign up to RSVP to sessions, host your own, and earn XP.</div>
+        <a href="{{ url_for('login') }}" class="cta-btn">Create account</a>
+      </div>
+      {% endif %}
     </aside>
 
-  </div><!-- /page-wrap -->
+  </div>
 
   <script>
     function switchTab(btn, showId, hideId) {
-      // Update tab styles
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      // Show/hide lists
       document.getElementById(showId).style.display = '';
       document.getElementById(hideId).style.display = 'none';
     }
