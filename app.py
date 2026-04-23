@@ -456,23 +456,43 @@ def bounties():
 @app.route('/create_bounty', methods=['GET', 'POST'])
 @login_required
 def create_bounty():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form.get('unit_code', '').strip().upper(),
-             float(request.form.get('reward', 0)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Bounty posted!', 'success')
-        return redirect(url_for('bounties'))
-    return render_template('create_bounty.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+        form['reward'],      errors['reward']      = validate_price(request.form.get('reward'), field_label='Reward', allow_zero=True)
+
+        # unit_code is optional on bounties, but if provided must match format
+        raw_unit = (request.form.get('unit_code') or '').strip()
+        if raw_unit:
+            form['unit_code'], errors['unit_code'] = validate_unit_code(raw_unit)
+        else:
+            form['unit_code'] = ''
+            errors['unit_code'] = None
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['reward'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Bounty posted!', 'success')
+            return redirect(url_for('bounties'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_bounty.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
 @login_required
