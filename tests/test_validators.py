@@ -12,6 +12,10 @@ import pytest
 from validators import (
     validate_required_text,
     validate_optional_text,
+    validate_price,
+    validate_positive_int,
+    validate_choice,
+    LISTING_CONDITIONS,
 )
 
 
@@ -102,3 +106,165 @@ class TestValidateOptionalText:
         _, error = validate_optional_text('hello world', 'Description', max_len=5)
         assert error is not None
         assert '5 characters or fewer' in error
+
+# ─────────────────────────────────────────────────────────────
+# validate_price
+# ─────────────────────────────────────────────────────────────
+
+class TestValidatePrice:
+    """Tests for validate_price."""
+
+    def test_valid_integer_price(self):
+        value, error = validate_price('50')
+        assert value == 50.0
+        assert error is None
+
+    def test_valid_decimal_price(self):
+        value, error = validate_price('19.99')
+        assert value == 19.99
+        assert error is None
+
+    def test_price_is_rounded_to_two_decimals(self):
+        value, error = validate_price('19.999')
+        assert value == 20.0
+        assert error is None
+
+    def test_zero_is_valid_when_allowed(self):
+        value, error = validate_price('0', allow_zero=True)
+        assert value == 0.0
+        assert error is None
+
+    def test_zero_rejected_when_not_allowed(self):
+        value, error = validate_price('0', allow_zero=False)
+        assert value is None
+        assert error is not None
+        assert 'greater than 0' in error
+
+    def test_negative_price_rejected(self):
+        value, error = validate_price('-5')
+        assert value is None
+        assert 'cannot be negative' in error
+
+    def test_non_numeric_input_rejected(self):
+        value, error = validate_price('abc')
+        assert value is None
+        assert 'must be a number' in error
+
+    def test_empty_string_rejected(self):
+        value, error = validate_price('')
+        assert value is None
+        assert 'required' in error
+
+    def test_none_input_rejected(self):
+        value, error = validate_price(None)
+        assert value is None
+        assert 'required' in error
+
+    def test_whitespace_input_rejected(self):
+        value, error = validate_price('   ')
+        assert value is None
+        assert 'required' in error
+
+    def test_exceeds_max_value_rejected(self):
+        value, error = validate_price('100001', max_value=100000)
+        assert value is None
+        assert 'cannot exceed 100000' in error
+
+    def test_custom_field_label_appears_in_error(self):
+        _, error = validate_price('-5', field_label='Reward')
+        assert 'Reward' in error
+
+
+# ─────────────────────────────────────────────────────────────
+# validate_positive_int
+# ─────────────────────────────────────────────────────────────
+
+class TestValidatePositiveInt:
+    """Tests for validate_positive_int."""
+
+    def test_valid_integer(self):
+        value, error = validate_positive_int('10', 'Max attendees')
+        assert value == 10
+        assert error is None
+
+    def test_below_min_rejected(self):
+        value, error = validate_positive_int('1', 'Max attendees', min_value=2)
+        assert value is None
+        assert 'at least 2' in error
+
+    def test_above_max_rejected(self):
+        value, error = validate_positive_int('201', 'Max attendees', max_value=200)
+        assert value is None
+        assert 'at most 200' in error
+
+    def test_exactly_min_is_valid(self):
+        value, error = validate_positive_int('2', 'Max attendees', min_value=2)
+        assert value == 2
+        assert error is None
+
+    def test_exactly_max_is_valid(self):
+        value, error = validate_positive_int('200', 'Max attendees', max_value=200)
+        assert value == 200
+        assert error is None
+
+    def test_non_numeric_rejected(self):
+        value, error = validate_positive_int('abc', 'Max attendees')
+        assert value is None
+        assert 'whole number' in error
+
+    def test_decimal_rejected(self):
+        value, error = validate_positive_int('3.5', 'Max attendees')
+        assert value is None
+        assert 'whole number' in error
+
+    def test_empty_string_rejected(self):
+        value, error = validate_positive_int('', 'Max attendees')
+        assert value is None
+        assert 'required' in error
+
+    def test_none_rejected(self):
+        value, error = validate_positive_int(None, 'Max attendees')
+        assert value is None
+        assert 'required' in error
+
+
+# ─────────────────────────────────────────────────────────────
+# validate_choice
+# ─────────────────────────────────────────────────────────────
+
+class TestValidateChoice:
+    """Tests for validate_choice."""
+
+    def test_valid_choice_accepted(self):
+        value, error = validate_choice('New', 'Condition', LISTING_CONDITIONS)
+        assert value == 'New'
+        assert error is None
+
+    def test_invalid_choice_rejected(self):
+        value, error = validate_choice('Slightly Used', 'Condition', LISTING_CONDITIONS)
+        assert 'must be one of' in error
+
+    def test_empty_input_rejected(self):
+        _, error = validate_choice('', 'Condition', LISTING_CONDITIONS)
+        assert 'required' in error
+
+    def test_none_input_rejected(self):
+        _, error = validate_choice(None, 'Condition', LISTING_CONDITIONS)
+        assert 'required' in error
+
+    def test_case_sensitive_matching(self):
+        # Choice matching is case-sensitive — 'new' should not match 'New'
+        _, error = validate_choice('new', 'Condition', LISTING_CONDITIONS)
+        assert error is not None
+
+    def test_all_valid_choices_accepted(self):
+        for choice in LISTING_CONDITIONS:
+            value, error = validate_choice(choice, 'Condition', LISTING_CONDITIONS)
+            assert value == choice
+            assert error is None, f"Expected {choice} to be valid"
+
+    def test_whitespace_around_valid_choice_accepted(self):
+        # The validator strips whitespace before matching
+        value, error = validate_choice('  New  ', 'Condition', LISTING_CONDITIONS)
+        assert value == 'New'
+        assert error is None
