@@ -15,6 +15,10 @@ from validators import (
     validate_price,
     validate_positive_int,
     validate_choice,
+    validate_unit_code,
+    validate_email,
+    validate_password,
+    validate_session_date,
     LISTING_CONDITIONS,
 )
 
@@ -268,3 +272,208 @@ class TestValidateChoice:
         value, error = validate_choice('  New  ', 'Condition', LISTING_CONDITIONS)
         assert value == 'New'
         assert error is None
+
+# ─────────────────────────────────────────────────────────────
+# validate_unit_code
+# ─────────────────────────────────────────────────────────────
+
+class TestValidateUnitCode:
+    """Tests for validate_unit_code (e.g. 'CITS3403')."""
+
+    def test_standard_unit_code_accepted(self):
+        value, error = validate_unit_code('CITS3403')
+        assert value == 'CITS3403'
+        assert error is None
+
+    def test_lowercase_is_normalized_to_uppercase(self):
+        value, error = validate_unit_code('cits3403')
+        assert value == 'CITS3403'
+        assert error is None
+
+    def test_mixed_case_is_normalized(self):
+        value, error = validate_unit_code('CiTs3403')
+        assert value == 'CITS3403'
+        assert error is None
+
+    def test_whitespace_is_stripped(self):
+        value, error = validate_unit_code('  CITS3403  ')
+        assert value == 'CITS3403'
+        assert error is None
+
+    def test_two_letter_prefix_accepted(self):
+        value, error = validate_unit_code('IT1100')
+        assert value == 'IT1100'
+        assert error is None
+
+    def test_four_letter_prefix_accepted(self):
+        value, error = validate_unit_code('MATH1001')
+        assert value == 'MATH1001'
+        assert error is None
+
+    def test_only_letters_rejected(self):
+        _, error = validate_unit_code('CITS')
+        assert error is not None
+
+    def test_only_digits_rejected(self):
+        _, error = validate_unit_code('3403')
+        assert error is not None
+
+    def test_random_word_rejected(self):
+        _, error = validate_unit_code('banana')
+        assert error is not None
+
+    def test_empty_string_rejected(self):
+        _, error = validate_unit_code('')
+        assert error == 'Unit code is required.'
+
+    def test_none_rejected(self):
+        _, error = validate_unit_code(None)
+        assert error == 'Unit code is required.'
+
+    def test_too_few_digits_rejected(self):
+        _, error = validate_unit_code('CITS34')
+        assert error is not None
+
+    def test_too_many_digits_rejected(self):
+        _, error = validate_unit_code('CITS340345')
+        assert error is not None
+
+    def test_letters_after_digits_rejected(self):
+        _, error = validate_unit_code('CITS3403A')
+        assert error is not None
+
+
+# ─────────────────────────────────────────────────────────────
+# validate_email
+# ─────────────────────────────────────────────────────────────
+
+class TestValidateEmail:
+    """Tests for validate_email."""
+
+    def test_standard_email_accepted(self):
+        value, error = validate_email('student@uwa.edu.au')
+        assert value == 'student@uwa.edu.au'
+        assert error is None
+
+    def test_uppercase_email_normalized_to_lowercase(self):
+        value, error = validate_email('STUDENT@UWA.EDU.AU')
+        assert value == 'student@uwa.edu.au'
+        assert error is None
+
+    def test_whitespace_is_stripped(self):
+        value, error = validate_email('  user@example.com  ')
+        assert value == 'user@example.com'
+        assert error is None
+
+    def test_missing_at_sign_rejected(self):
+        _, error = validate_email('notanemail')
+        assert 'valid email' in error
+
+    def test_missing_domain_rejected(self):
+        _, error = validate_email('user@')
+        assert 'valid email' in error
+
+    def test_missing_tld_rejected(self):
+        _, error = validate_email('user@domain')
+        assert 'valid email' in error
+
+    def test_spaces_inside_rejected(self):
+        _, error = validate_email('user name@example.com')
+        assert 'valid email' in error
+
+    def test_empty_string_rejected(self):
+        _, error = validate_email('')
+        assert 'required' in error
+
+    def test_none_rejected(self):
+        _, error = validate_email(None)
+        assert 'required' in error
+
+    def test_overly_long_email_rejected(self):
+        long_email = 'a' * 250 + '@example.com'
+        _, error = validate_email(long_email)
+        assert error is not None
+
+
+# ─────────────────────────────────────────────────────────────
+# validate_password
+# ─────────────────────────────────────────────────────────────
+
+class TestValidatePassword:
+    """Tests for validate_password."""
+
+    def test_valid_password_accepted(self):
+        value, error = validate_password('mypassword123')
+        assert value == 'mypassword123'
+        assert error is None
+
+    def test_password_at_minimum_length_accepted(self):
+        value, error = validate_password('12345678', min_len=8)
+        assert value == '12345678'
+        assert error is None
+
+    def test_short_password_rejected(self):
+        _, error = validate_password('abc', min_len=8)
+        assert 'at least 8 characters' in error
+
+    def test_empty_password_rejected(self):
+        _, error = validate_password('')
+        assert 'required' in error
+
+    def test_none_rejected(self):
+        _, error = validate_password(None)
+        assert 'required' in error
+
+    def test_very_long_password_rejected(self):
+        long_pw = 'a' * 200
+        _, error = validate_password(long_pw, max_len=128)
+        assert '128 characters or fewer' in error
+
+    def test_password_with_special_chars_accepted(self):
+        value, error = validate_password('p@ssw0rd!#$')
+        assert value == 'p@ssw0rd!#$'
+        assert error is None
+
+    def test_whitespace_in_password_preserved(self):
+        # Unlike other fields, passwords should NOT be stripped
+        value, error = validate_password('my password ')
+        assert value == 'my password '
+        assert error is None
+
+
+# ─────────────────────────────────────────────────────────────
+# validate_session_date
+# ─────────────────────────────────────────────────────────────
+
+class TestValidateSessionDate:
+    """Tests for validate_session_date (datetime-local format)."""
+
+    def test_valid_datetime_accepted(self):
+        value, error = validate_session_date('2026-05-15T14:30')
+        assert value == '2026-05-15T14:30'
+        assert error is None
+
+    def test_datetime_with_seconds_accepted(self):
+        value, error = validate_session_date('2026-05-15T14:30:00')
+        assert value == '2026-05-15T14:30:00'
+        assert error is None
+
+    def test_empty_rejected(self):
+        _, error = validate_session_date('')
+        assert 'required' in error
+
+    def test_none_rejected(self):
+        _, error = validate_session_date(None)
+        assert 'required' in error
+
+    def test_plain_date_rejected(self):
+        _, error = validate_session_date('2026-05-15')
+        assert error is not None
+
+    def test_random_string_rejected(self):
+        _, error = validate_session_date('tomorrow at 3pm')
+        assert error is not None
+
+    def test_whitespace_only_rejected(self):
+        _, error = validate_session_date('   ')
+        assert 'required' in error
