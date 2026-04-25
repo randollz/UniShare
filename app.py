@@ -206,11 +206,23 @@ def marketplace():
 
     db       = get_db()
     listings = db.execute(query, params).fetchall()
+
+    # Fetch saved listing IDs for the current user (used to mark bookmarks)
+    saved_ids = set()
+    user = get_current_user()
+    if user:
+        rows = db.execute(
+            'SELECT listing_id FROM saved_listings WHERE user_id = ?',
+            (user['id'],)
+        ).fetchall()
+        saved_ids = {r['listing_id'] for r in rows}
+
     db.close()
 
     return render_template('marketplace.html',
-                           current_user=get_current_user(),
+                           current_user=user,
                            listings=listings,
+                           saved_ids=saved_ids,
                            q=q, unit=unit, condition=condition, sort=sort)
 
 
