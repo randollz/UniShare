@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite database (each developer has their own local copy)
+unishare.db
+*.db-journal
+
+# Pytest
+.pytest_cache/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
