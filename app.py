@@ -1,7 +1,7 @@
 import os
 import functools
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, g)
+                   url_for, session, flash, g, Response)
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db
 from validators import (validate_required_text, validate_optional_text,
@@ -295,6 +295,35 @@ def view_listing(listing_id):
         'listing_detail.html',
         listing=listing,
         current_user=get_current_user()
+    )
+
+@app.route('/listings/<int:listing_id>/download')
+def download_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        'SELECT * FROM listings WHERE id = ?',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    content = (
+        f"{listing['title']}\n\n"
+        f"Unit: {listing['unit_code']}\n"
+        f"Price: ${listing['price']:.2f}\n"
+        f"Condition: {listing['condition']}\n\n"
+        f"{listing['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=listing-{listing_id}.txt'
+        }
     )
 
 
