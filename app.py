@@ -4,6 +4,10 @@ from flask import (Flask, render_template, request, redirect,
                    url_for, session, flash, g)
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db
+from validators import (validate_required_text, validate_optional_text,
+                        validate_unit_code, validate_price, validate_positive_int,
+                        validate_email, validate_password, validate_session_date,
+                        validate_choice, LISTING_CONDITIONS)
 
 app = Flask(__name__, template_folder='.', static_folder='.', static_url_path='')
 app.secret_key = 'unishare-demo-secret-key'
@@ -213,23 +217,38 @@ def marketplace():
 @app.route('/create_listing', methods=['GET', 'POST'])
 @login_required
 def create_listing():
+    errors = {}
+    form = {}
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             float(request.form['price']),
-             request.form['condition'],
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Listing posted!', 'success')
-        return redirect(url_for('marketplace'))
-    return render_template('create_listing.html', current_user=get_current_user())
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=100)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['price'],       errors['price']       = validate_price(request.form.get('price'))
+        form['condition'],   errors['condition']   = validate_choice(request.form.get('condition'), 'Condition', LISTING_CONDITIONS)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        # Strip keys where error is None so template can do {% if errors.title %}
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['price'],
+                 form['condition'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Listing posted!', 'success')
+            return redirect(url_for('marketplace'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_listing.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form,
+                           conditions=LISTING_CONDITIONS)
 
 
 @app.route('/delete_listing/<int:listing_id>', methods=['POST'])
@@ -293,23 +312,36 @@ def notes():
 @app.route('/create_note', methods=['GET', 'POST'])
 @login_required
 def create_note():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('semester', ''),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Notes shared!', 'success')
-        return redirect(url_for('notes'))
-    return render_template('create_note.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['semester'],    errors['semester']    = validate_optional_text(request.form.get('semester'), 'Semester', max_len=50)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['semester'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Notes shared!', 'success')
+            return redirect(url_for('notes'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_note.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/upvote_note/<int:note_id>', methods=['POST'])
 @login_required
@@ -353,24 +385,38 @@ def study_sessions():
 @app.route('/create_session', methods=['GET', 'POST'])
 @login_required
 def create_session():
+    errors = {}
+    form = {}
+
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('location', ''),
-             request.form.get('session_date', ''),
-             int(request.form.get('max_attendees', 10)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Study session posted!', 'success')
-        return redirect(url_for('study_sessions'))
-    return render_template('create_session.html', current_user=get_current_user())
+        form['title'],         errors['title']         = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],     errors['unit_code']     = validate_unit_code(request.form.get('unit_code'))
+        form['location'],      errors['location']      = validate_optional_text(request.form.get('location'), 'Location', max_len=200)
+        form['session_date'],  errors['session_date']  = validate_session_date(request.form.get('session_date'))
+        form['max_attendees'], errors['max_attendees'] = validate_positive_int(request.form.get('max_attendees', '10'), 'Max attendees', min_value=2, max_value=200)
+        form['description'],   errors['description']   = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['location'],
+                 form['session_date'], form['max_attendees'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Study session posted!', 'success')
+            return redirect(url_for('study_sessions'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_session.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 
 @app.route('/rsvp_session/<int:session_id>', methods=['POST'])
@@ -410,23 +456,43 @@ def bounties():
 @app.route('/create_bounty', methods=['GET', 'POST'])
 @login_required
 def create_bounty():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form.get('unit_code', '').strip().upper(),
-             float(request.form.get('reward', 0)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Bounty posted!', 'success')
-        return redirect(url_for('bounties'))
-    return render_template('create_bounty.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+        form['reward'],      errors['reward']      = validate_price(request.form.get('reward'), field_label='Reward', allow_zero=True)
+
+        # unit_code is optional on bounties, but if provided must match format
+        raw_unit = (request.form.get('unit_code') or '').strip()
+        if raw_unit:
+            form['unit_code'], errors['unit_code'] = validate_unit_code(raw_unit)
+        else:
+            form['unit_code'] = ''
+            errors['unit_code'] = None
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['reward'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Bounty posted!', 'success')
+            return redirect(url_for('bounties'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_bounty.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
 @login_required
