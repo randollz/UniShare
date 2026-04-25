@@ -515,44 +515,48 @@
         </div>
       </div>
 
-      <!-- Recently sold placeholder -->
-      <div class="rcard">
-        <div class="rcard-title">Recently sold</div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#1e3a5f,#3b6ef5);">
-            <i class="fa-solid fa-book" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">Database Systems — 7th Ed.</div>
-            <div class="sold-price">$32 · CITS2005</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#134e4a,#10b981);">
-            <i class="fa-solid fa-laptop" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">Dell USB-C Hub (7-in-1)</div>
-            <div class="sold-price">$28 · Electronics</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#500724,#be185d);">
-            <i class="fa-solid fa-file-pdf" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">PSYC1102 — Semester notes</div>
-            <div class="sold-price">$10 · PSYC1102</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="rcard-footer">
-          <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
-          &copy; 2025 UniShare · UWA students
-        </div>
+      <!-- Latest listings (replaces "Recently sold" hardcoded data) -->
+<div class="rcard">
+  <div class="rcard-title">Latest listings</div>
+
+  {% if recent_listings %}
+    {% for r in recent_listings %}
+    {% set ridx = loop.index0 % 8 %}
+    {% set rcolors = [
+      'linear-gradient(135deg,#1e3a5f,#3b6ef5)',
+      'linear-gradient(135deg,#134e4a,#10b981)',
+      'linear-gradient(135deg,#500724,#be185d)',
+      'linear-gradient(135deg,#1c1917,#b45309)',
+      'linear-gradient(135deg,#0c1445,#3b6ef5)',
+      'linear-gradient(135deg,#052e16,#16a34a)',
+      'linear-gradient(135deg,#1e1b4b,#6d28d9)',
+      'linear-gradient(135deg,#1e3a5f,#7c3aed)'
+    ] %}
+    <a href="{{ url_for('view_listing', listing_id=r.id) }}"
+       class="sold-row"
+       style="text-decoration:none; color:inherit;">
+      <div class="sold-img" style="background: {{ rcolors[ridx] }};">
+        <i class="fa-solid fa-book" style="font-size:.9rem;"></i>
       </div>
+      <div>
+        <div class="sold-title">{{ r.title[:32] }}{% if r.title|length > 32 %}…{% endif %}</div>
+        <div class="sold-price">${{ "%.0f"|format(r.price) }} · {{ r.unit_code }}</div>
+      </div>
+      <span class="sold-badge" style="background:rgba(59,130,246,0.1);color:#2563eb;">{{ r.condition }}</span>
+    </a>
+    {% endfor %}
+  {% else %}
+    <div style="font-size:.78rem; color:var(--muted); padding:8px 0;">
+      No listings yet. Be the first to post one!
+    </div>
+  {% endif %}
+
+  <div class="rcard-footer">
+    <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
+    &copy; 2025 UniShare · UWA students
+  </div>
+</div>
+         
 
     </aside>
 
