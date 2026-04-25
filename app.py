@@ -217,12 +217,39 @@ def marketplace():
         ).fetchall()
         saved_ids = {r['listing_id'] for r in rows}
 
+    # Latest 3 listings overall (for the "Latest listings" sidebar)
+    recent_listings = db.execute(
+        '''SELECT l.id, l.title, l.unit_code, l.price, l.condition
+           FROM listings l
+           ORDER BY l.created_at DESC
+           LIMIT 3'''
+    ).fetchall()
+
+    # Average price stats by category (uses unit prefix as a rough grouping)
+    price_stats_rows = db.execute(
+        '''SELECT
+              SUBSTR(unit_code, 1, 4) AS unit_prefix,
+              ROUND(AVG(price), 0)    AS avg_price,
+              COUNT(*)                AS n
+           FROM listings
+           GROUP BY unit_prefix
+           HAVING n >= 1
+           ORDER BY n DESC
+           LIMIT 5'''
+    ).fetchall()
+
+    # Active listings count
+    active_count = db.execute('SELECT COUNT(*) AS c FROM listings').fetchone()['c']
+
     db.close()
 
     return render_template('marketplace.html',
                            current_user=user,
                            listings=listings,
                            saved_ids=saved_ids,
+                           recent_listings=recent_listings,
+                           price_stats=price_stats_rows,
+                           active_count=active_count,
                            q=q, unit=unit, condition=condition, sort=sort)
 
 
