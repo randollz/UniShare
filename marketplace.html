@@ -490,30 +490,28 @@
       </div>
       {% endif %}
 
-      <!-- Price stats -->
-      <div class="rcard">
-        <div class="rcard-title">Average prices this semester</div>
-        <div class="price-stat-row">
-          <span class="psr-label">1st-year textbooks</span>
-          <span class="psr-val">$28</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">2nd/3rd-year textbooks</span>
-          <span class="psr-val">$42</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Note sets (premium)</span>
-          <span class="psr-val">$6–$15</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Calculators</span>
-          <span class="psr-val">$18–$35</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Active listings</span>
-          <span class="psr-val" style="color:#16a34a;">{{ listings|length }}</span>
-        </div>
-      </div>
+      <!-- Price stats (computed from real data) -->
+<div class="rcard">
+  <div class="rcard-title">Average prices by unit</div>
+
+  {% if price_stats %}
+    {% for p in price_stats %}
+    <div class="price-stat-row">
+      <span class="psr-label">{{ p.unit_prefix }}</span>
+      <span class="psr-val">${{ "%.0f"|format(p.avg_price) }}</span>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="font-size:.78rem; color:var(--muted); padding:8px 0;">
+      No price data yet — post a listing to start the stats!
+    </div>
+  {% endif %}
+
+  <div class="price-stat-row">
+    <span class="psr-label">Active listings</span>
+    <span class="psr-val" style="color:#16a34a;">{{ active_count }}</span>
+  </div>
+</div>
 
       <!-- Latest listings (replaces "Recently sold" hardcoded data) -->
 <div class="rcard">
