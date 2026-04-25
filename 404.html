@@ -1,9 +1,131 @@
 {% extends 'base.html' %}
-{% block title %}404 — UniShare{% endblock %}
+{% block title %}Page not found — UniShare{% endblock %}
+
+{% block head %}
+<style>
+.error-page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px 60px;
+    text-align: center;
+}
+.error-code {
+    font-family: 'Inter', sans-serif;
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    background: linear-gradient(135deg, #142279 0%, #142279 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+}
+.error-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: ##0a0e28;
+    margin-bottom: 14px;
+    letter-spacing: -0.025em;
+}
+.error-message {
+    font-family: 'Inter', sans-serif;
+    color: #4a5068;
+    font-size: 0.95rem;
+    max-width: 460px;
+    margin: 0 auto 36px;
+    line-height: 1.65;
+    font-weight: 400;
+}
+.error-suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    max-width: 720px;
+    width: 100%;
+    margin-bottom: 36px;
+}
+.error-card {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    border: 1.5px solid #142279;
+    border-radius: 16px;
+    padding: 22px 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    text-align: left;
+    box-shadow: 0 1px 3px #142279;
+}
+.error-card:hover {
+    transform: translateY(-3px);
+    border-color: #142279;
+    box-shadow: 0 12px 32px rgba(59,110,245,0.18);
+}
+.error-card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #142279;
+}
+.error-card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #142279;
+    margin-bottom: 5px;
+    letter-spacing: -0.01em;
+}
+.error-card-desc {
+    font-size: 0.8rem;
+    color: #6b7185;
+    line-height: 1.55;
+}
+.error-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-inner" style="text-align:center;padding:80px 24px">
-    <h1 style="font-size:4rem;font-weight:900;color:var(--border-2)">404</h1>
-    <p style="color:var(--mid);margin:12px 0 28px">That page doesn't exist.</p>
-    <a href="{{ url_for('index') }}" class="btn btn-dark">Go home</a>
+<div class="error-page">
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page not found</h1>
+    <p class="error-message">
+        The page you're looking for doesn't exist or may have been moved. Try one of these instead:
+    </p>
+
+    <div class="error-suggestions">
+        <a href="{{ url_for('marketplace') }}" class="error-card">
+            <div class="error-card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div class="error-card-title">Browse marketplace</div>
+            <div class="error-card-desc">Find textbooks, gear, and more from other students</div>
+        </a>
+        <a href="{{ url_for('notes') }}" class="error-card">
+            <div class="error-card-icon"><i class="fa-solid fa-book-open"></i></div>
+            <div class="error-card-title">Study notes</div>
+            <div class="error-card-desc">Browse and share notes by unit code</div>
+        </a>
+        <a href="{{ url_for('study_sessions') }}" class="error-card">
+            <div class="error-card-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="error-card-title">Study sessions</div>
+            <div class="error-card-desc">Join or host group study sessions</div>
+        </a>
+    </div>
+
+    <div class="error-actions">
+        {% if current_user %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-dark">Go to dashboard</a>
+        {% else %}
+            <a href="{{ url_for('index') }}" class="btn btn-dark">Go home</a>
+            <a href="{{ url_for('login') }}" class="btn btn-ghost">Log in</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
