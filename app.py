@@ -276,6 +276,27 @@ def save_listing(listing_id):
     db.close()
     return redirect(url_for('marketplace'))
 
+@app.route('/listings/<int:listing_id>')
+def view_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        '''SELECT l.*, u.first_name, u.last_name
+           FROM listings l JOIN users u ON u.id = l.seller_id
+           WHERE l.id = ?''',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    return render_template(
+        'listing_detail.html',
+        listing=listing,
+        current_user=get_current_user()
+    )
+
 
 # ─────────────────────────────────────────────────────────────
 # Notes
