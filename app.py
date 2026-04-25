@@ -276,6 +276,20 @@ def save_listing(listing_id):
     db.close()
     return redirect(url_for('marketplace'))
 
+
+@app.route('/unsave_listing/<int:listing_id>', methods=['POST'])
+@login_required
+def unsave_listing(listing_id):
+    user = get_current_user()
+    db   = get_db()
+    db.execute(
+        'DELETE FROM saved_listings WHERE user_id = ? AND listing_id = ?',
+        (user['id'], listing_id)
+    )
+    db.commit()
+    db.close()
+    return redirect(url_for('marketplace'))
+
 @app.route('/listings/<int:listing_id>')
 def view_listing(listing_id):
     db = get_db()
