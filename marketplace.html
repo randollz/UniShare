@@ -447,7 +447,20 @@
             {% endif %}
             <div class="lc-price-row">
               <span class="lc-price">${{ "%.0f"|format(l.price) }}</span>
+              <div class="lc-actions">
+                <a href="{{ url_for('view_listing', listing_id=l.id) }}"
+                  class="lc-action-btn"
+                  title="View detail">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+                <a href="{{ url_for('download_listing', listing_id=l.id) }}"
+                   class="lc-action-btn"
+                   title="Download as text">
+                  <i class="fa-solid fa-download"></i>
+                </a>
+              </div>
             </div>
+            
             <div class="lc-seller">
               <div class="lc-av" style="background: {{ avcolors[idx] }};">
                 {{ l.first_name[0] }}
