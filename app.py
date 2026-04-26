@@ -506,11 +506,19 @@ def download_note(note_id):
 def study_sessions():
     unit = request.args.get('unit', '').strip().upper()
 
-    query  = '''SELECT s.*, u.first_name, u.last_name,
-                       (SELECT COUNT(*) FROM session_rsvps r WHERE r.session_id = s.id) as rsvp_count
-                FROM sessions s JOIN users u ON u.id = s.host_id
-                WHERE 1=1'''
-    params = []
+    query = '''
+    SELECT s.*, u.first_name, u.last_name,
+       (SELECT COUNT(*) FROM session_rsvps r WHERE r.session_id = s.id) as rsvp_count,
+       EXISTS (
+           SELECT 1 FROM session_rsvps r2
+           WHERE r2.session_id = s.id AND r2.user_id = ?
+       ) as current_user_joined
+    FROM sessions s
+    JOIN users u ON u.id = s.host_id
+    WHERE 1=1
+    '''
+    current_user = get_current_user()
+    params = [current_user['id'] if current_user else 0]
 
     if unit:
         query += ' AND s.unit_code = ?'
@@ -577,6 +585,24 @@ def rsvp_session(session_id):
     except Exception:
         flash('You\'re already signed up for that session.', 'info')
     db.close()
+    return redirect(url_for('study_sessions'))
+
+
+@app.route('/cancel_rsvp/<int:session_id>', methods=['POST'])
+@login_required
+def cancel_rsvp(session_id):
+    user = get_current_user()
+    db = get_db()
+
+    db.execute(
+        'DELETE FROM session_rsvps WHERE session_id = ? AND user_id = ?',
+        (session_id, user['id'])
+    )
+
+    db.commit()
+    db.close()
+
+    flash('RSVP cancelled.', 'info')
     return redirect(url_for('study_sessions'))
 
 
