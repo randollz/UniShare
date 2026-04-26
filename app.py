@@ -1,10 +1,14 @@
 import os
 import functools
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, g, jsonify)
+                   url_for, session, flash, g, jsonify, Response)
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from database import get_db, init_db
+from validators import (validate_required_text, validate_optional_text,
+                        validate_unit_code, validate_price, validate_positive_int,
+                        validate_email, validate_password, validate_session_date,
+                        validate_choice, LISTING_CONDITIONS)
 
 load_dotenv()
 
@@ -104,6 +108,20 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+
+# ─────────────────────────────────────────────────────────────
+# Error handlers
+# ─────────────────────────────────────────────────────────────
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', current_user=get_current_user()), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html', current_user=get_current_user()), 500  
 
 
 # ─────────────────────────────────────────────────────────────
@@ -226,34 +244,88 @@ def marketplace():
 
     db       = get_db()
     listings = db.execute(query, params).fetchall()
+
+    # Fetch saved listing IDs for the current user (used to mark bookmarks)
+    saved_ids = set()
+    user = get_current_user()
+    if user:
+        rows = db.execute(
+            'SELECT listing_id FROM saved_listings WHERE user_id = ?',
+            (user['id'],)
+        ).fetchall()
+        saved_ids = {r['listing_id'] for r in rows}
+
+    # Latest 3 listings overall (for the "Latest listings" sidebar)
+    recent_listings = db.execute(
+        '''SELECT l.id, l.title, l.unit_code, l.price, l.condition
+           FROM listings l
+           ORDER BY l.created_at DESC
+           LIMIT 3'''
+    ).fetchall()
+
+    # Average price stats by category (uses unit prefix as a rough grouping)
+    price_stats_rows = db.execute(
+        '''SELECT
+              SUBSTR(unit_code, 1, 4) AS unit_prefix,
+              ROUND(AVG(price), 0)    AS avg_price,
+              COUNT(*)                AS n
+           FROM listings
+           GROUP BY unit_prefix
+           HAVING n >= 1
+           ORDER BY n DESC
+           LIMIT 5'''
+    ).fetchall()
+
+    # Active listings count
+    active_count = db.execute('SELECT COUNT(*) AS c FROM listings').fetchone()['c']
+
     db.close()
 
     return render_template('marketplace.html',
-                           current_user=get_current_user(),
+                           current_user=user,
                            listings=listings,
+                           saved_ids=saved_ids,
+                           recent_listings=recent_listings,
+                           price_stats=price_stats_rows,
+                           active_count=active_count,
                            q=q, unit=unit, condition=condition, sort=sort)
 
 
 @app.route('/create_listing', methods=['GET', 'POST'])
 @login_required
 def create_listing():
+    errors = {}
+    form = {}
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             float(request.form['price']),
-             request.form['condition'],
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Listing posted!', 'success')
-        return redirect(url_for('marketplace'))
-    return render_template('create_listing.html', current_user=get_current_user())
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=100)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['price'],       errors['price']       = validate_price(request.form.get('price'))
+        form['condition'],   errors['condition']   = validate_choice(request.form.get('condition'), 'Condition', LISTING_CONDITIONS)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        # Strip keys where error is None so template can do {% if errors.title %}
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['price'],
+                 form['condition'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Listing posted!', 'success')
+            return redirect(url_for('marketplace'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_listing.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form,
+                           conditions=LISTING_CONDITIONS)
 
 
 @app.route('/delete_listing/<int:listing_id>', methods=['POST'])
@@ -280,6 +352,70 @@ def save_listing(listing_id):
         pass
     db.close()
     return redirect(url_for('marketplace'))
+
+
+@app.route('/unsave_listing/<int:listing_id>', methods=['POST'])
+@login_required
+def unsave_listing(listing_id):
+    user = get_current_user()
+    db   = get_db()
+    db.execute(
+        'DELETE FROM saved_listings WHERE user_id = ? AND listing_id = ?',
+        (user['id'], listing_id)
+    )
+    db.commit()
+    db.close()
+    return redirect(url_for('marketplace'))
+
+@app.route('/listings/<int:listing_id>')
+def view_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        '''SELECT l.*, u.first_name, u.last_name
+           FROM listings l JOIN users u ON u.id = l.seller_id
+           WHERE l.id = ?''',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    return render_template(
+        'listing_detail.html',
+        listing=listing,
+        current_user=get_current_user()
+    )
+
+@app.route('/listings/<int:listing_id>/download')
+def download_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        'SELECT * FROM listings WHERE id = ?',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    content = (
+        f"{listing['title']}\n\n"
+        f"Unit: {listing['unit_code']}\n"
+        f"Price: ${listing['price']:.2f}\n"
+        f"Condition: {listing['condition']}\n\n"
+        f"{listing['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=listing-{listing_id}.txt'
+        }
+    )
 
 
 # ─────────────────────────────────────────────────────────────
@@ -317,23 +453,36 @@ def notes():
 @app.route('/create_note', methods=['GET', 'POST'])
 @login_required
 def create_note():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('semester', ''),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Notes shared!', 'success')
-        return redirect(url_for('notes'))
-    return render_template('create_note.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
+        form['semester'],    errors['semester']    = validate_optional_text(request.form.get('semester'), 'Semester', max_len=50)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['semester'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Notes shared!', 'success')
+            return redirect(url_for('notes'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_note.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/upvote_note/<int:note_id>', methods=['POST'])
 @login_required
@@ -344,7 +493,49 @@ def upvote_note(note_id):
     db.close()
     return redirect(url_for('notes'))
 
+@app.route('/notes/<int:note_id>')
+def view_note(note_id):
+    db = get_db()
+    note = db.execute(
+        '''SELECT n.*, u.first_name, u.last_name
+           FROM notes n JOIN users u ON u.id = n.author_id
+           WHERE n.id = ?''',
+        (note_id,)
+    ).fetchone()
+    db.close()
 
+    if note is None:
+        flash('Note not found.', 'error')
+        return redirect(url_for('notes'))
+
+    return render_template(
+        'note_detail.html',
+        note=note,
+        current_user=get_current_user()
+    )
+
+@app.route('/notes/<int:note_id>/download')
+def download_note(note_id):
+    db = get_db()
+    note = db.execute(
+        'SELECT * FROM notes WHERE id = ?',
+        (note_id,)
+    ).fetchone()
+    db.close()
+
+    if note is None:
+        flash('Note not found.', 'error')
+        return redirect(url_for('notes'))
+
+    content = f"{note['title']}\n\nUnit: {note['unit_code']}\nSemester: {note['semester']}\n\n{note['description']}"
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=note-{note_id}.txt'
+        }
+    )
 # ─────────────────────────────────────────────────────────────
 # Sessions
 # ─────────────────────────────────────────────────────────────
@@ -353,11 +544,19 @@ def upvote_note(note_id):
 def study_sessions():
     unit = request.args.get('unit', '').strip().upper()
 
-    query  = '''SELECT s.*, u.first_name, u.last_name,
-                       (SELECT COUNT(*) FROM session_rsvps r WHERE r.session_id = s.id) as rsvp_count
-                FROM sessions s JOIN users u ON u.id = s.host_id
-                WHERE 1=1'''
-    params = []
+    query = '''
+    SELECT s.*, u.first_name, u.last_name,
+       (SELECT COUNT(*) FROM session_rsvps r WHERE r.session_id = s.id) as rsvp_count,
+       EXISTS (
+           SELECT 1 FROM session_rsvps r2
+           WHERE r2.session_id = s.id AND r2.user_id = ?
+       ) as current_user_joined
+    FROM sessions s
+    JOIN users u ON u.id = s.host_id
+    WHERE 1=1
+    '''
+    current_user = get_current_user()
+    params = [current_user['id'] if current_user else 0]
 
     if unit:
         query += ' AND s.unit_code = ?'
@@ -377,24 +576,38 @@ def study_sessions():
 @app.route('/create_session', methods=['GET', 'POST'])
 @login_required
 def create_session():
+    errors = {}
+    form = {}
+
     if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form['unit_code'].strip().upper(),
-             request.form.get('location', ''),
-             request.form.get('session_date', ''),
-             int(request.form.get('max_attendees', 10)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Study session posted!', 'success')
-        return redirect(url_for('study_sessions'))
-    return render_template('create_session.html', current_user=get_current_user())
+        form['title'],         errors['title']         = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['unit_code'],     errors['unit_code']     = validate_unit_code(request.form.get('unit_code'))
+        form['location'],      errors['location']      = validate_optional_text(request.form.get('location'), 'Location', max_len=200)
+        form['session_date'],  errors['session_date']  = validate_session_date(request.form.get('session_date'))
+        form['max_attendees'], errors['max_attendees'] = validate_positive_int(request.form.get('max_attendees', '10'), 'Max attendees', min_value=2, max_value=200)
+        form['description'],   errors['description']   = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'], form['location'],
+                 form['session_date'], form['max_attendees'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Study session posted!', 'success')
+            return redirect(url_for('study_sessions'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_session.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 
 @app.route('/rsvp_session/<int:session_id>', methods=['POST'])
@@ -422,6 +635,21 @@ def delete_session(session_id):
     db.commit()
     db.close()
     flash('Session deleted.', 'success')
+    return redirect(url_for('study_sessions'))
+
+
+@app.route('/cancel_rsvp/<int:session_id>', methods=['POST'])
+@login_required
+def cancel_rsvp(session_id):
+    user = get_current_user()
+    db   = get_db()
+    db.execute(
+        'DELETE FROM session_rsvps WHERE session_id = ? AND user_id = ?',
+        (session_id, user['id'])
+    )
+    db.commit()
+    db.close()
+    flash('RSVP cancelled.', 'info')
     return redirect(url_for('study_sessions'))
 
 
@@ -497,7 +725,6 @@ def messages():
     user = get_current_user()
     db   = get_db()
 
-    # All users this person has a conversation with
     contacts = db.execute(
         '''SELECT DISTINCT u.id, u.first_name, u.last_name
            FROM messages m
@@ -523,7 +750,6 @@ def messages_thread(other_id):
     user = get_current_user()
     db   = get_db()
 
-    # Mark incoming messages as read
     db.execute(
         'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?',
         (other_id, user['id'])
@@ -583,7 +809,6 @@ def messages_send(other_id):
 @app.route('/messages/<int:other_id>/poll')
 @login_required
 def messages_poll(other_id):
-    """Return messages newer than ?after=<id> as JSON for client-side polling."""
     user     = get_current_user()
     after_id = int(request.args.get('after', 0))
     db       = get_db()
@@ -598,14 +823,12 @@ def messages_poll(other_id):
         (user['id'], other_id, other_id, user['id'], after_id)
     ).fetchall()
 
-    # Mark new incoming messages as read
     db.execute(
         'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND id > ?',
         (other_id, user['id'], after_id)
     )
     db.commit()
     db.close()
-
     return jsonify([dict(r) for r in rows])
 
 
@@ -617,7 +840,7 @@ def api_messages_send(other_id):
     if not body:
         return jsonify({'error': 'empty'}), 400
 
-    db = get_db()
+    db  = get_db()
     cur = db.execute(
         'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
         (user['id'], other_id, body)
@@ -638,7 +861,6 @@ def api_messages_send(other_id):
 @app.route('/api/messages/<int:other_id>/poll')
 @login_required
 def api_messages_poll(other_id):
-    """Return messages newer than ?since=<timestamp> as JSON for client-side polling."""
     user  = get_current_user()
     since = request.args.get('since', '1970-01-01 00:00:00')
     db    = get_db()
@@ -659,8 +881,8 @@ def api_messages_poll(other_id):
     )
     db.commit()
     db.close()
-
     return jsonify([dict(r) for r in rows])
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -684,34 +906,121 @@ def bounties():
 @app.route('/create_bounty', methods=['GET', 'POST'])
 @login_required
 def create_bounty():
-    if request.method == 'POST':
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
-            (user['id'],
-             request.form['title'],
-             request.form.get('unit_code', '').strip().upper(),
-             float(request.form.get('reward', 0)),
-             request.form.get('description', ''))
-        )
-        db.commit()
-        db.close()
-        flash('Bounty posted!', 'success')
-        return redirect(url_for('bounties'))
-    return render_template('create_bounty.html', current_user=get_current_user())
+    errors = {}
+    form = {}
 
+    if request.method == 'POST':
+        form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
+        form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
+        form['reward'],      errors['reward']      = validate_price(request.form.get('reward'), field_label='Reward', allow_zero=True)
+
+        # unit_code is optional on bounties, but if provided must match format
+        raw_unit = (request.form.get('unit_code') or '').strip()
+        if raw_unit:
+            form['unit_code'], errors['unit_code'] = validate_unit_code(raw_unit)
+        else:
+            form['unit_code'] = ''
+            errors['unit_code'] = None
+
+        errors = {k: v for k, v in errors.items() if v}
+
+        if not errors:
+            user = get_current_user()
+            db   = get_db()
+            db.execute(
+                'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
+                (user['id'], form['title'], form['unit_code'],
+                 form['reward'], form['description'])
+            )
+            db.commit()
+            db.close()
+            flash('Bounty posted!', 'success')
+            return redirect(url_for('bounties'))
+
+        for msg in errors.values():
+            flash(msg, 'error')
+
+    return render_template('create_bounty.html',
+                           current_user=get_current_user(),
+                           errors=errors, form=form)
 
 @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
 @login_required
 def claim_bounty(bounty_id):
-    db = get_db()
+    user = get_current_user()
+    db   = get_db()
+
+    bounty = db.execute(
+        'SELECT poster_id FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+
+    if bounty is None:
+        db.close()
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    if bounty['poster_id'] == user['id']:
+        db.close()
+        flash("You can't claim your own bounty.", 'error')
+        return redirect(url_for('bounties'))
+
     db.execute('DELETE FROM bounties WHERE id = ?', (bounty_id,))
     db.commit()
     db.close()
     flash('Bounty claimed!', 'success')
     return redirect(url_for('bounties'))
+  
+@app.route('/bounties/<int:bounty_id>')
+def view_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        '''SELECT b.*, u.first_name, u.last_name
+           FROM bounties b JOIN users u ON u.id = b.poster_id
+           WHERE b.id = ?''',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
 
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    return render_template(
+        'bounty_detail.html',
+        bounty=bounty,
+        current_user=get_current_user()
+    )
+
+@app.route('/bounties/<int:bounty_id>/download')
+def download_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        'SELECT * FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
+
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    unit_line = bounty['unit_code'] if bounty['unit_code'] else 'General'
+
+    content = (
+        f"{bounty['title']}\n\n"
+        f"Unit: {unit_line}\n"
+        f"Reward: ${bounty['reward']:.2f}\n\n"
+        f"{bounty['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=bounty-{bounty_id}.txt'
+        }
+    )
 
 # ─────────────────────────────────────────────────────────────
 # Profile

@@ -87,6 +87,24 @@
   }
   .bc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
 
+  .bc-action-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid var(--bdr2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mid);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: all var(--t) var(--ease);
+}
+.bc-action-btn:hover {
+    color: #b46d09;
+    border-color: #b47b09;
+    background: rgba(180,83,9,0.06);
+    transform: translateY(-1px);
+}
+
   /* Right panel */
   .right { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 12px; }
   .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
@@ -257,8 +275,14 @@
               {% else %}
               <span style="font-size:.78rem;color:var(--muted);">Your bounty</span>
               {% endif %}
-              <button class="bc-btn-ghost"><i class="fa-regular fa-bookmark"></i> Save</button>
-            </div>
+
+            <a href="{{ url_for('view_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="View detail">
+              <i class="fa-regular fa-eye"></i>
+            </a>
+            <a href="{{ url_for('download_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="Download as text">
+              <i class="fa-solid fa-download"></i>
+            </a>
+          </div>
           </div>
         </div>
         {% endfor %}
