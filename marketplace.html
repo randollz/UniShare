@@ -165,10 +165,33 @@
     -webkit-box-orient: vertical; overflow: hidden;
   }
   .lc-sub { font-size: 0.73rem; color: var(--muted); margin-bottom: 10px; }
-  .lc-price-row {
+   .lc-price-row{
     display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
   }
   .lc-price { font-size: 1.15rem; font-weight: 800; color: var(--dark); }
+  .lc-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    align-self: center;
+}
+.lc-action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid var(--bdr2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mid);
+    text-decoration: none;
+    font-size: 0.78rem;
+    transition: all var(--t) var(--ease);
+}
+.lc-action-btn:hover {
+    color: var(--blue);
+    border-color: var(--blue);
+    background: rgba(59,110,245,0.06);
+    transform: translateY(-1px);
+}
 
   .lc-seller {
     display: flex; align-items: center; gap: 8px;
@@ -460,7 +483,7 @@
                 </a>
               </div>
             </div>
-            
+
             <div class="lc-seller">
               <div class="lc-av" style="background: {{ avcolors[idx] }};">
                 {{ l.first_name[0] }}
