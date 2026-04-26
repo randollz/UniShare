@@ -1,7 +1,7 @@
 import os
 import functools
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, g)
+                   url_for, session, flash, g, Response)
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db
 from validators import (validate_required_text, validate_optional_text,
@@ -525,6 +525,35 @@ def view_bounty(bounty_id):
         current_user=get_current_user()
     )
 
+@app.route('/bounties/<int:bounty_id>/download')
+def download_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        'SELECT * FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
+
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    unit_line = bounty['unit_code'] if bounty['unit_code'] else 'General'
+
+    content = (
+        f"{bounty['title']}\n\n"
+        f"Unit: {unit_line}\n"
+        f"Reward: ${bounty['reward']:.2f}\n\n"
+        f"{bounty['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=bounty-{bounty_id}.txt'
+        }
+    )
 
 # ─────────────────────────────────────────────────────────────
 # Profile
