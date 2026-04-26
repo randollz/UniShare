@@ -1,7 +1,7 @@
 import os
 import functools
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, g)
+                   url_for, session, flash, g, Response)
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import get_db, init_db
 from validators import (validate_required_text, validate_optional_text,
@@ -352,7 +352,49 @@ def upvote_note(note_id):
     db.close()
     return redirect(url_for('notes'))
 
+@app.route('/notes/<int:note_id>')
+def view_note(note_id):
+    db = get_db()
+    note = db.execute(
+        '''SELECT n.*, u.first_name, u.last_name
+           FROM notes n JOIN users u ON u.id = n.author_id
+           WHERE n.id = ?''',
+        (note_id,)
+    ).fetchone()
+    db.close()
 
+    if note is None:
+        flash('Note not found.', 'error')
+        return redirect(url_for('notes'))
+
+    return render_template(
+        'note_detail.html',
+        note=note,
+        current_user=get_current_user()
+    )
+
+@app.route('/notes/<int:note_id>/download')
+def download_note(note_id):
+    db = get_db()
+    note = db.execute(
+        'SELECT * FROM notes WHERE id = ?',
+        (note_id,)
+    ).fetchone()
+    db.close()
+
+    if note is None:
+        flash('Note not found.', 'error')
+        return redirect(url_for('notes'))
+
+    content = f"{note['title']}\n\nUnit: {note['unit_code']}\nSemester: {note['semester']}\n\n{note['description']}"
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=note-{note_id}.txt'
+        }
+    )
 # ─────────────────────────────────────────────────────────────
 # Sessions
 # ─────────────────────────────────────────────────────────────
