@@ -154,6 +154,8 @@
     transition: all var(--t); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   }
   .lc-save:hover { color: var(--gold); background: #fff; }
+  .lc-save-active { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .lc-save-active:hover { background: var(--gold); color: #fff; transform: translateY(-1px); }
 
   .lc-body { padding: 14px 14px 10px; flex: 1; display: flex; flex-direction: column; }
   .lc-title {
@@ -163,10 +165,33 @@
     -webkit-box-orient: vertical; overflow: hidden;
   }
   .lc-sub { font-size: 0.73rem; color: var(--muted); margin-bottom: 10px; }
-  .lc-price-row {
+   .lc-price-row{
     display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
   }
   .lc-price { font-size: 1.15rem; font-weight: 800; color: var(--dark); }
+  .lc-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    align-self: center;
+}
+.lc-action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--white);
+    border: 1px solid var(--bdr2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--mid);
+    text-decoration: none;
+    font-size: 0.78rem;
+    transition: all var(--t) var(--ease);
+}
+.lc-action-btn:hover {
+    color: var(--blue);
+    border-color: var(--blue);
+    background: rgba(59,110,245,0.06);
+    transform: translateY(-1px);
+}
 
   .lc-seller {
     display: flex; align-items: center; gap: 8px;
@@ -422,10 +447,21 @@
               <span class="lc-cond cond-{{ l.condition|lower|replace(' ', '') }}">{{ l.condition }}</span>
             </div>
             {% if current_user %}
-            <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
-              <button type="submit" class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
+            {% if l.id in saved_ids %}
+            <form method="POST" action="{{ url_for('unsave_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+              <button type="submit" class="lc-save lc-save-active" title="Saved (click to unsave)">
+                <i class="fa-solid fa-bookmark"></i>
+              </button>
             </form>
-            {% endif %}
+            {% else %}
+          <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+            <button type="submit" class="lc-save" title="Save">
+              <i class="fa-regular fa-bookmark"></i>
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+
           </div>
           <div class="lc-body">
             <div class="lc-title">{{ l.title }}</div>
@@ -434,7 +470,20 @@
             {% endif %}
             <div class="lc-price-row">
               <span class="lc-price">${{ "%.0f"|format(l.price) }}</span>
+              <div class="lc-actions">
+                <a href="{{ url_for('view_listing', listing_id=l.id) }}"
+                  class="lc-action-btn"
+                  title="View detail">
+                  <i class="fa-regular fa-eye"></i>
+                </a>
+                <a href="{{ url_for('download_listing', listing_id=l.id) }}"
+                   class="lc-action-btn"
+                   title="Download as text">
+                  <i class="fa-solid fa-download"></i>
+                </a>
+              </div>
             </div>
+
             <div class="lc-seller">
               <div class="lc-av" style="background: {{ avcolors[idx] }};">
                 {{ l.first_name[0] }}
@@ -490,69 +539,71 @@
       </div>
       {% endif %}
 
-      <!-- Price stats -->
-      <div class="rcard">
-        <div class="rcard-title">Average prices this semester</div>
-        <div class="price-stat-row">
-          <span class="psr-label">1st-year textbooks</span>
-          <span class="psr-val">$28</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">2nd/3rd-year textbooks</span>
-          <span class="psr-val">$42</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Note sets (premium)</span>
-          <span class="psr-val">$6–$15</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Calculators</span>
-          <span class="psr-val">$18–$35</span>
-        </div>
-        <div class="price-stat-row">
-          <span class="psr-label">Active listings</span>
-          <span class="psr-val" style="color:#16a34a;">{{ listings|length }}</span>
-        </div>
-      </div>
+      <!-- Price stats (computed from real data) -->
+<div class="rcard">
+  <div class="rcard-title">Average prices by unit</div>
 
-      <!-- Recently sold placeholder -->
-      <div class="rcard">
-        <div class="rcard-title">Recently sold</div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#1e3a5f,#3b6ef5);">
-            <i class="fa-solid fa-book" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">Database Systems — 7th Ed.</div>
-            <div class="sold-price">$32 · CITS2005</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#134e4a,#10b981);">
-            <i class="fa-solid fa-laptop" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">Dell USB-C Hub (7-in-1)</div>
-            <div class="sold-price">$28 · Electronics</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="sold-row">
-          <div class="sold-img" style="background:linear-gradient(135deg,#500724,#be185d);">
-            <i class="fa-solid fa-file-pdf" style="font-size:.9rem;"></i>
-          </div>
-          <div>
-            <div class="sold-title">PSYC1102 — Semester notes</div>
-            <div class="sold-price">$10 · PSYC1102</div>
-          </div>
-          <span class="sold-badge">Sold</span>
-        </div>
-        <div class="rcard-footer">
-          <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
-          &copy; 2025 UniShare · UWA students
-        </div>
+  {% if price_stats %}
+    {% for p in price_stats %}
+    <div class="price-stat-row">
+      <span class="psr-label">{{ p.unit_prefix }}</span>
+      <span class="psr-val">${{ "%.0f"|format(p.avg_price) }}</span>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="font-size:.78rem; color:var(--muted); padding:8px 0;">
+      No price data yet — post a listing to start the stats!
+    </div>
+  {% endif %}
+
+  <div class="price-stat-row">
+    <span class="psr-label">Active listings</span>
+    <span class="psr-val" style="color:#16a34a;">{{ active_count }}</span>
+  </div>
+</div>
+
+      <!-- Latest listings (replaces "Recently sold" hardcoded data) -->
+<div class="rcard">
+  <div class="rcard-title">Latest listings</div>
+
+  {% if recent_listings %}
+    {% for r in recent_listings %}
+    {% set ridx = loop.index0 % 8 %}
+    {% set rcolors = [
+      'linear-gradient(135deg,#1e3a5f,#3b6ef5)',
+      'linear-gradient(135deg,#134e4a,#10b981)',
+      'linear-gradient(135deg,#500724,#be185d)',
+      'linear-gradient(135deg,#1c1917,#b45309)',
+      'linear-gradient(135deg,#0c1445,#3b6ef5)',
+      'linear-gradient(135deg,#052e16,#16a34a)',
+      'linear-gradient(135deg,#1e1b4b,#6d28d9)',
+      'linear-gradient(135deg,#1e3a5f,#7c3aed)'
+    ] %}
+    <a href="{{ url_for('view_listing', listing_id=r.id) }}"
+       class="sold-row"
+       style="text-decoration:none; color:inherit;">
+      <div class="sold-img" style="background: {{ rcolors[ridx] }};">
+        <i class="fa-solid fa-book" style="font-size:.9rem;"></i>
       </div>
+      <div>
+        <div class="sold-title">{{ r.title[:32] }}{% if r.title|length > 32 %}…{% endif %}</div>
+        <div class="sold-price">${{ "%.0f"|format(r.price) }} · {{ r.unit_code }}</div>
+      </div>
+      <span class="sold-badge" style="background:rgba(59,130,246,0.1);color:#2563eb;">{{ r.condition }}</span>
+    </a>
+    {% endfor %}
+  {% else %}
+    <div style="font-size:.78rem; color:var(--muted); padding:8px 0;">
+      No listings yet. Be the first to post one!
+    </div>
+  {% endif %}
+
+  <div class="rcard-footer">
+    <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
+    &copy; 2025 UniShare · UWA students
+  </div>
+</div>
+         
 
     </aside>
 
