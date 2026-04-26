@@ -206,11 +206,23 @@ def marketplace():
 
     db       = get_db()
     listings = db.execute(query, params).fetchall()
+
+    # Fetch saved listing IDs for the current user (used to mark bookmarks)
+    saved_ids = set()
+    user = get_current_user()
+    if user:
+        rows = db.execute(
+            'SELECT listing_id FROM saved_listings WHERE user_id = ?',
+            (user['id'],)
+        ).fetchall()
+        saved_ids = {r['listing_id'] for r in rows}
+
     db.close()
 
     return render_template('marketplace.html',
-                           current_user=get_current_user(),
+                           current_user=user,
                            listings=listings,
+                           saved_ids=saved_ids,
                            q=q, unit=unit, condition=condition, sort=sort)
 
 
@@ -275,6 +287,70 @@ def save_listing(listing_id):
         pass
     db.close()
     return redirect(url_for('marketplace'))
+
+
+@app.route('/unsave_listing/<int:listing_id>', methods=['POST'])
+@login_required
+def unsave_listing(listing_id):
+    user = get_current_user()
+    db   = get_db()
+    db.execute(
+        'DELETE FROM saved_listings WHERE user_id = ? AND listing_id = ?',
+        (user['id'], listing_id)
+    )
+    db.commit()
+    db.close()
+    return redirect(url_for('marketplace'))
+
+@app.route('/listings/<int:listing_id>')
+def view_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        '''SELECT l.*, u.first_name, u.last_name
+           FROM listings l JOIN users u ON u.id = l.seller_id
+           WHERE l.id = ?''',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    return render_template(
+        'listing_detail.html',
+        listing=listing,
+        current_user=get_current_user()
+    )
+
+@app.route('/listings/<int:listing_id>/download')
+def download_listing(listing_id):
+    db = get_db()
+    listing = db.execute(
+        'SELECT * FROM listings WHERE id = ?',
+        (listing_id,)
+    ).fetchone()
+    db.close()
+
+    if listing is None:
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    content = (
+        f"{listing['title']}\n\n"
+        f"Unit: {listing['unit_code']}\n"
+        f"Price: ${listing['price']:.2f}\n"
+        f"Condition: {listing['condition']}\n\n"
+        f"{listing['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=listing-{listing_id}.txt'
+        }
+    )
 
 
 # ─────────────────────────────────────────────────────────────
