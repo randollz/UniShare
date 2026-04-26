@@ -497,7 +497,24 @@ def create_bounty():
 @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
 @login_required
 def claim_bounty(bounty_id):
-    db = get_db()
+    user = get_current_user()
+    db   = get_db()
+
+    bounty = db.execute(
+        'SELECT poster_id FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+
+    if bounty is None:
+        db.close()
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    if bounty['poster_id'] == user['id']:
+        db.close()
+        flash("You can't claim your own bounty.", 'error')
+        return redirect(url_for('bounties'))
+
     db.execute('DELETE FROM bounties WHERE id = ?', (bounty_id,))
     db.commit()
     db.close()
