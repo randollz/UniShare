@@ -503,6 +503,27 @@ def claim_bounty(bounty_id):
     db.close()
     flash('Bounty claimed!', 'success')
     return redirect(url_for('bounties'))
+  
+@app.route('/bounties/<int:bounty_id>')
+def view_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        '''SELECT b.*, u.first_name, u.last_name
+           FROM bounties b JOIN users u ON u.id = b.poster_id
+           WHERE b.id = ?''',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
+
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    return render_template(
+        'bounty_detail.html',
+        bounty=bounty,
+        current_user=get_current_user()
+    )
 
 
 # ─────────────────────────────────────────────────────────────
