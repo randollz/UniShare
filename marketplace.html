@@ -154,6 +154,8 @@
     transition: all var(--t); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   }
   .lc-save:hover { color: var(--gold); background: #fff; }
+  .lc-save-active { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .lc-save-active:hover { background: var(--gold); color: #fff; transform: translateY(-1px); }
 
   .lc-body { padding: 14px 14px 10px; flex: 1; display: flex; flex-direction: column; }
   .lc-title {
@@ -422,10 +424,21 @@
               <span class="lc-cond cond-{{ l.condition|lower|replace(' ', '') }}">{{ l.condition }}</span>
             </div>
             {% if current_user %}
-            <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
-              <button type="submit" class="lc-save"><i class="fa-regular fa-bookmark"></i></button>
+            {% if l.id in saved_ids %}
+            <form method="POST" action="{{ url_for('unsave_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+              <button type="submit" class="lc-save lc-save-active" title="Saved (click to unsave)">
+                <i class="fa-solid fa-bookmark"></i>
+              </button>
             </form>
-            {% endif %}
+            {% else %}
+          <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+            <button type="submit" class="lc-save" title="Save">
+              <i class="fa-regular fa-bookmark"></i>
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+
           </div>
           <div class="lc-body">
             <div class="lc-title">{{ l.title }}</div>
