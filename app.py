@@ -539,13 +539,80 @@ def create_bounty():
 @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
 @login_required
 def claim_bounty(bounty_id):
-    db = get_db()
+    user = get_current_user()
+    db   = get_db()
+
+    bounty = db.execute(
+        'SELECT poster_id FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+
+    if bounty is None:
+        db.close()
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    if bounty['poster_id'] == user['id']:
+        db.close()
+        flash("You can't claim your own bounty.", 'error')
+        return redirect(url_for('bounties'))
+
     db.execute('DELETE FROM bounties WHERE id = ?', (bounty_id,))
     db.commit()
     db.close()
     flash('Bounty claimed!', 'success')
     return redirect(url_for('bounties'))
+  
+@app.route('/bounties/<int:bounty_id>')
+def view_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        '''SELECT b.*, u.first_name, u.last_name
+           FROM bounties b JOIN users u ON u.id = b.poster_id
+           WHERE b.id = ?''',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
 
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    return render_template(
+        'bounty_detail.html',
+        bounty=bounty,
+        current_user=get_current_user()
+    )
+
+@app.route('/bounties/<int:bounty_id>/download')
+def download_bounty(bounty_id):
+    db = get_db()
+    bounty = db.execute(
+        'SELECT * FROM bounties WHERE id = ?',
+        (bounty_id,)
+    ).fetchone()
+    db.close()
+
+    if bounty is None:
+        flash('Bounty not found.', 'error')
+        return redirect(url_for('bounties'))
+
+    unit_line = bounty['unit_code'] if bounty['unit_code'] else 'General'
+
+    content = (
+        f"{bounty['title']}\n\n"
+        f"Unit: {unit_line}\n"
+        f"Reward: ${bounty['reward']:.2f}\n\n"
+        f"{bounty['description']}"
+    )
+
+    return Response(
+        content,
+        mimetype='text/plain',
+        headers={
+            'Content-Disposition': f'attachment; filename=bounty-{bounty_id}.txt'
+        }
+    )
 
 # ─────────────────────────────────────────────────────────────
 # Profile
