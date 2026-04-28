@@ -81,6 +81,15 @@ CREATE TABLE IF NOT EXISTS ratings (
     score       INTEGER NOT NULL,
     comment     TEXT DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS messages (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id   INTEGER NOT NULL REFERENCES users(id),
+    receiver_id INTEGER NOT NULL REFERENCES users(id),
+    body        TEXT NOT NULL,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    read        INTEGER DEFAULT 0
+);
 """
 
 

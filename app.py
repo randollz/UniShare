@@ -1,16 +1,37 @@
 import os
 import functools
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, g, Response)
+                   url_for, session, flash, jsonify, Response)
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 from database import get_db, init_db
 from validators import (validate_required_text, validate_optional_text,
                         validate_unit_code, validate_price, validate_positive_int,
                         validate_email, validate_password, validate_session_date,
                         validate_choice, LISTING_CONDITIONS)
 
+load_dotenv()
+
 app = Flask(__name__, template_folder='.', static_folder='.', static_url_path='')
-app.secret_key = 'unishare-demo-secret-key'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-fallback')
+
+
+# ─────────────────────────────────────────────────────────────
+# Context processors
+# ─────────────────────────────────────────────────────────────
+
+@app.context_processor
+def inject_unread_count():
+    user_id = session.get('user_id')
+    if not user_id:
+        return {'unread_count': 0}
+    db = get_db()
+    count = db.execute(
+        'SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND read = 0',
+        (user_id,)
+    ).fetchone()[0]
+    db.close()
+    return {'unread_count': count}
 
 
 # ─────────────────────────────────────────────────────────────
@@ -196,7 +217,10 @@ def marketplace():
     sort      = request.args.get('sort', '').strip()
 
     query  = '''SELECT l.*, u.first_name, u.last_name,
-                       u.rating_sum, u.rating_count
+                       u.rating_sum, u.rating_count,
+                       CASE WHEN u.rating_count > 0
+                            THEN ROUND(CAST(u.rating_sum AS REAL) / u.rating_count, 1)
+                            ELSE NULL END AS avg_rating
                 FROM listings l JOIN users u ON u.id = l.seller_id
                 WHERE 1=1'''
     params = []
@@ -602,22 +626,263 @@ def rsvp_session(session_id):
     return redirect(url_for('study_sessions'))
 
 
+@app.route('/delete_session/<int:session_id>', methods=['POST'])
+@login_required
+def delete_session(session_id):
+    user = get_current_user()
+    db   = get_db()
+    db.execute('DELETE FROM sessions WHERE id = ? AND host_id = ?', (session_id, user['id']))
+    db.commit()
+    db.close()
+    flash('Session deleted.', 'success')
+    return redirect(url_for('study_sessions'))
+
+
 @app.route('/cancel_rsvp/<int:session_id>', methods=['POST'])
 @login_required
 def cancel_rsvp(session_id):
     user = get_current_user()
-    db = get_db()
-
+    db   = get_db()
     db.execute(
         'DELETE FROM session_rsvps WHERE session_id = ? AND user_id = ?',
         (session_id, user['id'])
     )
-
     db.commit()
     db.close()
-
     flash('RSVP cancelled.', 'info')
     return redirect(url_for('study_sessions'))
+
+
+# ─────────────────────────────────────────────────────────────
+# Ratings
+# ─────────────────────────────────────────────────────────────
+
+@app.route('/rate_user/<int:listing_id>', methods=['POST'])
+@login_required
+def rate_user(listing_id):
+    rater = get_current_user()
+    db    = get_db()
+
+    listing = db.execute('SELECT * FROM listings WHERE id = ?', (listing_id,)).fetchone()
+    if not listing:
+        db.close()
+        flash('Listing not found.', 'error')
+        return redirect(url_for('marketplace'))
+
+    rated_id = listing['seller_id']
+    if rated_id == rater['id']:
+        db.close()
+        flash('You cannot rate yourself.', 'error')
+        return redirect(url_for('marketplace'))
+
+    already = db.execute(
+        'SELECT id FROM ratings WHERE rater_id = ? AND listing_id = ?',
+        (rater['id'], listing_id)
+    ).fetchone()
+    if already:
+        db.close()
+        flash('You have already rated this transaction.', 'info')
+        return redirect(url_for('marketplace'))
+
+    score   = int(request.form.get('score', 5))
+    comment = request.form.get('comment', '').strip()
+
+    db.execute(
+        'INSERT INTO ratings (rater_id, rated_id, listing_id, score, comment) VALUES (?,?,?,?,?)',
+        (rater['id'], rated_id, listing_id, score, comment)
+    )
+    db.execute(
+        'UPDATE users SET rating_sum = rating_sum + ?, rating_count = rating_count + 1 WHERE id = ?',
+        (score, rated_id)
+    )
+    db.commit()
+    db.close()
+    flash('Rating submitted!', 'success')
+    return redirect(url_for('marketplace'))
+
+
+# ─────────────────────────────────────────────────────────────
+# Leaderboard
+# ─────────────────────────────────────────────────────────────
+
+@app.route('/leaderboard')
+def leaderboard():
+    db = get_db()
+    users = db.execute('SELECT * FROM users ORDER BY xp DESC').fetchall()
+    db.close()
+    return render_template('new_leaderboard.html',
+                           current_user=get_current_user(),
+                           users=users)
+
+
+# ─────────────────────────────────────────────────────────────
+# Messages (AJAX chat)
+# ─────────────────────────────────────────────────────────────
+
+@app.route('/messages')
+@login_required
+def messages():
+    user = get_current_user()
+    db   = get_db()
+
+    contacts = db.execute(
+        '''SELECT DISTINCT u.id, u.first_name, u.last_name
+           FROM messages m
+           JOIN users u ON u.id = CASE
+               WHEN m.sender_id   = ? THEN m.receiver_id
+               ELSE m.sender_id
+           END
+           WHERE m.sender_id = ? OR m.receiver_id = ?
+           ORDER BY u.first_name''',
+        (user['id'], user['id'], user['id'])
+    ).fetchall()
+
+    db.close()
+    return render_template('messages.html',
+                           current_user=user,
+                           contacts=contacts,
+                           active_user_id=None)
+
+
+@app.route('/messages/<int:other_id>')
+@login_required
+def messages_thread(other_id):
+    user = get_current_user()
+    db   = get_db()
+
+    db.execute(
+        'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?',
+        (other_id, user['id'])
+    )
+    db.commit()
+
+    thread = db.execute(
+        '''SELECT m.*, u.first_name, u.last_name
+           FROM messages m JOIN users u ON u.id = m.sender_id
+           WHERE (m.sender_id = ? AND m.receiver_id = ?)
+              OR (m.sender_id = ? AND m.receiver_id = ?)
+           ORDER BY m.created_at ASC''',
+        (user['id'], other_id, other_id, user['id'])
+    ).fetchall()
+
+    other_user = db.execute('SELECT * FROM users WHERE id = ?', (other_id,)).fetchone()
+
+    contacts = db.execute(
+        '''SELECT DISTINCT u.id, u.first_name, u.last_name
+           FROM messages m
+           JOIN users u ON u.id = CASE
+               WHEN m.sender_id   = ? THEN m.receiver_id
+               ELSE m.sender_id
+           END
+           WHERE m.sender_id = ? OR m.receiver_id = ?
+           ORDER BY u.first_name''',
+        (user['id'], user['id'], user['id'])
+    ).fetchall()
+
+    db.close()
+    return render_template('messages.html',
+                           current_user=user,
+                           contacts=contacts,
+                           thread=thread,
+                           other_user=other_user,
+                           active_user_id=other_id)
+
+
+@app.route('/messages/<int:other_id>/send', methods=['POST'])
+@login_required
+def messages_send(other_id):
+    user = get_current_user()
+    body = request.json.get('body', '').strip() if request.is_json else request.form.get('body', '').strip()
+    if not body:
+        return jsonify({'error': 'empty'}), 400
+
+    db = get_db()
+    db.execute(
+        'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
+        (user['id'], other_id, body)
+    )
+    db.commit()
+    db.close()
+    return jsonify({'ok': True})
+
+
+@app.route('/messages/<int:other_id>/poll')
+@login_required
+def messages_poll(other_id):
+    user     = get_current_user()
+    after_id = int(request.args.get('after', 0))
+    db       = get_db()
+
+    rows = db.execute(
+        '''SELECT m.id, m.sender_id, m.body, m.created_at
+           FROM messages m
+           WHERE ((m.sender_id = ? AND m.receiver_id = ?)
+               OR (m.sender_id = ? AND m.receiver_id = ?))
+             AND m.id > ?
+           ORDER BY m.created_at ASC''',
+        (user['id'], other_id, other_id, user['id'], after_id)
+    ).fetchall()
+
+    db.execute(
+        'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND id > ?',
+        (other_id, user['id'], after_id)
+    )
+    db.commit()
+    db.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/messages/<int:other_id>/send', methods=['POST'])
+@login_required
+def api_messages_send(other_id):
+    user = get_current_user()
+    body = request.json.get('body', '').strip() if request.is_json else request.form.get('body', '').strip()
+    if not body:
+        return jsonify({'error': 'empty'}), 400
+
+    db  = get_db()
+    cur = db.execute(
+        'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
+        (user['id'], other_id, body)
+    )
+    db.commit()
+    row = db.execute('SELECT id, body, created_at FROM messages WHERE id = ?', (cur.lastrowid,)).fetchone()
+    db.close()
+
+    return jsonify({
+        'id':          row['id'],
+        'body':        row['body'],
+        'created_at':  row['created_at'],
+        'sender_id':   user['id'],
+        'sender_name': f"{user['first_name']} {user['last_name']}",
+    })
+
+
+@app.route('/api/messages/<int:other_id>/poll')
+@login_required
+def api_messages_poll(other_id):
+    user  = get_current_user()
+    since = request.args.get('since', '1970-01-01 00:00:00')
+    db    = get_db()
+
+    rows = db.execute(
+        '''SELECT m.id, m.sender_id, m.body, m.created_at
+           FROM messages m
+           WHERE ((m.sender_id = ? AND m.receiver_id = ?)
+               OR (m.sender_id = ? AND m.receiver_id = ?))
+             AND m.created_at > ?
+           ORDER BY m.created_at ASC''',
+        (user['id'], other_id, other_id, user['id'], since)
+    ).fetchall()
+
+    db.execute(
+        'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND created_at > ?',
+        (other_id, user['id'], since)
+    )
+    db.commit()
+    db.close()
+    return jsonify([dict(r) for r in rows])
+
 
 
 # ─────────────────────────────────────────────────────────────
