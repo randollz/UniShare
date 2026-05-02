@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ note.title }} — UniShare Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+
+  <style>
+  .detail-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 88px 20px 40px;
+  }
+  .detail-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+    color: var(--mid); text-decoration: none; margin-bottom: 20px;
+    transition: color var(--t);
+  }
+  .detail-back:hover { color: var(--dark); }
+
+  .detail-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .detail-accent {
+    height: 6px;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+  }
+  .detail-hero {
+    width: 100%; padding: 32px 32px 24px;
+    box-sizing: border-box;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #14532d, #166534);
+    color: #fff;
+  }
+  .detail-hero-left { flex: 1; min-width: 0; }
+  .detail-hero-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 99px;
+    background: rgba(255,255,255,0.18); color: #fff;
+    font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .detail-hero-title {
+    font-family: 'Inter', sans-serif; font-size: 1.55rem; font-weight: 800;
+    letter-spacing: -0.025em; line-height: 1.25;
+    color: #fff;
+  }
+  .detail-hero-right {
+    flex-shrink: 0; text-align: right; min-width: 80px;
+  }
+  .detail-hero-upvotes {
+    font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800;
+    letter-spacing: -0.04em; color: #bbf7d0;
+  }
+  .detail-hero-upvotes-lbl {
+    font-family: 'Inter', sans-serif; font-size: 0.72rem;
+    color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .detail-body { padding: 28px 32px; }
+
+  .detail-section { margin-bottom: 22px; }
+  .detail-section-label {
+    font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .detail-description {
+    font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark);
+    line-height: 1.65; white-space: pre-wrap;
+  }
+  .detail-description-empty {
+    color: var(--muted); font-style: italic;
+  }
+
+  .detail-author {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px; border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 22px;
+  }
+  .detail-author-av {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #14532d, #16a34a);
+    color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .detail-author-name {
+    font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700;
+    color: var(--dark);
+  }
+  .detail-author-meta {
+    font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .detail-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .btn-action {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 18px; border-radius: 9px;
+    font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: all var(--t) var(--ease);
+    border: none; text-decoration: none;
+  }
+  .btn-upvote {
+    background: linear-gradient(135deg, #14532d, #16a34a);
+    color: #fff;
+  }
+  .btn-upvote:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(22,163,74,0.3); }
+  .btn-download {
+    background: var(--dark); color: #fff;
+  }
+  .btn-download:hover { background: var(--dark2); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent; color: var(--mid);
+    border: 1.5px solid var(--bdr2);
+  }
+  .btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
+  </style>
+</head>
+<body class="app-page">
+
+  <div class="detail-wrap">
+
+    <a href="{{ url_for('notes') }}" class="detail-back">
+      <i class="fa-solid fa-arrow-left"></i> Back to notes
+    </a>
+
+    <div class="detail-card">
+      <div class="detail-accent"></div>
+
+      <div class="detail-hero">
+        <div class="detail-hero-left">
+          <span class="detail-hero-pill">
+            <i class="fa-solid fa-file-lines"></i>
+            {{ note.unit_code }}{% if note.semester %} · {{ note.semester }}{% endif %}
+          </span>
+          <h1 class="detail-hero-title">{{ note.title }}</h1>
+        </div>
+        <div class="detail-hero-right">
+          <div class="detail-hero-upvotes">{{ note.upvotes }}</div>
+          <div class="detail-hero-upvotes-lbl">Upvotes</div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+
+        <div class="detail-section">
+          <div class="detail-section-label">Description</div>
+          {% if note.description %}
+          <div class="detail-description">{{ note.description }}</div>
+          {% else %}
+          <div class="detail-description detail-description-empty">No description provided.</div>
+          {% endif %}
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-label">Author</div>
+          <div class="detail-author">
+            <div class="detail-author-av">
+              {{ note.first_name[0] }}{{ note.last_name[0] }}
+            </div>
+            <div>
+              <div class="detail-author-name">{{ note.first_name }} {{ note.last_name }}</div>
+              <div class="detail-author-meta">Shared notes on UniShare</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          {% if current_user %}
+          <form method="POST" action="{{ url_for('upvote_note', note_id=note.id) }}" style="display:inline;">
+            <button type="submit" class="btn-action btn-upvote">
+              <i class="fa-solid fa-arrow-up"></i> Upvote
+            </button>
+          </form>
+          {% endif %}
+          <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-action btn-download">
+            <i class="fa-solid fa-download"></i> Download
+          </a>
+          <a href="{{ url_for('notes') }}" class="btn-action btn-ghost">
+            Back to all notes
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

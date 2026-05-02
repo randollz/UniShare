@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}New Listing — UniShare{% endblock %}
+{% block content %}
+<div class="page-inner" style="max-width:560px">
+    <h1 style="margin-bottom:28px">Post a listing</h1>
+    <form method="POST" class="form-card">
+        <div class="field">
+            <label>Title <span class="required">*</span></label>
+            <input type="text" name="title" required placeholder="e.g. Agile Web Development, 5th Ed." />
+        </div>
+        <div class="field">
+            <label>Unit code <span class="required">*</span></label>
+            <input type="text" name="unit_code" required placeholder="CITS3403" style="text-transform:uppercase" />
+        </div>
+        <div class="field-row">
+            <div class="field">
+                <label>Price ($) <span class="required">*</span></label>
+                <input type="number" name="price" min="0" step="0.01" required placeholder="25.00" />
+            </div>
+            <div class="field">
+                <label>Condition</label>
+                <select name="condition">
+                    {% for c in ['New','Like new','Good','Acceptable'] %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="field">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Any notes about the book…"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+            <button type="submit" class="btn btn-dark">Post listing</button>
+            <a href="{{ url_for('marketplace') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

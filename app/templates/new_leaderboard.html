@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+
+  <style>
+  /* reset + :root → shared.css */
+
+  .page-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 88px 16px 40px;
+    display: grid;
+    grid-template-columns: 220px 1fr 248px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* ── Page head ───────────────────────── */
+  .page-head {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .page-head p {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .rank-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(200,149,10,0.08);
+    border: 1px solid rgba(200,149,10,0.18);
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .rank-chip strong {
+    color: var(--dark);
+    font-weight: 800;
+  }
+
+  /* ── Summary strip ───────────────────── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .summary-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px 18px;
+  }
+
+  .summary-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+  }
+
+  .summary-value {
+    font-size: 1.42rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-top: 4px;
+  }
+
+  .summary-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Filter row ──────────────────────── */
+  .filter-row {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .chip-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip-btn {
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+
+  .chip-btn:hover {
+    border-color: var(--bdr2);
+    color: var(--dark);
+  }
+
+  .chip-btn.active {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: #fff;
+  }
+
+  .results-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .results-meta strong {
+    color: var(--dark);
+    font-weight: 600;
+  }
+
+  /* ── Podium ──────────────────────────── */
+  .podium-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 18px 16px;
+  }
+
+  .podium-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .podium-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .podium-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .podium-av {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .podium-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--dark);
+    white-space: nowrap;
+  }
+
+  .podium-pts {
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .podium-block {
+    width: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px 10px 0 0;
+    font-size: 1.12rem;
+    font-weight: 900;
+    border-bottom: none;
+  }
+
+  .p1 {
+    height: 92px;
+    background: linear-gradient(to top, rgba(200,149,10,0.18), rgba(200,149,10,0.05));
+    border: 1px solid rgba(200,149,10,0.24);
+    color: var(--gold);
+  }
+
+  .p2 {
+    height: 66px;
+    background: linear-gradient(to top, rgba(148,163,184,0.15), rgba(148,163,184,0.05));
+    border: 1px solid rgba(148,163,184,0.2);
+    color: #94a3b8;
+  }
+
+  .p3 {
+    height: 50px;
+    background: linear-gradient(to top, rgba(180,120,50,0.15), rgba(180,120,50,0.05));
+    border: 1px solid rgba(180,120,50,0.2);
+    color: #b47832;
+  }
+
+  /* ── Rank list ───────────────────────── */
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rank-row {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: box-shadow var(--t), border-color var(--t), transform var(--t);
+  }
+
+  .rank-row:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.14);
+    transform: translateY(-2px);
+  }
+
+  .rank-row.you {
+    background: linear-gradient(180deg, rgba(0,48,135,0.06), rgba(245,200,66,0.06));
+    border-color: rgba(200,149,10,0.35);
+    box-shadow: 0 6px 20px rgba(200,149,10,0.08);
+  }
+
+  .rank-num {
+    width: 28px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .rank-av {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .rank-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rank-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .rank-sub {
+    font-size: 0.73rem;
+    color: var(--muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .rank-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .rank-points {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: -0.03em;
+  }
+
+  .rank-points-label {
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .rank-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .rank-newbie {
+    background: rgba(148,163,184,.1);
+    color: #64748b;
+    border: 1px solid rgba(148,163,184,.15);
+  }
+
+  .rank-hustler {
+    background: rgba(200,149,10,.1);
+    color: var(--gold);
+    border: 1px solid rgba(200,149,10,.2);
+  }
+
+  .rank-legend {
+    background: rgba(200,149,10,.15);
+    color: var(--gold);
+    border: 1px solid rgba(200,149,10,.3);
+  }
+
+  .trend {
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .up   { color: #16a34a; }
+  .down { color: #ef4444; }
+  .same { color: var(--muted); }
+
+  /* ── Pagination ──────────────────────── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .pg-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+
+  .pg-btn:hover {
+    border-color: var(--bdr2);
+    color: var(--dark);
+  }
+
+  .pg-btn.active {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: #fff;
+  }
+
+  /* ── Right rail ──────────────────────── */
+  .right-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 84px;
+  }
+
+  .side-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+
+  .side-card-body {
+    padding: 16px 18px;
+  }
+
+  .side-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--mid);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .mini-row strong {
+    color: var(--dark);
+    font-weight: 700;
+  }
+
+  .progress-wrap {
+    margin-top: 10px;
+  }
+
+  .progress-label {
+    font-size: 0.78rem;
+    color: var(--mid);
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: #eef1f6;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #c8950a, #f5c842);
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #011a55 0%, #003087 100%);
+    color: #fff;
+    border: none;
+  }
+  .tip-card .side-card-body { padding: 18px; }
+  .tip-card .side-title {
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 10px;
+  }
+  .tip-title {
+    font-size: 0.96rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tip-text {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.76);
+    margin-bottom: 12px;
+  }
+  .tip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .tip-btn:hover { background: rgba(255,255,255,0.18); }
+
+  @media (max-width: 1024px) {
+    .page-wrap {
+      grid-template-columns: 220px 1fr;
+    }
+    .right-rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .page-wrap {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      display: none;
+    }
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+    .podium {
+      gap: 6px;
+    }
+    .podium-block {
+      width: 70px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .rank-row {
+      align-items: flex-start;
+    }
+    .rank-right {
+      align-items: flex-start;
+    }
+  }
+  </style>
+</head>
+
+<body class="app-page">
+  <header class="topbar">
+    <div class="tb-brand">
+      <img src="{{ url_for('static', filename='images/uwa-logo.png') }}" alt="UWA" class="tb-uwa" />
+      <div class="tb-divider"></div>
+      <span class="tb-logo">UniShare<span>.</span></span>
+    </div>
+    <div class="tb-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search units, notes, listings…" />
+    </div>
+    <nav class="tb-nav">
+      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="notes.html" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+      <button class="tb-nav-item" style="position:relative;">
+        <i class="fa-solid fa-bell"></i> Alerts
+        <span class="tb-badge">3</span>
+      </button>
+    </nav>
+    <div class="tb-right"><a href="profile.html" class="tb-av">JS</a></div>
+  </header>
+
+  <div class="page-wrap">
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">JS</div>
+          <div class="sb-profile-name">Jake Smith</div>
+          <div class="sb-profile-detail">Computer Science · 2nd Year<br>University of Western Australia</div>
+
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row"><span class="sb-stat-label">Global Rank</span><span class="sb-stat-val">#14</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Points</span><span class="sb-stat-val">820 XP</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Rank</span><span class="sb-stat-val">Hustler</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Hustler · Rank #14</span>
+          <span class="sb-xp-pts">820 XP</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">180 XP to Legend</div>
+      </div>
+
+      <div class="sb-nav-card">
+        <a href="dashboard.html" class="sb-link"><i class="fa fa-house"></i>Dashboard</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa fa-store"></i>Marketplace</a>
+        <a href="new_my_listings.html" class="sb-link"><i class="fa fa-tag"></i>My Listings</a>
+        <a href="new_saved.html" class="sb-link"><i class="fa fa-bookmark"></i>Saved</a>
+        <a href="new_leaderboard.html" class="sb-link active"><i class="fa fa-trophy"></i>Leaderboard</a>
+        <a href="new_settings.html" class="sb-link"><i class="fa fa-gear"></i>Settings</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page-head">
+        <div>
+          <h1>Leaderboard</h1>
+          <p>See the top contributors earning points by uploading notes, hosting sessions, and helping other students.</p>
+        </div>
+        <div class="rank-chip">
+          <i class="fa fa-bolt"></i>
+          You’re <strong>#14</strong> this week
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Current Rank</div>
+          <div class="summary-value">#14</div>
+          <div class="summary-sub">Top 2% of contributors</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Points</div>
+          <div class="summary-value">820 XP</div>
+          <div class="summary-sub">180 XP to Legend</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Active Pool</div>
+          <div class="summary-value">842</div>
+          <div class="summary-sub">Students ranked this week</div>
+        </div>
+      </section>
+
+      <section class="filter-row">
+        <div class="chip-group" data-group="period">
+          <button class="chip-btn active">This Week</button>
+          <button class="chip-btn">This Month</button>
+          <button class="chip-btn">All Time</button>
+        </div>
+
+        <div class="chip-group" data-group="category">
+          <button class="chip-btn active">All</button>
+          <button class="chip-btn">Top Sellers</button>
+          <button class="chip-btn">Top Uploaders</button>
+          <button class="chip-btn">Session Leaders</button>
+        </div>
+      </section>
+
+      <div class="results-meta">
+        <span><strong>842 students</strong> ranked this week</span>
+        <span>Upload one more note to jump closer to the top 10.</span>
+      </div>
+
+      <section class="podium-card">
+        <div class="podium-label">Top 3 Contributors</div>
+
+        <div class="podium">
+          <div class="podium-slot">
+            <div class="podium-user">
+              <div class="podium-av" style="background:#94a3b8;">AL</div>
+              <div class="podium-name">Alex L.</div>
+              <div class="podium-pts">1,420 XP</div>
+            </div>
+            <div class="podium-block p2">2</div>
+          </div>
+
+          <div class="podium-slot">
+            <div class="podium-user">
+              <div style="font-size:1rem;">👑</div>
+              <div class="podium-av" style="background:#c8950a;">MK</div>
+              <div class="podium-name">Maya K.</div>
+              <div class="podium-pts">1,560 XP</div>
+            </div>
+            <div class="podium-block p1">1</div>
+          </div>
+
+          <div class="podium-slot">
+            <div class="podium-user">
+              <div class="podium-av" style="background:#b47832;">JP</div>
+              <div class="podium-name">Jamie P.</div>
+              <div class="podium-pts">1,310 XP</div>
+            </div>
+            <div class="podium-block p3">3</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="leaderboard-list">
+        <article class="rank-row">
+          <div class="rank-num">4</div>
+          <div class="rank-av" style="background:#3B6EF5;">SR</div>
+          <div class="rank-info">
+            <div class="rank-name">Sofia R. <span class="rank-pill rank-legend">Legend</span></div>
+            <div class="rank-sub">
+              <span>18 sales</span>
+              <span>4 session hosts</span>
+              <span>↑ 1 place</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">1,240 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend up">▲ +1</div>
+          </div>
+        </article>
+
+        <article class="rank-row">
+          <div class="rank-num">5</div>
+          <div class="rank-av" style="background:#22c55e;">TN</div>
+          <div class="rank-info">
+            <div class="rank-name">Thomas N. <span class="rank-pill rank-hustler">Hustler</span></div>
+            <div class="rank-sub">
+              <span>15 uploads</span>
+              <span>12 saves this week</span>
+              <span>same as last week</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">1,180 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend same">• 0</div>
+          </div>
+        </article>
+
+        <article class="rank-row">
+          <div class="rank-num">6</div>
+          <div class="rank-av" style="background:#8b5cf6;">CL</div>
+          <div class="rank-info">
+            <div class="rank-name">Chloe L. <span class="rank-pill rank-hustler">Hustler</span></div>
+            <div class="rank-sub">
+              <span>9 sales</span>
+              <span>2 group sessions</span>
+              <span>down 1 place</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">1,140 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend down">▼ -1</div>
+          </div>
+        </article>
+
+        <article class="rank-row">
+          <div class="rank-num">7</div>
+          <div class="rank-av" style="background:#ef4444;">RW</div>
+          <div class="rank-info">
+            <div class="rank-name">Ryan W. <span class="rank-pill rank-newbie">Newbie</span></div>
+            <div class="rank-sub">
+              <span>Fast climber</span>
+              <span>8 uploads</span>
+              <span>↑ 4 places</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">1,020 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend up">▲ +4</div>
+          </div>
+        </article>
+
+        <article class="rank-row you">
+          <div class="rank-num">14</div>
+          <div class="rank-av" style="background:#011a55;">JS</div>
+          <div class="rank-info">
+            <div class="rank-name">Jake Smith <span class="rank-pill rank-hustler">You</span></div>
+            <div class="rank-sub">
+              <span>3 active listings</span>
+              <span>2 sales</span>
+              <span>1 hosted session</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">820 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend up">▲ +2</div>
+          </div>
+        </article>
+
+        <article class="rank-row">
+          <div class="rank-num">15</div>
+          <div class="rank-av" style="background:#06b6d4;">ED</div>
+          <div class="rank-info">
+            <div class="rank-name">Emily D. <span class="rank-pill rank-hustler">Hustler</span></div>
+            <div class="rank-sub">
+              <span>7 uploads</span>
+              <span>steady growth</span>
+            </div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-points">805 XP</div>
+            <div class="rank-points-label">points</div>
+            <div class="trend same">• 0</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="pagination">
+        <button class="pg-btn"><i class="fa fa-chevron-left"></i></button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn">2</button>
+        <button class="pg-btn">3</button>
+        <button class="pg-btn"><i class="fa fa-chevron-right"></i></button>
+      </section>
+    </main>
+
+    <aside class="right-rail">
+      <section class="side-card">
+        <div class="side-card-body">
+          <div class="side-title">Your Progress</div>
+          <div class="mini-row"><span>Current rank</span><strong>#14</strong></div>
+          <div class="mini-row"><span>Next milestone</span><strong>Legend</strong></div>
+          <div class="mini-row"><span>XP needed</span><strong>180</strong></div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">Progress to Legend</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:82%;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <div class="side-card-body">
+          <div class="side-title">Leaderboard Stats</div>
+          <div class="mini-row"><span>Top seller score</span><strong>1,560 XP</strong></div>
+          <div class="mini-row"><span>Median rank points</span><strong>540 XP</strong></div>
+          <div class="mini-row"><span>Fastest mover</span><strong>Ryan W.</strong></div>
+          <div class="mini-row"><span>Most competitive tab</span><strong>Top Uploaders</strong></div>
+        </div>
+      </section>
+
+      <section class="side-card tip-card">
+        <div class="side-card-body">
+          <div class="side-title">Growth Tip</div>
+          <div class="tip-title">Earn points faster</div>
+          <div class="tip-text">
+            Uploading quality notes and hosting study sessions usually gives the fastest weekly leaderboard growth.
+          </div>
+          <button class="tip-btn">
+            <i class="fa fa-bolt"></i>
+            Boost my rank
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    document.querySelectorAll('.chip-group').forEach(group => {
+      group.querySelectorAll('.chip-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          group.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+        });
+      });
+    });
+  </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>

@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+
+  <style>
+  /* reset + :root → shared.css */
+
+  .page-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 88px 16px 40px;
+    display: grid;
+    grid-template-columns: 220px 1fr 248px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* ── Page head ───────────────────────── */
+  .page-head {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .page-head p {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .settings-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(0,48,135,0.06);
+    border: 1px solid rgba(0,48,135,0.14);
+    color: #003087;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── Layout inside main ──────────────── */
+  .settings-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  /* ── Settings nav ────────────────────── */
+  .settings-nav {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 8px;
+    position: sticky;
+    top: 84px;
+  }
+
+  .sn-section {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 10px 10px 6px;
+  }
+
+  .sn-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 11px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    text-align: left;
+  }
+  .sn-link:hover {
+    background: #f3f4f8;
+    color: var(--dark);
+  }
+  .sn-link.active {
+    background: rgba(0,48,135,0.08);
+    color: #003087;
+  }
+  .sn-link i {
+    width: 16px;
+    text-align: center;
+    font-size: 0.82rem;
+  }
+
+  .sn-sep {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 6px 0;
+  }
+
+  /* ── Panels ──────────────────────────── */
+  .settings-panels {
+    min-width: 0;
+  }
+  .s-panel {
+    display: none;
+  }
+  .s-panel.active {
+    display: block;
+  }
+
+  .s-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .s-card-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .s-card-head h3 {
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 3px;
+    letter-spacing: -0.02em;
+  }
+  .s-card-head p {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+
+  /* ── Rows / form ─────────────────────── */
+  .f-row,
+  .danger-row,
+  .billing-row {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .f-row:last-child,
+  .danger-row:last-child,
+  .billing-row:last-child {
+    border-bottom: none;
+  }
+
+  .f-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .f-row-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .f-label {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 2px;
+  }
+
+  .f-desc {
+    font-size: 0.73rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .f-input,
+  .f-select {
+    width: 220px;
+    padding: 8px 11px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: #f3f4f8;
+    color: var(--dark);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color var(--t), background var(--t);
+  }
+  .f-input:focus,
+  .f-select:focus {
+    border-color: var(--gold);
+    background: #fff;
+  }
+  .f-input::placeholder {
+    color: var(--muted);
+  }
+  .f-input[disabled] {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+
+  /* ── Avatar row ──────────────────────── */
+  .avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .avatar-big {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #003087;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .avatar-hint {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Buttons ─────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border-radius: 8px;
+    border: none;
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    white-space: nowrap;
+  }
+  .btn-primary:hover {
+    background: var(--dark2);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--dark);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .btn-secondary:hover {
+    background: #f3f4f8;
+  }
+
+  .btn-danger {
+    padding: 8px 13px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(239,68,68,0.2);
+    background: transparent;
+    color: #ef4444;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    flex-shrink: 0;
+  }
+  .btn-danger:hover {
+    background: rgba(239,68,68,0.06);
+    border-color: rgba(239,68,68,0.3);
+  }
+
+  /* ── Toggle ──────────────────────────── */
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .toggle input {
+    display: none;
+  }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: #e5e7eb;
+    border-radius: 999px;
+    transition: background var(--t);
+  }
+  .toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+    transition: transform var(--t);
+  }
+  .toggle input:checked + .toggle-track {
+    background: #003087;
+  }
+  .toggle input:checked + .toggle-track .toggle-knob {
+    transform: translateX(18px);
+  }
+
+  /* ── Checkbox rows ───────────────────── */
+  .chk-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .chk-row:last-child {
+    border-bottom: none;
+  }
+
+  .chk-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid rgba(0,0,0,0.18);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all var(--t) var(--ease);
+  }
+  .chk-box.on {
+    background: #003087;
+    border-color: #003087;
+  }
+  .chk-mark {
+    color: #fff;
+    font-size: 0.64rem;
+    display: none;
+  }
+  .chk-box.on .chk-mark {
+    display: block;
+  }
+
+  /* ── Billing / badges ────────────────── */
+  .badge-green {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.67rem;
+    font-weight: 700;
+    background: rgba(34,197,94,0.1);
+    color: #16a34a;
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  .billing-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.82rem;
+  }
+  .billing-lbl {
+    color: var(--dark);
+    font-weight: 600;
+  }
+  .billing-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── Save bar ────────────────────────── */
+  .save-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all var(--t) var(--ease);
+    pointer-events: none;
+  }
+  .save-bar.visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .save-bar-hint {
+    flex: 1;
+    font-size: 0.78rem;
+    color: var(--mid);
+  }
+
+  /* ── Danger ──────────────────────────── */
+  .danger-card {
+    border-color: rgba(239,68,68,0.16);
+  }
+  .danger-card .s-card-head {
+    border-color: rgba(239,68,68,0.12);
+  }
+
+  .danger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .danger-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #ef4444;
+    margin-bottom: 2px;
+  }
+
+  .danger-desc {
+    font-size: 0.73rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Right rail ──────────────────────── */
+  .right-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 84px;
+  }
+
+  .side-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+
+  .side-card-body {
+    padding: 16px 18px;
+  }
+
+  .side-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--mid);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .mini-row strong {
+    color: var(--dark);
+    font-weight: 700;
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #011a55 0%, #003087 100%);
+    color: #fff;
+    border: none;
+  }
+  .tip-card .side-card-body { padding: 18px; }
+  .tip-card .side-title {
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 10px;
+  }
+  .tip-title {
+    font-size: 0.96rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tip-text {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.76);
+    margin-bottom: 12px;
+  }
+  .tip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .tip-btn:hover { background: rgba(255,255,255,0.18); }
+
+  @media (max-width: 1024px) {
+    .page-wrap {
+      grid-template-columns: 220px 1fr;
+    }
+    .right-rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .page-wrap {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      display: none;
+    }
+    .settings-layout {
+      grid-template-columns: 1fr;
+    }
+    .settings-nav {
+      position: static;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .sn-section,
+    .sn-sep {
+      display: none;
+    }
+    .sn-link {
+      width: auto;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .f-row,
+    .danger-row,
+    .billing-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .f-input,
+    .f-select {
+      width: 100%;
+    }
+    .avatar-row {
+      align-items: flex-start;
+    }
+  }
+  </style>
+</head>
+
+<body class="app-page">
+  <header class="topbar">
+    <div class="tb-brand">
+      <img src="{{ url_for('static', filename='images/uwa-logo.png') }}" alt="UWA" class="tb-uwa" />
+      <div class="tb-divider"></div>
+      <span class="tb-logo">UniShare<span>.</span></span>
+    </div>
+    <div class="tb-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search units, notes, listings…" />
+    </div>
+    <nav class="tb-nav">
+      <a href="dashboard.html" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
+      <a href="marketplace.html" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
+      <a href="notes.html" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
+      <a href="sessions.html" class="tb-nav-item"><i class="fa-solid fa-users"></i> Sessions</a>
+      <button class="tb-nav-item" style="position:relative;">
+        <i class="fa-solid fa-bell"></i> Alerts
+        <span class="tb-badge">3</span>
+      </button>
+    </nav>
+    <div class="tb-right"><a href="profile.html" class="tb-av">JS</a></div>
+  </header>
+
+  <div class="page-wrap">
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">JS</div>
+          <div class="sb-profile-name">Jake Smith</div>
+          <div class="sb-profile-detail">Computer Science · 2nd Year<br>University of Western Australia</div>
+
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row"><span class="sb-stat-label">Student ID</span><span class="sb-stat-val">23456789</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Member since</span><span class="sb-stat-val">Mar 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Hustler · Rank #14</span>
+          <span class="sb-xp-pts">820 XP</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">180 XP to Legend</div>
+      </div>
+
+      <div class="sb-nav-card">
+        <a href="dashboard.html" class="sb-link"><i class="fa fa-house"></i>Dashboard</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa fa-store"></i>Marketplace</a>
+        <a href="new_my_listings.html" class="sb-link"><i class="fa fa-tag"></i>My Listings</a>
+        <a href="new_saved.html" class="sb-link"><i class="fa fa-bookmark"></i>Saved</a>
+        <a href="new_leaderboard.html" class="sb-link"><i class="fa fa-trophy"></i>Leaderboard</a>
+        <a href="new_settings.html" class="sb-link active"><i class="fa fa-gear"></i>Settings</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page-head">
+        <div>
+          <h1>Settings</h1>
+          <p>Manage your account, security, privacy, notifications, and payouts.</p>
+        </div>
+        <div class="settings-chip">
+          <i class="fa fa-shield-halved"></i>
+          Account protected
+        </div>
+      </section>
+
+      <div class="settings-layout">
+        <nav class="settings-nav">
+          <div class="sn-section">Account</div>
+          <button class="sn-link active" data-panel="p-profile"><i class="fa fa-user"></i>Profile</button>
+          <button class="sn-link" data-panel="p-account"><i class="fa fa-gear"></i>Account</button>
+          <button class="sn-link" data-panel="p-security"><i class="fa fa-lock"></i>Security</button>
+          <hr class="sn-sep" />
+          <div class="sn-section">Preferences</div>
+          <button class="sn-link" data-panel="p-notif"><i class="fa fa-bell"></i>Notifications</button>
+          <button class="sn-link" data-panel="p-privacy"><i class="fa fa-shield"></i>Privacy</button>
+          <button class="sn-link" data-panel="p-payments"><i class="fa fa-credit-card"></i>Payments</button>
+          <hr class="sn-sep" />
+          <button class="sn-link" data-panel="p-danger" style="color:#ef4444;"><i class="fa fa-triangle-exclamation"></i>Danger Zone</button>
+        </nav>
+
+        <div class="settings-panels">
+          <!-- Profile -->
+          <section class="s-panel active" id="p-profile">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Public Profile</h3>
+                <p>How other students see you across UniShare.</p>
+              </div>
+
+              <div class="avatar-row">
+                <div class="avatar-big">JS</div>
+                <div>
+                  <button class="btn-secondary">Change Photo</button>
+                  <div class="avatar-hint">JPG, PNG · Max 2MB</div>
+                </div>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Display Name</label>
+                  <div class="f-desc">Shown on listings and sessions.</div>
+                </div>
+                <input class="f-input" type="text" value="Jake S." />
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Bio</label>
+                  <div class="f-desc">Short intro about you.</div>
+                </div>
+                <input class="f-input" type="text" placeholder="e.g. CS student @ UWA" />
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Faculty</label>
+                </div>
+                <select class="f-select">
+                  <option>Computer Science</option>
+                  <option>Engineering</option>
+                  <option>Law</option>
+                  <option>Business</option>
+                  <option>Science</option>
+                  <option>Arts</option>
+                </select>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Year Level</label>
+                </div>
+                <select class="f-select">
+                  <option>1st Year</option>
+                  <option selected>2nd Year</option>
+                  <option>3rd Year</option>
+                  <option>Honours</option>
+                  <option>Postgrad</option>
+                </select>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Show Profile Publicly</label>
+                  <div class="f-desc">Let other students find your profile.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="save-bar" id="save-profile">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Account -->
+          <section class="s-panel" id="p-account">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Account Details</h3>
+                <p>Your email and university information.</p>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Email Address</label>
+                  <div class="f-desc">Used for login and notifications.</div>
+                </div>
+                <input class="f-input" type="email" value="jake.smith@student.uwa.edu.au" />
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Student ID</label>
+                  <div class="f-desc">Verified with your university account.</div>
+                </div>
+                <input class="f-input" type="text" value="23456789" disabled />
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Preferred Currency</label>
+                </div>
+                <select class="f-select">
+                  <option selected>AUD</option>
+                  <option>USD</option>
+                  <option>SGD</option>
+                </select>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Language</label>
+                </div>
+                <select class="f-select">
+                  <option selected>English</option>
+                  <option>中文</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Security -->
+          <section class="s-panel" id="p-security">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Password & Login</h3>
+                <p>Protect your UniShare account.</p>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Password</label>
+                  <div class="f-desc">Last changed 38 days ago.</div>
+                </div>
+                <button class="btn-secondary">Change Password</button>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Two-Factor Authentication</label>
+                  <div class="f-desc">Add an extra verification step when signing in.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Recognised Devices</label>
+                  <div class="f-desc">Windows Chrome · Perth · Active now</div>
+                </div>
+                <button class="btn-secondary">Manage Devices</button>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Notifications -->
+          <section class="s-panel" id="p-notif">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Email Notifications</h3>
+                <p>Choose what gets sent to your inbox.</p>
+              </div>
+
+              <div class="chk-row">
+                <div class="chk-box on" onclick="this.classList.toggle('on')">
+                  <i class="fa fa-check chk-mark"></i>
+                </div>
+                <div>
+                  <div class="f-label">Sales and payouts</div>
+                  <div class="f-desc">Get notified when a sale completes or a payout is sent.</div>
+                </div>
+              </div>
+
+              <div class="chk-row">
+                <div class="chk-box on" onclick="this.classList.toggle('on')">
+                  <i class="fa fa-check chk-mark"></i>
+                </div>
+                <div>
+                  <div class="f-label">Session reminders</div>
+                  <div class="f-desc">Receive reminders for sessions you joined or hosted.</div>
+                </div>
+              </div>
+
+              <div class="chk-row">
+                <div class="chk-box on" onclick="this.classList.toggle('on')">
+                  <i class="fa fa-check chk-mark"></i>
+                </div>
+                <div>
+                  <div class="f-label">Leaderboard updates</div>
+                  <div class="f-desc">Weekly summary of your rank changes.</div>
+                </div>
+              </div>
+
+              <div class="chk-row">
+                <div class="chk-box" onclick="this.classList.toggle('on')">
+                  <i class="fa fa-check chk-mark"></i>
+                </div>
+                <div>
+                  <div class="f-label">Promotions & tips</div>
+                  <div class="f-desc">Seller tips, feature announcements, and offers.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>In-App Notifications</h3>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Push notifications</label>
+                  <div class="f-desc">Show browser notifications.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Privacy -->
+          <section class="s-panel" id="p-privacy">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Privacy Controls</h3>
+                <p>Manage who can see your activity.</p>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Show on leaderboard</label>
+                  <div class="f-desc">Display your name and rank publicly.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Show total earnings</label>
+                  <div class="f-desc">Let others see how much you've earned.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Show saved items to followers</label>
+                  <div class="f-desc">Friends can see your saved notes.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Data sharing with UWA</label>
+                  <div class="f-desc">Allow anonymised data for research.</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Payments -->
+          <section class="s-panel" id="p-payments">
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Payout Method</h3>
+                <p>Where your earnings get sent.</p>
+              </div>
+
+              <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+                <div style="background:#f3f4f8;border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;">
+                  <i class="fa fa-building-columns" style="font-size:1.5rem;color:#003087;width:30px;text-align:center;"></i>
+                  <div style="flex:1;">
+                    <div style="font-size:0.86rem;font-weight:600;color:var(--dark);">Bank Transfer (BSB / Account)</div>
+                    <div style="font-size:0.72rem;color:var(--muted);margin-top:1px;">Australia · BSB ending **-456</div>
+                  </div>
+                  <span class="badge-green">Connected</span>
+                </div>
+              </div>
+
+              <div class="f-row">
+                <div class="f-row-left">
+                  <label class="f-label">Minimum payout threshold</label>
+                  <div class="f-desc">Auto-payout when you reach this amount.</div>
+                </div>
+                <select class="f-select">
+                  <option>$10 AUD</option>
+                  <option selected>$25 AUD</option>
+                  <option>$50 AUD</option>
+                  <option>$100 AUD</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="s-card">
+              <div class="s-card-head">
+                <h3>Billing History</h3>
+              </div>
+
+              <div class="billing-row">
+                <div>
+                  <div class="billing-lbl">Jun 2025</div>
+                  <div class="billing-sub">3 sales · $36.00</div>
+                </div>
+                <span class="badge-green">Paid</span>
+              </div>
+
+              <div class="billing-row">
+                <div>
+                  <div class="billing-lbl">May 2025</div>
+                  <div class="billing-sub">5 sales · $72.00</div>
+                </div>
+                <span class="badge-green">Paid</span>
+              </div>
+
+              <div class="billing-row">
+                <div>
+                  <div class="billing-lbl">Apr 2025</div>
+                  <div class="billing-sub">4 sales · $40.00</div>
+                </div>
+                <span class="badge-green">Paid</span>
+              </div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-bar-hint">You have unsaved changes.</span>
+              <button class="btn-secondary">Discard</button>
+              <button class="btn-primary">Save Changes</button>
+            </div>
+          </section>
+
+          <!-- Danger -->
+          <section class="s-panel" id="p-danger">
+            <div class="s-card danger-card">
+              <div class="s-card-head">
+                <h3 style="color:#ef4444;">Danger Zone</h3>
+                <p>Irreversible actions. Proceed with caution.</p>
+              </div>
+
+              <div class="danger-row">
+                <div>
+                  <div class="danger-title">Deactivate Account</div>
+                  <div class="danger-desc">Temporarily hide your profile and listings. You can reactivate at any time.</div>
+                </div>
+                <button class="btn-danger">Deactivate</button>
+              </div>
+
+              <div class="danger-row">
+                <div>
+                  <div class="danger-title">Delete Account</div>
+                  <div class="danger-desc">Permanently delete your account and all data. This cannot be undone.</div>
+                </div>
+                <button class="btn-danger">Delete Account</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <aside class="right-rail">
+      <section class="side-card">
+        <div class="side-card-body">
+          <div class="side-title">Account Summary</div>
+          <div class="mini-row"><span>Email verified</span><strong>Yes</strong></div>
+          <div class="mini-row"><span>2FA enabled</span><strong>No</strong></div>
+          <div class="mini-row"><span>Payout method</span><strong>Connected</strong></div>
+          <div class="mini-row"><span>Profile visibility</span><strong>Public</strong></div>
+        </div>
+      </section>
+
+      <section class="side-card tip-card">
+        <div class="side-card-body">
+          <div class="side-title">Security Tip</div>
+          <div class="tip-title">Enable 2FA</div>
+          <div class="tip-text">
+            Turning on two-factor authentication adds an extra layer of protection for your earnings and account access.
+          </div>
+          <button class="tip-btn">
+            <i class="fa fa-lock"></i>
+            Secure account
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    document.querySelectorAll('.sn-link').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.sn-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.s-panel').forEach(p => p.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById(link.dataset.panel).classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.f-input, .f-select, .toggle input').forEach(el => {
+      el.addEventListener('change', () => {
+        const panel = el.closest('.s-panel');
+        if (!panel) return;
+        const bar = panel.querySelector('.save-bar');
+        if (bar) bar.classList.add('visible');
+      });
+    });
+  </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
