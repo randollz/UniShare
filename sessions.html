@@ -417,11 +417,19 @@
 
               <div class="sc-actions">
                 {% if current_user and current_user.id != s.host_id %}
-                <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
-                  <button type="submit" class="sc-btn sc-btn-join">
-                    <i class="fa-solid fa-arrow-right"></i> Join session
-                  </button>
-                </form>
+                  {% if s.current_user_joined %}
+                  <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
+                    <button type="submit" class="sc-btn sc-btn-ghost">
+                      <i class="fa-solid fa-xmark"></i> Cancel RSVP
+                    </button>
+                  </form>
+                  {% else %}
+                  <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
+                    <button type="submit" class="sc-btn sc-btn-join">
+                      <i class="fa-solid fa-arrow-right"></i> Join session
+                    </button>
+                  </form>
+                  {% endif %}
                 {% elif not current_user %}
                 <a href="{{ url_for('login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
                 {% else %}
@@ -429,7 +437,6 @@
                   <i class="fa-solid fa-star"></i> You're hosting
                 </span>
                 {% endif %}
-                <button class="sc-btn sc-btn-ghost"><i class="fa-regular fa-bookmark"></i> Save</button>
               </div>
             </div>
           </div>
