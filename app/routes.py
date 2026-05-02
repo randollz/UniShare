@@ -1,86 +1,55 @@
-import functools
 from flask import (render_template, request, redirect,
                    url_for, session, flash, jsonify, Response)
-from werkzeug.security import generate_password_hash, check_password_hash
-from database import get_db, init_db
-from validators import (validate_required_text, validate_optional_text,
-                        validate_unit_code, validate_price, validate_positive_int,
-                        validate_session_date, validate_choice, LISTING_CONDITIONS)
+from flask_login import login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash
 
+from app.extensions import db
+from app.models import (User, Listing, Note, StudySession, SessionRSVP,
+                        Bounty, SavedListing, Rating, Message)
+from app import controllers
+from validators import LISTING_CONDITIONS
 
-# ─────────────────────────────────────────────────────────────
-# Helpers (module-level so routes can reference them)
-# ─────────────────────────────────────────────────────────────
-
-def get_current_user():
-    user_id = session.get('user_id')
-    if not user_id:
-        return None
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
-    db.close()
-    return user
-
-
-def login_required(f):
-    @functools.wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get('user_id'):
-            flash('Please sign in to continue.', 'info')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated
-
-
-# ─────────────────────────────────────────────────────────────
-# Route registration
-# ─────────────────────────────────────────────────────────────
 
 def register_routes(app):
 
     # ── Context processors ──────────────────────────────────────
 
     @app.context_processor
-    def inject_unread_count():
-        user_id = session.get('user_id')
-        if not user_id:
-            return {'unread_count': 0}
-        db = get_db()
-        count = db.execute(
-            'SELECT COUNT(*) FROM messages WHERE receiver_id = ? AND read = 0',
-            (user_id,)
-        ).fetchone()[0]
-        db.close()
-        return {'unread_count': count}
+    def inject_globals():
+        unread = 0
+        if current_user.is_authenticated:
+            unread = Message.query.filter_by(
+                receiver_id=current_user.id, read=0
+            ).count()
+        user = current_user if current_user.is_authenticated else None
+        return {'unread_count': unread, 'current_user': user}
 
     # ── Error handlers ──────────────────────────────────────────
 
     @app.errorhandler(404)
     def page_not_found(e):
-        return render_template('404.html', current_user=get_current_user()), 404
+        return render_template('404.html'), 404
 
     @app.errorhandler(500)
     def internal_server_error(e):
-        return render_template('500.html', current_user=get_current_user()), 500
+        return render_template('500.html'), 500
 
     # ── Auth ────────────────────────────────────────────────────
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
-        if session.get('user_id'):
+        if current_user.is_authenticated:
             return redirect(url_for('dashboard'))
 
         if request.method == 'POST':
             action = request.form.get('action')
-            db = get_db()
 
             if action == 'login':
-                email = request.form.get('email', '').strip().lower()
+                email    = request.form.get('email', '').strip().lower()
                 password = request.form.get('password', '')
-                user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
-                if user and check_password_hash(user['password_hash'], password):
-                    session['user_id'] = user['id']
-                    db.close()
+                user = User.query.filter_by(email=email).first()
+                if user and user.check_password(password):
+                    login_user(user)
                     return redirect(url_for('dashboard'))
                 flash('Invalid email or password.', 'error')
 
@@ -89,55 +58,46 @@ def register_routes(app):
                 last_name  = request.form.get('last_name', '').strip()
                 email      = request.form.get('email', '').strip().lower()
                 password   = request.form.get('password', '')
-                existing   = db.execute('SELECT id FROM users WHERE email = ?', (email,)).fetchone()
-                if existing:
+                if User.query.filter_by(email=email).first():
                     flash('An account with that email already exists.', 'error')
                 else:
-                    cur = db.execute(
-                        'INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?,?,?,?)',
-                        (first_name, last_name, email, generate_password_hash(password))
-                    )
-                    db.commit()
-                    session['user_id'] = cur.lastrowid
-                    db.close()
+                    user = User(first_name=first_name, last_name=last_name, email=email)
+                    user.set_password(password)
+                    db.session.add(user)
+                    db.session.commit()
+                    login_user(user)
                     return redirect(url_for('dashboard'))
 
-            db.close()
-
-        return render_template('login.html', current_user=get_current_user())
+        return render_template('login.html')
 
     @app.route('/logout')
     def logout():
-        session.clear()
+        logout_user()
         return redirect(url_for('index'))
 
     # ── Index ───────────────────────────────────────────────────
 
     @app.route('/')
     def index():
-        db = get_db()
-
         stats = {
-            'users':    db.execute('SELECT COUNT(*) FROM users').fetchone()[0],
-            'listings': db.execute('SELECT COUNT(*) FROM listings').fetchone()[0],
-            'notes':    db.execute('SELECT COUNT(*) FROM notes').fetchone()[0],
+            'users':    User.query.count(),
+            'listings': Listing.query.count(),
+            'notes':    Note.query.count(),
         }
+        recent_listings = Listing.query.order_by(Listing.created_at.desc()).limit(3).all()
+        top_users       = User.query.order_by(User.xp.desc()).limit(5).all()
 
-        recent_listings = db.execute(
-            'SELECT * FROM listings ORDER BY created_at DESC LIMIT 3'
-        ).fetchall()
+        # Notes grouped by unit code
+        from sqlalchemy import func
+        notes_by_unit = (
+            db.session.query(Note.unit_code, func.count(Note.id).label('count'))
+            .group_by(Note.unit_code)
+            .order_by(func.count(Note.id).desc())
+            .limit(6)
+            .all()
+        )
 
-        notes_by_unit = db.execute(
-            'SELECT unit_code, COUNT(*) as count FROM notes GROUP BY unit_code ORDER BY count DESC LIMIT 6'
-        ).fetchall()
-
-        top_users = db.execute(
-            'SELECT * FROM users ORDER BY xp DESC LIMIT 5'
-        ).fetchall()
-
-        db.close()
         return render_template('index.html',
-                               current_user=get_current_user(),
                                stats=stats,
                                recent_listings=recent_listings,
                                notes_by_unit=notes_by_unit,
@@ -148,39 +108,26 @@ def register_routes(app):
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        user = get_current_user()
-        db   = get_db()
+        my_listings = (Listing.query
+                       .filter_by(seller_id=current_user.id)
+                       .order_by(Listing.created_at.desc())
+                       .all())
 
-        my_listings = db.execute(
-            'SELECT * FROM listings WHERE seller_id = ? ORDER BY created_at DESC',
-            (user['id'],)
-        ).fetchall()
+        saved = (db.session.query(Listing)
+                 .join(SavedListing, SavedListing.listing_id == Listing.id)
+                 .filter(SavedListing.user_id == current_user.id)
+                 .all())
 
-        saved = db.execute(
-            '''SELECT l.*, u.first_name, u.last_name
-               FROM saved_listings sl
-               JOIN listings l ON l.id = sl.listing_id
-               JOIN users    u ON u.id = l.seller_id
-               WHERE sl.user_id = ?''',
-            (user['id'],)
-        ).fetchall()
+        my_sessions = (db.session.query(StudySession)
+                       .join(SessionRSVP, SessionRSVP.session_id == StudySession.id)
+                       .filter(SessionRSVP.user_id == current_user.id)
+                       .order_by(StudySession.session_date.asc())
+                       .all())
 
-        my_sessions = db.execute(
-            '''SELECT s.* FROM sessions s
-               JOIN session_rsvps r ON r.session_id = s.id
-               WHERE r.user_id = ?
-               ORDER BY s.session_date ASC''',
-            (user['id'],)
-        ).fetchall()
+        top_users = User.query.order_by(User.xp.desc()).limit(5).all()
 
-        top_users = db.execute(
-            'SELECT * FROM users ORDER BY xp DESC LIMIT 5'
-        ).fetchall()
-
-        db.close()
         return render_template('dashboard.html',
-                               current_user=user,
-                               user=user,
+                               user=current_user,
                                my_listings=my_listings,
                                saved=saved,
                                my_sessions=my_sessions,
@@ -195,190 +142,118 @@ def register_routes(app):
         condition = request.args.get('condition', '').strip()
         sort      = request.args.get('sort', '').strip()
 
-        query  = '''SELECT l.*, u.first_name, u.last_name,
-                           u.rating_sum, u.rating_count,
-                           CASE WHEN u.rating_count > 0
-                                THEN ROUND(CAST(u.rating_sum AS REAL) / u.rating_count, 1)
-                                ELSE NULL END AS avg_rating
-                    FROM listings l JOIN users u ON u.id = l.seller_id
-                    WHERE 1=1'''
-        params = []
+        query = Listing.query.join(User, User.id == Listing.seller_id)
 
         if q:
-            query += ' AND (l.title LIKE ? OR l.description LIKE ?)'
-            params += [f'%{q}%', f'%{q}%']
+            like = f'%{q}%'
+            query = query.filter(
+                (Listing.title.like(like)) | (Listing.description.like(like))
+            )
         if unit:
-            query += ' AND l.unit_code = ?'
-            params.append(unit)
+            query = query.filter(Listing.unit_code == unit)
         if condition:
-            query += ' AND l.condition = ?'
-            params.append(condition)
+            query = query.filter(Listing.condition == condition)
 
         if sort == 'price_asc':
-            query += ' ORDER BY l.price ASC'
+            query = query.order_by(Listing.price.asc())
         elif sort == 'price_desc':
-            query += ' ORDER BY l.price DESC'
+            query = query.order_by(Listing.price.desc())
         else:
-            query += ' ORDER BY l.created_at DESC'
+            query = query.order_by(Listing.created_at.desc())
 
-        db       = get_db()
-        listings = db.execute(query, params).fetchall()
+        listings = query.all()
 
         saved_ids = set()
-        user = get_current_user()
-        if user:
-            rows = db.execute(
-                'SELECT listing_id FROM saved_listings WHERE user_id = ?',
-                (user['id'],)
-            ).fetchall()
-            saved_ids = {r['listing_id'] for r in rows}
+        if current_user.is_authenticated:
+            saved_ids = {
+                sl.listing_id
+                for sl in SavedListing.query.filter_by(user_id=current_user.id).all()
+            }
 
-        recent_listings = db.execute(
-            '''SELECT l.id, l.title, l.unit_code, l.price, l.condition
-               FROM listings l
-               ORDER BY l.created_at DESC
-               LIMIT 3'''
-        ).fetchall()
+        recent_listings = (Listing.query
+                           .order_by(Listing.created_at.desc())
+                           .limit(3).all())
 
-        price_stats_rows = db.execute(
-            '''SELECT
-                  SUBSTR(unit_code, 1, 4) AS unit_prefix,
-                  ROUND(AVG(price), 0)    AS avg_price,
-                  COUNT(*)                AS n
-               FROM listings
-               GROUP BY unit_prefix
-               HAVING n >= 1
-               ORDER BY n DESC
-               LIMIT 5'''
-        ).fetchall()
+        from sqlalchemy import func
+        price_stats = (
+            db.session.query(
+                db.func.substr(Listing.unit_code, 1, 4).label('unit_prefix'),
+                db.func.round(db.func.avg(Listing.price), 0).label('avg_price'),
+                func.count(Listing.id).label('n'),
+            )
+            .group_by('unit_prefix')
+            .order_by(func.count(Listing.id).desc())
+            .limit(5)
+            .all()
+        )
 
-        active_count = db.execute('SELECT COUNT(*) AS c FROM listings').fetchone()['c']
-
-        db.close()
+        active_count = Listing.query.count()
 
         return render_template('marketplace.html',
-                               current_user=user,
                                listings=listings,
                                saved_ids=saved_ids,
                                recent_listings=recent_listings,
-                               price_stats=price_stats_rows,
+                               price_stats=price_stats,
                                active_count=active_count,
                                q=q, unit=unit, condition=condition, sort=sort)
 
     @app.route('/create_listing', methods=['GET', 'POST'])
     @login_required
     def create_listing():
-        errors = {}
-        form = {}
         if request.method == 'POST':
-            form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=100)
-            form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
-            form['price'],       errors['price']       = validate_price(request.form.get('price'))
-            form['condition'],   errors['condition']   = validate_choice(request.form.get('condition'), 'Condition', LISTING_CONDITIONS)
-            form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
-
-            errors = {k: v for k, v in errors.items() if v}
-
-            if not errors:
-                user = get_current_user()
-                db   = get_db()
-                db.execute(
-                    'INSERT INTO listings (seller_id, title, unit_code, price, condition, description) VALUES (?,?,?,?,?,?)',
-                    (user['id'], form['title'], form['unit_code'], form['price'],
-                     form['condition'], form['description'])
-                )
-                db.commit()
-                db.close()
+            try:
+                controllers.create_listing(current_user.id, request.form)
                 flash('Listing posted!', 'success')
                 return redirect(url_for('marketplace'))
-
-            for msg in errors.values():
-                flash(msg, 'error')
-
+            except ValueError as e:
+                flash(str(e), 'error')
         return render_template('create_listing.html',
-                               current_user=get_current_user(),
-                               errors=errors, form=form,
+                               errors={}, form=request.form,
                                conditions=LISTING_CONDITIONS)
 
     @app.route('/delete_listing/<int:listing_id>', methods=['POST'])
     @login_required
     def delete_listing(listing_id):
-        user = get_current_user()
-        db   = get_db()
-        db.execute('DELETE FROM listings WHERE id = ? AND seller_id = ?', (listing_id, user['id']))
-        db.commit()
-        db.close()
+        listing = Listing.query.filter_by(id=listing_id, seller_id=current_user.id).first()
+        if listing:
+            db.session.delete(listing)
+            db.session.commit()
         return redirect(url_for('dashboard'))
 
     @app.route('/save_listing/<int:listing_id>', methods=['POST'])
     @login_required
     def save_listing(listing_id):
-        user = get_current_user()
-        db   = get_db()
-        try:
-            db.execute('INSERT INTO saved_listings (user_id, listing_id) VALUES (?,?)',
-                       (user['id'], listing_id))
-            db.commit()
-        except Exception:
-            pass
-        db.close()
+        if not SavedListing.query.get((current_user.id, listing_id)):
+            db.session.add(SavedListing(user_id=current_user.id, listing_id=listing_id))
+            db.session.commit()
         return redirect(url_for('marketplace'))
 
     @app.route('/unsave_listing/<int:listing_id>', methods=['POST'])
     @login_required
     def unsave_listing(listing_id):
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'DELETE FROM saved_listings WHERE user_id = ? AND listing_id = ?',
-            (user['id'], listing_id)
-        )
-        db.commit()
-        db.close()
+        sl = SavedListing.query.get((current_user.id, listing_id))
+        if sl:
+            db.session.delete(sl)
+            db.session.commit()
         return redirect(url_for('marketplace'))
 
     @app.route('/listings/<int:listing_id>')
     def view_listing(listing_id):
-        db = get_db()
-        listing = db.execute(
-            '''SELECT l.*, u.first_name, u.last_name
-               FROM listings l JOIN users u ON u.id = l.seller_id
-               WHERE l.id = ?''',
-            (listing_id,)
-        ).fetchone()
-        db.close()
-
-        if listing is None:
-            flash('Listing not found.', 'error')
-            return redirect(url_for('marketplace'))
-
-        return render_template('listing_detail.html',
-                               listing=listing,
-                               current_user=get_current_user())
+        listing = Listing.query.get_or_404(listing_id)
+        return render_template('listing_detail.html', listing=listing)
 
     @app.route('/listings/<int:listing_id>/download')
     def download_listing(listing_id):
-        db = get_db()
-        listing = db.execute('SELECT * FROM listings WHERE id = ?', (listing_id,)).fetchone()
-        db.close()
-
-        if listing is None:
-            flash('Listing not found.', 'error')
-            return redirect(url_for('marketplace'))
-
+        listing = Listing.query.get_or_404(listing_id)
         content = (
-            f"{listing['title']}\n\n"
-            f"Unit: {listing['unit_code']}\n"
-            f"Price: ${listing['price']:.2f}\n"
-            f"Condition: {listing['condition']}\n\n"
-            f"{listing['description']}"
+            f"{listing.title}\n\n"
+            f"Unit: {listing.unit_code}\n"
+            f"Price: ${listing.price:.2f}\n"
+            f"Condition: {listing.condition}\n\n"
+            f"{listing.description}"
         )
-
-        return Response(
-            content,
-            mimetype='text/plain',
-            headers={'Content-Disposition': f'attachment; filename=listing-{listing_id}.txt'}
-        )
+        return Response(content, mimetype='text/plain',
+                        headers={'Content-Disposition': f'attachment; filename=listing-{listing_id}.txt'})
 
     # ── Notes ───────────────────────────────────────────────────
 
@@ -387,110 +262,52 @@ def register_routes(app):
         q    = request.args.get('q', '').strip()
         unit = request.args.get('unit', '').strip().upper()
 
-        query  = '''SELECT n.*, u.first_name, u.last_name
-                    FROM notes n JOIN users u ON u.id = n.author_id
-                    WHERE 1=1'''
-        params = []
-
+        query = Note.query
         if q:
-            query += ' AND (n.title LIKE ? OR n.description LIKE ?)'
-            params += [f'%{q}%', f'%{q}%']
+            like = f'%{q}%'
+            query = query.filter((Note.title.like(like)) | (Note.description.like(like)))
         if unit:
-            query += ' AND n.unit_code = ?'
-            params.append(unit)
+            query = query.filter(Note.unit_code == unit)
+        notes_list = query.order_by(Note.upvotes.desc(), Note.created_at.desc()).all()
 
-        query += ' ORDER BY n.upvotes DESC, n.created_at DESC'
-
-        db    = get_db()
-        notes_list = db.execute(query, params).fetchall()
-        db.close()
-
-        return render_template('notes.html',
-                               current_user=get_current_user(),
-                               notes=notes_list, q=q, unit=unit)
+        return render_template('notes.html', notes=notes_list, q=q, unit=unit)
 
     @app.route('/create_note', methods=['GET', 'POST'])
     @login_required
     def create_note():
-        errors = {}
-        form = {}
-
         if request.method == 'POST':
-            form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
-            form['unit_code'],   errors['unit_code']   = validate_unit_code(request.form.get('unit_code'))
-            form['semester'],    errors['semester']    = validate_optional_text(request.form.get('semester'), 'Semester', max_len=50)
-            form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
-
-            errors = {k: v for k, v in errors.items() if v}
-
-            if not errors:
-                user = get_current_user()
-                db   = get_db()
-                db.execute(
-                    'INSERT INTO notes (author_id, title, unit_code, semester, description) VALUES (?,?,?,?,?)',
-                    (user['id'], form['title'], form['unit_code'],
-                     form['semester'], form['description'])
-                )
-                db.commit()
-                db.close()
+            try:
+                controllers.create_note(current_user.id, request.form)
                 flash('Notes shared!', 'success')
                 return redirect(url_for('notes'))
-
-            for msg in errors.values():
-                flash(msg, 'error')
-
-        return render_template('create_note.html',
-                               current_user=get_current_user(),
-                               errors=errors, form=form)
+            except ValueError as e:
+                flash(str(e), 'error')
+        return render_template('create_note.html', errors={}, form=request.form)
 
     @app.route('/upvote_note/<int:note_id>', methods=['POST'])
     @login_required
     def upvote_note(note_id):
-        db = get_db()
-        db.execute('UPDATE notes SET upvotes = upvotes + 1 WHERE id = ?', (note_id,))
-        db.commit()
-        db.close()
+        note = Note.query.get_or_404(note_id)
+        note.upvotes += 1
+        db.session.commit()
         return redirect(url_for('notes'))
 
     @app.route('/notes/<int:note_id>')
     def view_note(note_id):
-        db = get_db()
-        note = db.execute(
-            '''SELECT n.*, u.first_name, u.last_name
-               FROM notes n JOIN users u ON u.id = n.author_id
-               WHERE n.id = ?''',
-            (note_id,)
-        ).fetchone()
-        db.close()
-
-        if note is None:
-            flash('Note not found.', 'error')
-            return redirect(url_for('notes'))
-
-        return render_template('note_detail.html', note=note, current_user=get_current_user())
+        note = Note.query.get_or_404(note_id)
+        return render_template('note_detail.html', note=note)
 
     @app.route('/notes/<int:note_id>/download')
     def download_note(note_id):
-        db = get_db()
-        note = db.execute('SELECT * FROM notes WHERE id = ?', (note_id,)).fetchone()
-        db.close()
-
-        if note is None:
-            flash('Note not found.', 'error')
-            return redirect(url_for('notes'))
-
+        note = Note.query.get_or_404(note_id)
         content = (
-            f"{note['title']}\n\n"
-            f"Unit: {note['unit_code']}\n"
-            f"Semester: {note['semester']}\n\n"
-            f"{note['description']}"
+            f"{note.title}\n\n"
+            f"Unit: {note.unit_code}\n"
+            f"Semester: {note.semester}\n\n"
+            f"{note.description}"
         )
-
-        return Response(
-            content,
-            mimetype='text/plain',
-            headers={'Content-Disposition': f'attachment; filename=note-{note_id}.txt'}
-        )
+        return Response(content, mimetype='text/plain',
+                        headers={'Content-Disposition': f'attachment; filename=note-{note_id}.txt'})
 
     # ── Study Sessions ──────────────────────────────────────────
 
@@ -498,107 +315,64 @@ def register_routes(app):
     def study_sessions():
         unit = request.args.get('unit', '').strip().upper()
 
-        query = '''
-        SELECT s.*, u.first_name, u.last_name,
-           (SELECT COUNT(*) FROM session_rsvps r WHERE r.session_id = s.id) as rsvp_count,
-           EXISTS (
-               SELECT 1 FROM session_rsvps r2
-               WHERE r2.session_id = s.id AND r2.user_id = ?
-           ) as current_user_joined
-        FROM sessions s
-        JOIN users u ON u.id = s.host_id
-        WHERE 1=1
-        '''
-        current_user = get_current_user()
-        params = [current_user['id'] if current_user else 0]
-
+        query = StudySession.query.join(User, User.id == StudySession.host_id)
         if unit:
-            query += ' AND s.unit_code = ?'
-            params.append(unit)
+            query = query.filter(StudySession.unit_code == unit)
+        sessions_list = query.order_by(StudySession.session_date.asc()).all()
 
-        query += ' ORDER BY s.session_date ASC'
+        # Annotate each session with RSVP count for the template
+        for s in sessions_list:
+            s.rsvp_count = s.attendee_count()
 
-        db           = get_db()
-        sessions_list = db.execute(query, params).fetchall()
-        db.close()
+        # Mark which sessions the current user has RSVPed to
+        joined_ids = set()
+        if current_user.is_authenticated:
+            joined_ids = {
+                r.session_id
+                for r in SessionRSVP.query.filter_by(user_id=current_user.id).all()
+            }
 
         return render_template('sessions.html',
-                               current_user=current_user,
-                               sessions=sessions_list, unit=unit)
+                               sessions=sessions_list,
+                               joined_ids=joined_ids,
+                               unit=unit)
 
     @app.route('/create_session', methods=['GET', 'POST'])
     @login_required
     def create_session():
-        errors = {}
-        form = {}
-
         if request.method == 'POST':
-            form['title'],         errors['title']         = validate_required_text(request.form.get('title'), 'Title', max_len=150)
-            form['unit_code'],     errors['unit_code']     = validate_unit_code(request.form.get('unit_code'))
-            form['location'],      errors['location']      = validate_optional_text(request.form.get('location'), 'Location', max_len=200)
-            form['session_date'],  errors['session_date']  = validate_session_date(request.form.get('session_date'))
-            form['max_attendees'], errors['max_attendees'] = validate_positive_int(request.form.get('max_attendees', '10'), 'Max attendees', min_value=2, max_value=200)
-            form['description'],   errors['description']   = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
-
-            errors = {k: v for k, v in errors.items() if v}
-
-            if not errors:
-                user = get_current_user()
-                db   = get_db()
-                db.execute(
-                    'INSERT INTO sessions (host_id, title, unit_code, location, session_date, max_attendees, description) VALUES (?,?,?,?,?,?,?)',
-                    (user['id'], form['title'], form['unit_code'], form['location'],
-                     form['session_date'], form['max_attendees'], form['description'])
-                )
-                db.commit()
-                db.close()
+            try:
+                controllers.create_study_session(current_user.id, request.form)
                 flash('Study session posted!', 'success')
                 return redirect(url_for('study_sessions'))
-
-            for msg in errors.values():
-                flash(msg, 'error')
-
-        return render_template('create_session.html',
-                               current_user=get_current_user(),
-                               errors=errors, form=form)
+            except ValueError as e:
+                flash(str(e), 'error')
+        return render_template('create_session.html', errors={}, form=request.form)
 
     @app.route('/rsvp_session/<int:session_id>', methods=['POST'])
     @login_required
     def rsvp_session(session_id):
-        user = get_current_user()
-        db   = get_db()
-        try:
-            db.execute('INSERT INTO session_rsvps (session_id, user_id) VALUES (?,?)',
-                       (session_id, user['id']))
-            db.commit()
+        created = controllers.rsvp_session(session_id, current_user.id)
+        if created:
             flash("You're in!", 'success')
-        except Exception:
+        else:
             flash("You're already signed up for that session.", 'info')
-        db.close()
         return redirect(url_for('study_sessions'))
 
     @app.route('/delete_session/<int:session_id>', methods=['POST'])
     @login_required
     def delete_session(session_id):
-        user = get_current_user()
-        db   = get_db()
-        db.execute('DELETE FROM sessions WHERE id = ? AND host_id = ?', (session_id, user['id']))
-        db.commit()
-        db.close()
-        flash('Session deleted.', 'success')
+        s = StudySession.query.filter_by(id=session_id, host_id=current_user.id).first()
+        if s:
+            db.session.delete(s)
+            db.session.commit()
+            flash('Session deleted.', 'success')
         return redirect(url_for('study_sessions'))
 
     @app.route('/cancel_rsvp/<int:session_id>', methods=['POST'])
     @login_required
     def cancel_rsvp(session_id):
-        user = get_current_user()
-        db   = get_db()
-        db.execute(
-            'DELETE FROM session_rsvps WHERE session_id = ? AND user_id = ?',
-            (session_id, user['id'])
-        )
-        db.commit()
-        db.close()
+        controllers.cancel_rsvp(session_id, current_user.id)
         flash('RSVP cancelled.', 'info')
         return redirect(url_for('study_sessions'))
 
@@ -607,121 +381,76 @@ def register_routes(app):
     @app.route('/rate_user/<int:listing_id>', methods=['POST'])
     @login_required
     def rate_user(listing_id):
-        rater = get_current_user()
-        db    = get_db()
-
-        listing = db.execute('SELECT * FROM listings WHERE id = ?', (listing_id,)).fetchone()
-        if not listing:
-            db.close()
-            flash('Listing not found.', 'error')
-            return redirect(url_for('marketplace'))
-
-        rated_id = listing['seller_id']
-        if rated_id == rater['id']:
-            db.close()
-            flash('You cannot rate yourself.', 'error')
-            return redirect(url_for('marketplace'))
-
-        already = db.execute(
-            'SELECT id FROM ratings WHERE rater_id = ? AND listing_id = ?',
-            (rater['id'], listing_id)
-        ).fetchone()
-        if already:
-            db.close()
-            flash('You have already rated this transaction.', 'info')
-            return redirect(url_for('marketplace'))
-
-        score   = int(request.form.get('score', 5))
-        comment = request.form.get('comment', '').strip()
-
-        db.execute(
-            'INSERT INTO ratings (rater_id, rated_id, listing_id, score, comment) VALUES (?,?,?,?,?)',
-            (rater['id'], rated_id, listing_id, score, comment)
-        )
-        db.execute(
-            'UPDATE users SET rating_sum = rating_sum + ?, rating_count = rating_count + 1 WHERE id = ?',
-            (score, rated_id)
-        )
-        db.commit()
-        db.close()
-        flash('Rating submitted!', 'success')
+        try:
+            score   = int(request.form.get('score', 5))
+            comment = request.form.get('comment', '').strip()
+            controllers.submit_rating(current_user.id, listing_id, score, comment)
+            flash('Rating submitted!', 'success')
+        except ValueError as e:
+            flash(str(e), 'error')
         return redirect(url_for('marketplace'))
 
     # ── Leaderboard ─────────────────────────────────────────────
 
     @app.route('/leaderboard')
     def leaderboard():
-        db = get_db()
-        users = db.execute('SELECT * FROM users ORDER BY xp DESC').fetchall()
-        db.close()
-        return render_template('new_leaderboard.html',
-                               current_user=get_current_user(),
-                               users=users)
+        users = User.query.order_by(User.xp.desc()).all()
+        return render_template('new_leaderboard.html', users=users)
 
     # ── Messages ────────────────────────────────────────────────
 
     @app.route('/messages')
     @login_required
     def messages():
-        user = get_current_user()
-        db   = get_db()
-
-        contacts = db.execute(
-            '''SELECT DISTINCT u.id, u.first_name, u.last_name
-               FROM messages m
-               JOIN users u ON u.id = CASE
-                   WHEN m.sender_id   = ? THEN m.receiver_id
-                   ELSE m.sender_id
-               END
-               WHERE m.sender_id = ? OR m.receiver_id = ?
-               ORDER BY u.first_name''',
-            (user['id'], user['id'], user['id'])
-        ).fetchall()
-
-        db.close()
-        return render_template('messages.html',
-                               current_user=user,
-                               contacts=contacts,
-                               active_user_id=None)
+        from sqlalchemy import or_, case
+        contacts = (
+            db.session.query(User)
+            .join(Message, or_(
+                (Message.sender_id == User.id) & (Message.receiver_id == current_user.id),
+                (Message.receiver_id == User.id) & (Message.sender_id == current_user.id),
+            ))
+            .filter(User.id != current_user.id)
+            .distinct()
+            .order_by(User.first_name)
+            .all()
+        )
+        return render_template('messages.html', contacts=contacts, active_user_id=None)
 
     @app.route('/messages/<int:other_id>')
     @login_required
     def messages_thread(other_id):
-        user = get_current_user()
-        db   = get_db()
+        # Mark incoming messages as read
+        Message.query.filter_by(
+            sender_id=other_id, receiver_id=current_user.id, read=0
+        ).update({'read': 1})
+        db.session.commit()
 
-        db.execute(
-            'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?',
-            (other_id, user['id'])
+        from sqlalchemy import or_
+        thread = (
+            Message.query
+            .filter(or_(
+                (Message.sender_id == current_user.id) & (Message.receiver_id == other_id),
+                (Message.sender_id == other_id) & (Message.receiver_id == current_user.id),
+            ))
+            .order_by(Message.created_at.asc())
+            .all()
         )
-        db.commit()
 
-        thread = db.execute(
-            '''SELECT m.*, u.first_name, u.last_name
-               FROM messages m JOIN users u ON u.id = m.sender_id
-               WHERE (m.sender_id = ? AND m.receiver_id = ?)
-                  OR (m.sender_id = ? AND m.receiver_id = ?)
-               ORDER BY m.created_at ASC''',
-            (user['id'], other_id, other_id, user['id'])
-        ).fetchall()
+        other_user = User.query.get_or_404(other_id)
 
-        other_user = db.execute('SELECT * FROM users WHERE id = ?', (other_id,)).fetchone()
+        contacts = (
+            db.session.query(User)
+            .join(Message, or_(
+                (Message.sender_id == User.id) & (Message.receiver_id == current_user.id),
+                (Message.receiver_id == User.id) & (Message.sender_id == current_user.id),
+            ))
+            .filter(User.id != current_user.id)
+            .distinct()
+            .order_by(User.first_name)
+            .all()
+        )
 
-        contacts = db.execute(
-            '''SELECT DISTINCT u.id, u.first_name, u.last_name
-               FROM messages m
-               JOIN users u ON u.id = CASE
-                   WHEN m.sender_id   = ? THEN m.receiver_id
-                   ELSE m.sender_id
-               END
-               WHERE m.sender_id = ? OR m.receiver_id = ?
-               ORDER BY u.first_name''',
-            (user['id'], user['id'], user['id'])
-        ).fetchall()
-
-        db.close()
         return render_template('messages.html',
-                               current_user=user,
                                contacts=contacts,
                                thread=thread,
                                other_user=other_user,
@@ -730,268 +459,181 @@ def register_routes(app):
     @app.route('/messages/<int:other_id>/send', methods=['POST'])
     @login_required
     def messages_send(other_id):
-        user = get_current_user()
-        body = request.json.get('body', '').strip() if request.is_json else request.form.get('body', '').strip()
+        body = (request.json.get('body', '').strip()
+                if request.is_json else request.form.get('body', '').strip())
         if not body:
             return jsonify({'error': 'empty'}), 400
-
-        db = get_db()
-        db.execute(
-            'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
-            (user['id'], other_id, body)
-        )
-        db.commit()
-        db.close()
+        controllers.send_message(current_user.id, other_id, body)
         return jsonify({'ok': True})
 
     @app.route('/messages/<int:other_id>/poll')
     @login_required
     def messages_poll(other_id):
-        user     = get_current_user()
         after_id = int(request.args.get('after', 0))
-        db       = get_db()
-
-        rows = db.execute(
-            '''SELECT m.id, m.sender_id, m.body, m.created_at
-               FROM messages m
-               WHERE ((m.sender_id = ? AND m.receiver_id = ?)
-                   OR (m.sender_id = ? AND m.receiver_id = ?))
-                 AND m.id > ?
-               ORDER BY m.created_at ASC''',
-            (user['id'], other_id, other_id, user['id'], after_id)
-        ).fetchall()
-
-        db.execute(
-            'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND id > ?',
-            (other_id, user['id'], after_id)
+        from sqlalchemy import or_
+        rows = (
+            Message.query
+            .filter(or_(
+                (Message.sender_id == current_user.id) & (Message.receiver_id == other_id),
+                (Message.sender_id == other_id) & (Message.receiver_id == current_user.id),
+            ))
+            .filter(Message.id > after_id)
+            .order_by(Message.created_at.asc())
+            .all()
         )
-        db.commit()
-        db.close()
-        return jsonify([dict(r) for r in rows])
+        Message.query.filter(
+            Message.sender_id == other_id,
+            Message.receiver_id == current_user.id,
+            Message.id > after_id
+        ).update({'read': 1})
+        db.session.commit()
+        return jsonify([
+            {'id': m.id, 'sender_id': m.sender_id, 'body': m.body,
+             'created_at': str(m.created_at)}
+            for m in rows
+        ])
 
     @app.route('/api/messages/<int:other_id>/send', methods=['POST'])
     @login_required
     def api_messages_send(other_id):
-        user = get_current_user()
-        body = request.json.get('body', '').strip() if request.is_json else request.form.get('body', '').strip()
+        body = (request.json.get('body', '').strip()
+                if request.is_json else request.form.get('body', '').strip())
         if not body:
             return jsonify({'error': 'empty'}), 400
-
-        db  = get_db()
-        cur = db.execute(
-            'INSERT INTO messages (sender_id, receiver_id, body) VALUES (?,?,?)',
-            (user['id'], other_id, body)
-        )
-        db.commit()
-        row = db.execute('SELECT id, body, created_at FROM messages WHERE id = ?', (cur.lastrowid,)).fetchone()
-        db.close()
-
+        msg = controllers.send_message(current_user.id, other_id, body)
         return jsonify({
-            'id':          row['id'],
-            'body':        row['body'],
-            'created_at':  row['created_at'],
-            'sender_id':   user['id'],
-            'sender_name': f"{user['first_name']} {user['last_name']}",
+            'id':          msg.id,
+            'body':        msg.body,
+            'created_at':  str(msg.created_at),
+            'sender_id':   current_user.id,
+            'sender_name': f'{current_user.first_name} {current_user.last_name}',
         })
 
     @app.route('/api/messages/<int:other_id>/poll')
     @login_required
     def api_messages_poll(other_id):
-        user  = get_current_user()
         since = request.args.get('since', '1970-01-01 00:00:00')
-        db    = get_db()
-
-        rows = db.execute(
-            '''SELECT m.id, m.sender_id, m.body, m.created_at
-               FROM messages m
-               WHERE ((m.sender_id = ? AND m.receiver_id = ?)
-                   OR (m.sender_id = ? AND m.receiver_id = ?))
-                 AND m.created_at > ?
-               ORDER BY m.created_at ASC''',
-            (user['id'], other_id, other_id, user['id'], since)
-        ).fetchall()
-
-        db.execute(
-            'UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND created_at > ?',
-            (other_id, user['id'], since)
+        from sqlalchemy import or_
+        rows = (
+            Message.query
+            .filter(or_(
+                (Message.sender_id == current_user.id) & (Message.receiver_id == other_id),
+                (Message.sender_id == other_id) & (Message.receiver_id == current_user.id),
+            ))
+            .filter(Message.created_at > since)
+            .order_by(Message.created_at.asc())
+            .all()
         )
-        db.commit()
-        db.close()
-        return jsonify([dict(r) for r in rows])
+        Message.query.filter(
+            Message.sender_id == other_id,
+            Message.receiver_id == current_user.id,
+            Message.created_at > since
+        ).update({'read': 1})
+        db.session.commit()
+        return jsonify([
+            {'id': m.id, 'sender_id': m.sender_id, 'body': m.body,
+             'created_at': str(m.created_at)}
+            for m in rows
+        ])
 
     # ── Bounties ────────────────────────────────────────────────
 
     @app.route('/bounties')
     def bounties():
-        db           = get_db()
-        bounties_list = db.execute(
-            '''SELECT b.*, u.first_name, u.last_name
-               FROM bounties b JOIN users u ON u.id = b.poster_id
-               ORDER BY b.created_at DESC'''
-        ).fetchall()
-        db.close()
-        return render_template('bounties.html',
-                               current_user=get_current_user(),
-                               bounties=bounties_list)
+        bounties_list = Bounty.query.order_by(Bounty.created_at.desc()).all()
+        return render_template('bounties.html', bounties=bounties_list)
 
     @app.route('/create_bounty', methods=['GET', 'POST'])
     @login_required
     def create_bounty():
-        errors = {}
-        form = {}
-
         if request.method == 'POST':
-            form['title'],       errors['title']       = validate_required_text(request.form.get('title'), 'Title', max_len=150)
-            form['description'], errors['description'] = validate_optional_text(request.form.get('description'), 'Description', max_len=2000)
-            form['reward'],      errors['reward']      = validate_price(request.form.get('reward'), field_label='Reward', allow_zero=True)
-
-            raw_unit = (request.form.get('unit_code') or '').strip()
-            if raw_unit:
-                form['unit_code'], errors['unit_code'] = validate_unit_code(raw_unit)
-            else:
-                form['unit_code'] = ''
-                errors['unit_code'] = None
-
-            errors = {k: v for k, v in errors.items() if v}
-
-            if not errors:
-                user = get_current_user()
-                db   = get_db()
-                db.execute(
-                    'INSERT INTO bounties (poster_id, title, unit_code, reward, description) VALUES (?,?,?,?,?)',
-                    (user['id'], form['title'], form['unit_code'],
-                     form['reward'], form['description'])
-                )
-                db.commit()
-                db.close()
+            try:
+                controllers.create_bounty(current_user.id, request.form)
                 flash('Bounty posted!', 'success')
                 return redirect(url_for('bounties'))
-
-            for msg in errors.values():
-                flash(msg, 'error')
-
-        return render_template('create_bounty.html',
-                               current_user=get_current_user(),
-                               errors=errors, form=form)
+            except ValueError as e:
+                flash(str(e), 'error')
+        return render_template('create_bounty.html', errors={}, form=request.form)
 
     @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
     @login_required
     def claim_bounty(bounty_id):
-        user = get_current_user()
-        db   = get_db()
-
-        bounty = db.execute('SELECT poster_id FROM bounties WHERE id = ?', (bounty_id,)).fetchone()
-
-        if bounty is None:
-            db.close()
-            flash('Bounty not found.', 'error')
-            return redirect(url_for('bounties'))
-
-        if bounty['poster_id'] == user['id']:
-            db.close()
+        bounty = Bounty.query.get_or_404(bounty_id)
+        if bounty.poster_id == current_user.id:
             flash("You can't claim your own bounty.", 'error')
-            return redirect(url_for('bounties'))
-
-        db.execute('DELETE FROM bounties WHERE id = ?', (bounty_id,))
-        db.commit()
-        db.close()
-        flash('Bounty claimed!', 'success')
+        else:
+            db.session.delete(bounty)
+            db.session.commit()
+            flash('Bounty claimed!', 'success')
         return redirect(url_for('bounties'))
 
     @app.route('/bounties/<int:bounty_id>')
     def view_bounty(bounty_id):
-        db = get_db()
-        bounty = db.execute(
-            '''SELECT b.*, u.first_name, u.last_name
-               FROM bounties b JOIN users u ON u.id = b.poster_id
-               WHERE b.id = ?''',
-            (bounty_id,)
-        ).fetchone()
-        db.close()
-
-        if bounty is None:
-            flash('Bounty not found.', 'error')
-            return redirect(url_for('bounties'))
-
-        return render_template('bounty_detail.html', bounty=bounty, current_user=get_current_user())
+        bounty = Bounty.query.get_or_404(bounty_id)
+        return render_template('bounty_detail.html', bounty=bounty)
 
     @app.route('/bounties/<int:bounty_id>/download')
     def download_bounty(bounty_id):
-        db = get_db()
-        bounty = db.execute('SELECT * FROM bounties WHERE id = ?', (bounty_id,)).fetchone()
-        db.close()
-
-        if bounty is None:
-            flash('Bounty not found.', 'error')
-            return redirect(url_for('bounties'))
-
-        unit_line = bounty['unit_code'] if bounty['unit_code'] else 'General'
-
+        bounty = Bounty.query.get_or_404(bounty_id)
+        unit_line = bounty.unit_code if bounty.unit_code else 'General'
         content = (
-            f"{bounty['title']}\n\n"
+            f"{bounty.title}\n\n"
             f"Unit: {unit_line}\n"
-            f"Reward: ${bounty['reward']:.2f}\n\n"
-            f"{bounty['description']}"
+            f"Reward: ${bounty.reward:.2f}\n\n"
+            f"{bounty.description}"
         )
-
-        return Response(
-            content,
-            mimetype='text/plain',
-            headers={'Content-Disposition': f'attachment; filename=bounty-{bounty_id}.txt'}
-        )
+        return Response(content, mimetype='text/plain',
+                        headers={'Content-Disposition': f'attachment; filename=bounty-{bounty_id}.txt'})
 
     # ── Profile ─────────────────────────────────────────────────
 
     @app.route('/profile/<int:user_id>')
     def profile(user_id):
-        db           = get_db()
-        profile_user = db.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
-        if not profile_user:
-            db.close()
-            return redirect(url_for('index'))
-
-        listings = db.execute(
-            'SELECT * FROM listings WHERE seller_id = ? ORDER BY created_at DESC',
-            (user_id,)
-        ).fetchall()
-
-        notes_list = db.execute(
-            'SELECT * FROM notes WHERE author_id = ? ORDER BY upvotes DESC',
-            (user_id,)
-        ).fetchall()
-
-        avg_rating = None
-        if profile_user['rating_count'] > 0:
-            avg_rating = round(profile_user['rating_sum'] / profile_user['rating_count'], 1)
-
-        db.close()
+        profile_user = User.query.get_or_404(user_id)
+        listings   = Listing.query.filter_by(seller_id=user_id).order_by(Listing.created_at.desc()).all()
+        notes_list = Note.query.filter_by(author_id=user_id).order_by(Note.upvotes.desc()).all()
         return render_template('profiles.html',
-                               current_user=get_current_user(),
                                profile_user=profile_user,
                                listings=listings,
                                notes=notes_list,
-                               avg_rating=avg_rating)
+                               avg_rating=profile_user.get_average_rating())
 
     # ── Settings ─────────────────────────────────────────────────
 
     @app.route('/settings', methods=['GET', 'POST'])
     @login_required
     def settings():
-        user = get_current_user()
         if request.method == 'POST':
-            db = get_db()
-            db.execute(
-                'UPDATE users SET first_name=?, last_name=?, bio=? WHERE id=?',
-                (request.form.get('first_name', user['first_name']),
-                 request.form.get('last_name',  user['last_name']),
-                 request.form.get('bio',        user['bio'] or ''),
-                 user['id'])
-            )
-            db.commit()
-            db.close()
+            current_user.first_name = request.form.get('first_name', current_user.first_name)
+            current_user.last_name  = request.form.get('last_name',  current_user.last_name)
+            current_user.bio        = request.form.get('bio',        current_user.bio or '')
+            db.session.commit()
             flash('Settings saved.', 'success')
             return redirect(url_for('settings'))
-        return render_template('settings.html', current_user=user, user=user)
+        return render_template('settings.html', user=current_user)
+
+    # ── AJAX: user search ────────────────────────────────────────
+
+    @app.route('/api/search_users')
+    @login_required
+    def search_users():
+        q = request.args.get('q', '').strip()
+        if len(q) < 2:
+            return jsonify([])
+        like  = f'%{q}%'
+        users = (User.query
+                 .filter(
+                     (User.first_name.like(like)) |
+                     (User.last_name.like(like))  |
+                     (User.email.like(like))
+                 )
+                 .filter(User.id != current_user.id)
+                 .limit(10)
+                 .all())
+        return jsonify([
+            {'id': u.id, 'name': f'{u.first_name} {u.last_name}', 'email': u.email}
+            for u in users
+        ])
 
     # ── Stub pages ──────────────────────────────────────────────
 

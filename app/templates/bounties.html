@@ -240,11 +240,11 @@
             <div class="bc-header">
               <div class="bc-left">
                 <div class="bc-av" style="background: {{ av_colors[idx] }};">
-                  {{ b.first_name[0] }}{{ b.last_name[0] }}
+                  {{ b.poster.first_name[0] }}{{ b.poster.last_name[0] }}
                 </div>
                 <div>
                   <a href="{{ url_for('profile', user_id=b.poster_id) }}" class="bc-poster-name">
-                    {{ b.first_name }} {{ b.last_name[0] }}.
+                    {{ b.poster.first_name }} {{ b.poster.last_name[0] }}.
                   </a>
                   <div class="bc-poster-detail">Posted a bounty</div>
                 </div>

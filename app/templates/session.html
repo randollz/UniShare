@@ -29,7 +29,7 @@
                 {% if s.description %}<p style="margin-top:8px;font-size:.85rem;color:var(--mid)">{{ s.description }}
                 </p>{% endif %}
                 <p style="margin-top:8px;font-size:.78rem;color:var(--muted)">Hosted by <a
-                        href="{{ url_for('profile', user_id=s.host_id) }}">{{ s.first_name }} {{ s.last_name[0] }}.</a>
+                        href="{{ url_for('profile', user_id=s.host_id) }}">{{ s.host.first_name }} {{ s.host.last_name[0] }}.</a>
                 </p>
             </div>
             {% if current_user and current_user.id != s.host_id %}

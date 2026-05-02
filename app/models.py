@@ -1,3 +1,4 @@
+import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
@@ -16,6 +17,8 @@ class User(UserMixin, db.Model):
     rating_sum   = db.Column(db.Integer, default=0)
     rating_count = db.Column(db.Integer, default=0)
     bio          = db.Column(db.Text,    default='')
+    created_at   = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    profile_pic  = db.Column(db.String(256), default='')
 
     # Relationships
     listings      = db.relationship('Listing',     back_populates='seller',  lazy='dynamic')
