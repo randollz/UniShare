@@ -1,205 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ bounty.title }} — UniShare Bounty</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+{% extends 'base.html' %}
+{% block title %}{{ bounty.title }} — UniShare Bounty{% endblock %}
 
-  <style>
-  .detail-wrap {
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 88px 20px 40px;
-  }
-  .detail-back {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
-    color: var(--mid); text-decoration: none; margin-bottom: 20px;
-    transition: color var(--t);
-  }
-  .detail-back:hover { color: var(--dark); }
+{% block head %}
+<style>
+.detail-wrap { padding: 0; }
+.detail-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+  color: var(--mid); text-decoration: none; margin-bottom: 20px; transition: color var(--t);
+}
+.detail-back:hover { color: var(--dark); }
+.detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.detail-accent { height: 6px; background: linear-gradient(90deg,#181bc2,#181bc2); }
+.detail-hero {
+  width: 100%; padding: 32px 32px 24px; box-sizing: border-box;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  background: linear-gradient(135deg,#190e92,#091f78); color: #fff;
+}
+.detail-hero-left { flex: 1; min-width: 0; }
+.detail-hero-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px;
+  background: rgba(255,255,255,0.18); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; margin-bottom: 10px;
+}
+.detail-hero-title {
+  font-family: 'Inter', sans-serif; font-size: 1.55rem; font-weight: 800;
+  letter-spacing: -0.025em; line-height: 1.25; color: #fff;
+}
+.detail-hero-reward { flex-shrink: 0; text-align: right; min-width: 100px; }
+.detail-hero-reward-amt { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: #fde68a; }
+.detail-hero-reward-lbl { font-family: 'Inter', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+.detail-body { padding: 28px 32px; }
+.detail-section { margin-bottom: 22px; }
+.detail-section-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.detail-description { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark); line-height: 1.65; white-space: pre-wrap; }
+.detail-description-empty { color: var(--muted); font-style: italic; }
+.detail-poster {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 22px;
+}
+.detail-poster-av {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg,#181bc2,#181bc2);
+  color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.detail-poster-name { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--dark); }
+.detail-poster-meta { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid var(--border); }
+.btn-action {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 9px;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all var(--t) var(--ease); border: none; text-decoration: none;
+}
+.btn-claim { background: linear-gradient(135deg,#181bc2,#2563eb); color: #fff; }
+.btn-claim:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(24,27,194,0.25); }
+.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
+.btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
+</style>
+{% endblock %}
 
-  .detail-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); overflow: hidden;
-  }
-  .detail-accent {
-    height: 6px;
-    background: linear-gradient(90deg,#181bc2,#181bc2);
-  }
-  .detail-hero {
-    width: 100%; padding: 32px 32px 24px;
-    box-sizing: border-box;
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 20px; flex-wrap: wrap;
-    background: linear-gradient(135deg,#190e92,#091f78);
-    color: #fff;
-  }
-  .detail-hero-left { flex: 1; min-width: 0; }
-  .detail-hero-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 99px;
-    background: rgba(255,255,255,0.18); color: #fff;
-    font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700;
-    margin-bottom: 10px;
-  }
-  .detail-hero-title {
-    font-family: 'Inter', sans-serif; font-size: 1.55rem; font-weight: 800;
-    letter-spacing: -0.025em; line-height: 1.25;
-    color: #fff;
-  }
-  .detail-hero-reward {
-    flex-shrink: 0; text-align: right; min-width: 100px;
-  }
-  .detail-hero-reward-amt {
-    font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800;
-    letter-spacing: -0.04em; color: #fde68a;
-  }
-  .detail-hero-reward-lbl {
-    font-family: 'Inter', sans-serif; font-size: 0.72rem;
-    color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em;
-  }
+{% block content %}
+<div class="detail-wrap">
 
-  .detail-body { padding: 28px 32px; }
+  <a href="{{ url_for('bounties') }}" class="detail-back">
+    <i class="fa-solid fa-arrow-left"></i> Back to bounty board
+  </a>
 
-  .detail-section { margin-bottom: 22px; }
-  .detail-section-label {
-    font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 8px;
-  }
-  .detail-description {
-    font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark);
-    line-height: 1.65; white-space: pre-wrap;
-  }
-  .detail-description-empty {
-    color: var(--muted); font-style: italic;
-  }
+  <div class="detail-card">
+    <div class="detail-accent"></div>
 
-  .detail-poster {
-    display: flex; align-items: center; gap: 12px;
-    padding: 16px; border: 1px solid var(--border); border-radius: 10px;
-    margin-bottom: 22px;
-  }
-  .detail-poster-av {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg,#181bc2,#181bc2);
-    color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .detail-poster-name {
-    font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700;
-    color: var(--dark);
-  }
-  .detail-poster-meta {
-    font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .detail-actions {
-    display: flex; gap: 10px; flex-wrap: wrap;
-    padding-top: 20px; border-top: 1px solid var(--border);
-  }
-  .btn-action {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 10px 18px; border-radius: 9px;
-    font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
-    cursor: pointer; transition: all var(--t) var(--ease);
-    border: none; text-decoration: none;
-  }
-  .btn-claim {
-    background: linear-gradient(135deg,#181bc2,#181bc2);
-    color: #fff;
-  }
-  .btn-claim:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(180,83,9,0.25); }
-  .btn-ghost {
-    background: transparent; color: var(--mid);
-    border: 1.5px solid var(--bdr2);
-  }
-  .btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
-  </style>
-</head>
-<body class="app-page">
-
-  <div class="detail-wrap">
-
-    <a href="{{ url_for('bounties') }}" class="detail-back">
-      <i class="fa-solid fa-arrow-left"></i> Back to bounty board
-    </a>
-
-    <div class="detail-card">
-      <div class="detail-accent"></div>
-
-      <div class="detail-hero">
-        <div class="detail-hero-left">
-          {% if bounty.unit_code %}
-          <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> {{ bounty.unit_code }}</span>
-          {% else %}
-          <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> General</span>
-          {% endif %}
-          <h1 class="detail-hero-title">{{ bounty.title }}</h1>
-        </div>
-        <div class="detail-hero-reward">
-          <div class="detail-hero-reward-amt">${{ "%.0f"|format(bounty.reward) }}</div>
-          <div class="detail-hero-reward-lbl">Reward</div>
-        </div>
+    <div class="detail-hero">
+      <div class="detail-hero-left">
+        {% if bounty.unit_code %}
+        <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> {{ bounty.unit_code }}</span>
+        {% else %}
+        <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> General</span>
+        {% endif %}
+        <h1 class="detail-hero-title">{{ bounty.title }}</h1>
       </div>
-
-      <div class="detail-body">
-
-        <div class="detail-section">
-          <div class="detail-section-label">Description</div>
-          {% if bounty.description %}
-          <div class="detail-description">{{ bounty.description }}</div>
-          {% else %}
-          <div class="detail-description detail-description-empty">No description provided.</div>
-          {% endif %}
-        </div>
-
-        <div class="detail-section">
-          <div class="detail-section-label">Posted by</div>
-          <div class="detail-poster">
-            <div class="detail-poster-av">
-              {{ bounty.first_name[0] }}{{ bounty.last_name[0] }}
-            </div>
-            <div>
-              <div class="detail-poster-name">{{ bounty.first_name }} {{ bounty.last_name }}</div>
-              <div class="detail-poster-meta">Posted a bounty on UniShare</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="detail-actions">
-          {% if current_user and current_user.id != bounty.poster_id %}
-          <form method="POST" action="{{ url_for('claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
-            <button type="submit" class="btn-action btn-claim">
-              <i class="fa-solid fa-hand-holding-dollar"></i> Claim this bounty
-            </button>
-          </form>
-          {% elif not current_user %}
-          <a href="{{ url_for('login') }}" class="btn-action btn-claim">
-            Sign in to claim
-          </a>
-          {% else %}
-          <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">
-            This is your bounty.
-          </span>
-          {% endif %}
-
-          <a href="{{ url_for('bounties') }}" class="btn-action btn-ghost">
-            Back to all bounties
-          </a>
-        </div>
-
+      <div class="detail-hero-reward">
+        <div class="detail-hero-reward-amt">${{ "%.0f"|format(bounty.reward) }}</div>
+        <div class="detail-hero-reward-lbl">Reward</div>
       </div>
     </div>
 
+    <div class="detail-body">
+
+      <div class="detail-section">
+        <div class="detail-section-label">Description</div>
+        {% if bounty.description %}
+        <div class="detail-description">{{ bounty.description }}</div>
+        {% else %}
+        <div class="detail-description detail-description-empty">No description provided.</div>
+        {% endif %}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-label">Posted by</div>
+        <div class="detail-poster">
+          <div class="detail-poster-av">
+            {{ bounty.poster.first_name[0] }}{{ bounty.poster.last_name[0] }}
+          </div>
+          <div>
+            <div class="detail-poster-name">{{ bounty.poster.first_name }} {{ bounty.poster.last_name }}</div>
+            <div class="detail-poster-meta">Posted a bounty on UniShare</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        {% if current_user and current_user.id != bounty.poster_id %}
+        <form method="POST" action="{{ url_for('claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
+          <button type="submit" class="btn-action btn-claim">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Claim this bounty
+          </button>
+        </form>
+        {% elif not current_user %}
+        <a href="{{ url_for('login') }}" class="btn-action btn-claim">Sign in to claim</a>
+        {% else %}
+        <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">This is your bounty.</span>
+        {% endif %}
+        <a href="{{ url_for('bounties') }}" class="btn-action btn-ghost">Back to all bounties</a>
+      </div>
+
+    </div>
   </div>
 
-</body>
-</html>
+</div>
+{% endblock %}

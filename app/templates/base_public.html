@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}UniShare{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a href="{{ url_for('index') }}" class="logo">UniShare<span class="logo-dot">.</span></a>
+        <div class="nav-right">
+            {% if current_user %}
+                <a href="{{ url_for('messages') }}" class="btn btn-ghost nav-messages-link">
+                    Messages
+                    {% if unread_count %}<span class="unread-badge">{{ unread_count }}</span>{% endif %}
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-ghost">Log out</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-ghost">Log in</a>
+                <a href="{{ url_for('login') }}#signup" class="btn btn-ghost">Sign up</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="max-width:900px;margin:20px auto;padding:0 28px;display:flex;flex-direction:column;gap:8px;">
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+</body>
+</html>
