@@ -17,8 +17,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# SQLite database (each developer has their own local copy)
+# SQLite database (each developer runs flask db upgrade to create their own)
 unishare.db
+app.db
 *.db-journal
 
 # Pytest

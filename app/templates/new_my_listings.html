@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — My Listings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+
+  <style>
+  /* reset + :root → shared.css */
+
+  .page-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 88px 16px 40px;
+    display: grid;
+    grid-template-columns: 220px 1fr 248px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* ── Page head ───────────────────────── */
+  .page-head {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .page-head p {
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .btn-listing {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+    white-space: nowrap;
+  }
+  .btn-listing:hover {
+    background: var(--dark2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(13,15,31,0.16);
+  }
+
+  /* ── Stats cards ─────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px 18px;
+  }
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+  }
+  .stat-value {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-top: 4px;
+  }
+  .stat-value.gold { color: var(--gold); }
+  .stat-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Filter row ──────────────────────── */
+  .filter-row {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .chip-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .chip-btn {
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--mid);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .chip-btn:hover {
+    border-color: var(--bdr2);
+    color: var(--dark);
+  }
+  .chip-btn.active {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: #fff;
+  }
+
+  .filter-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f8;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    flex: 1;
+    min-width: 190px;
+    transition: border-color var(--t);
+  }
+  .filter-search:focus-within {
+    border-color: var(--gold);
+    background: #fff;
+  }
+  .filter-search i {
+    color: var(--muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .filter-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    color: var(--dark);
+  }
+  .filter-search input::placeholder { color: var(--muted); }
+
+  .filter-select {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--mid);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--t);
+  }
+  .filter-select:focus { border-color: var(--gold); }
+
+  .results-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .results-meta strong {
+    color: var(--dark);
+    font-weight: 600;
+  }
+
+  /* ── Listings grid ───────────────────── */
+  .listings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .listing-card,
+  .add-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+
+  .listing-card {
+    transition: box-shadow var(--t), transform var(--t), border-color var(--t);
+  }
+  .listing-card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .listing-card.featured {
+    border-color: rgba(200,149,10,0.22);
+  }
+
+  .lc-topbar {
+    height: 4px;
+    background: transparent;
+  }
+  .lc-topbar.gold  { background: linear-gradient(90deg, #c8950a, #f5c842); }
+  .lc-topbar.blue  { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+  .lc-topbar.gray  { background: linear-gradient(90deg, #9ca3af, #d1d5db); }
+  .lc-topbar.navy  { background: linear-gradient(90deg, #011a55, #003087); }
+
+  .lc-body {
+    padding: 16px 16px 14px;
+  }
+
+  .lc-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .lc-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .lc-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .lc-icon.blue  { background: #e8edf8; }
+  .lc-icon.green { background: #e8f5ec; }
+  .lc-icon.gray  { background: #f3f4f8; }
+  .lc-icon.soft  { background: #f9f9fb; }
+
+  .lc-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
+  .lc-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+  }
+
+  .unit-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(0,48,135,0.07);
+    color: #003087;
+    border: 1px solid rgba(0,48,135,0.15);
+    border-radius: 99px;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .lc-time {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .status-active {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+    border: 1px solid rgba(34,197,94,0.18);
+  }
+  .status-sold {
+    background: #f3f4f8;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .status-draft {
+    background: rgba(59,110,245,0.08);
+    color: #2563eb;
+    border: 1px solid rgba(59,110,245,0.14);
+  }
+
+  .lc-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+    padding: 11px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .lc-stat {
+    text-align: center;
+  }
+  .lc-stat-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--dark);
+  }
+  .lc-stat-key {
+    font-size: 0.63rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .lc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .lc-price {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: -0.03em;
+  }
+  .lc-price span {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .lc-price.muted { color: var(--muted); }
+
+  .icon-actions {
+    display: flex;
+    gap: 5px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: #f3f4f8;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: all var(--t) var(--ease);
+  }
+  .icon-btn:hover {
+    color: var(--dark);
+    border-color: var(--bdr2);
+  }
+  .icon-btn.primary {
+    color: #003087;
+    background: rgba(0,48,135,0.07);
+    border-color: rgba(0,48,135,0.15);
+  }
+  .icon-btn.danger:hover {
+    color: #ef4444;
+    background: rgba(239,68,68,0.06);
+    border-color: rgba(239,68,68,0.2);
+  }
+
+  /* ── Add card ────────────────────────── */
+  .add-card {
+    min-height: 254px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-style: dashed;
+    border-width: 1.5px;
+    border-color: rgba(0,48,135,0.18);
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .add-card:hover {
+    border-color: #003087;
+    background: rgba(0,48,135,0.03);
+  }
+  .add-inner {
+    text-align: center;
+    padding: 20px;
+  }
+  .add-inner i {
+    font-size: 1.55rem;
+    color: #003087;
+    margin-bottom: 10px;
+  }
+  .add-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .add-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Right rail ──────────────────────── */
+  .right-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 84px;
+  }
+
+  .side-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+
+  .side-card-body {
+    padding: 16px 18px;
+  }
+
+  .side-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .side-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--mid);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .mini-row strong {
+    color: var(--dark);
+    font-weight: 700;
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #011a55 0%, #003087 100%);
+    color: #fff;
+    border: none;
+  }
+  .tip-card .side-card-body { padding: 18px; }
+  .tip-card .side-title {
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 10px;
+  }
+  .tip-title {
+    font-size: 0.96rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .tip-text {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.76);
+    margin-bottom: 12px;
+  }
+  .tip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .tip-btn:hover { background: rgba(255,255,255,0.18); }
+
+  /* ── Modal ───────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(9, 12, 24, 0.42);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    background: #f3f4f8;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close:hover {
+    background: #e8eaf0;
+    color: var(--dark);
+  }
+
+  .modal-title {
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .drop-zone {
+    border: 1.5px dashed rgba(0,48,135,0.2);
+    border-radius: 10px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 18px;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .drop-zone:hover {
+    border-color: #003087;
+    background: rgba(0,48,135,0.03);
+  }
+  .drop-zone i {
+    font-size: 1.8rem;
+    color: #003087;
+    margin-bottom: 8px;
+  }
+  .drop-zone-label {
+    font-size: 0.85rem;
+    color: var(--mid);
+  }
+  .drop-zone-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--mid);
+  }
+  .form-input,
+  .form-select {
+    background: #f3f4f8;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--dark);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    padding: 8px 11px;
+    outline: none;
+    transition: border-color var(--t);
+  }
+  .form-input:focus,
+  .form-select:focus {
+    border-color: var(--gold);
+    background: #fff;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .btn-secondary {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--dark);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t) var(--ease);
+  }
+  .btn-secondary:hover { background: #f3f4f8; }
+
+  @media (max-width: 1024px) {
+    .page-wrap {
+      grid-template-columns: 220px 1fr;
+    }
+    .right-rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .page-wrap {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      display: none;
+    }
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .listings-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  </style>
+</head>
+
+<body class="app-page">
+  <header class="topbar">
+    <div class="tb-left">
+      <div class="tb-brand">
+        <img src="{{ url_for('static', filename='images/uwa-logo.png') }}" alt="UWA" class="tb-uwa" />
+        <div class="tb-divider"></div>
+        <div class="tb-logo">Uni<span>Share</span></div>
+      </div>
+    </div>
+
+    <div class="tb-center">
+      <div class="tb-search">
+        <i class="fa fa-search"></i>
+        <input type="text" placeholder="Search notes, units…" />
+      </div>
+    </div>
+
+    <div class="tb-right">
+      <button class="tb-icon-btn"><i class="fa fa-bell"></i></button>
+      <div class="tb-av">JS</div>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <aside class="sidebar">
+      <div class="sb-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body">
+          <div class="sb-profile-av">JS</div>
+          <div class="sb-profile-name">Jake Smith</div>
+          <div class="sb-profile-detail">Computer Science · 2nd Year<br>University of Western Australia</div>
+
+          <div class="sb-profile-stats">
+            <div class="sb-stat-row"><span class="sb-stat-label">Listings</span><span class="sb-stat-val">12</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Total Earned</span><span class="sb-stat-val">$148</span></div>
+            <div class="sb-stat-row"><span class="sb-stat-label">Avg Rating</span><span class="sb-stat-val">★ 4.8</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-xp-card">
+        <div class="sb-xp-top">
+          <span class="sb-xp-label">Hustler · Rank #14</span>
+          <span class="sb-xp-pts">820 XP</span>
+        </div>
+        <div class="sb-xp-track"><div class="sb-xp-fill"></div></div>
+        <div class="sb-xp-sub">180 XP to Legend</div>
+      </div>
+
+      <div class="sb-nav-card">
+        <a href="dashboard.html" class="sb-link"><i class="fa fa-house"></i>Dashboard</a>
+        <a href="marketplace.html" class="sb-link"><i class="fa fa-store"></i>Marketplace</a>
+        <a href="new_my_listings.html" class="sb-link active"><i class="fa fa-tag"></i>My Listings</a>
+        <a href="new_saved.html" class="sb-link"><i class="fa fa-bookmark"></i>Saved</a>
+        <a href="new_leaderboard.html" class="sb-link"><i class="fa fa-trophy"></i>Leaderboard</a>
+        <a href="new_settings.html" class="sb-link"><i class="fa fa-gear"></i>Settings</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="page-head">
+        <div>
+          <h1>My Listings</h1>
+          <p>Manage your notes, books, and bundles published on the marketplace.</p>
+        </div>
+        <button class="btn-listing" onclick="openUploadModal()">
+          <i class="fa fa-plus"></i>
+          New Listing
+        </button>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Listings</div>
+          <div class="stat-value">12</div>
+          <div class="stat-sub">3 active · 9 sold</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Earned</div>
+          <div class="stat-value gold">$148</div>
+          <div class="stat-sub">This semester</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Views</div>
+          <div class="stat-value">1,042</div>
+          <div class="stat-sub">Across all listings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Rating</div>
+          <div class="stat-value">4.8</div>
+          <div class="stat-sub">★ From 23 buyers</div>
+        </div>
+      </section>
+
+      <section class="filter-row">
+        <div class="chip-group" data-group="status">
+          <button class="chip-btn active">All</button>
+          <button class="chip-btn">Active</button>
+          <button class="chip-btn">Sold</button>
+          <button class="chip-btn">Draft</button>
+        </div>
+
+        <div class="filter-search">
+          <i class="fa fa-search"></i>
+          <input type="text" placeholder="Search your listings…" />
+        </div>
+
+        <select class="filter-select">
+          <option>Newest first</option>
+          <option>Most viewed</option>
+          <option>Most sales</option>
+          <option>Highest price</option>
+        </select>
+
+        <div class="chip-group" data-group="type">
+          <button class="chip-btn active">Notes</button>
+          <button class="chip-btn">Books</button>
+          <button class="chip-btn">Bundles</button>
+        </div>
+      </section>
+
+      <div class="results-meta">
+        <span><strong>4 listings</strong> shown</span>
+        <span>Tip: keep titles short and add clear unit codes to improve clicks.</span>
+      </div>
+
+      <section class="listings-grid">
+        <article class="add-card" onclick="openUploadModal()">
+          <div class="add-inner">
+            <i class="fa fa-cloud-arrow-up"></i>
+            <div class="add-title">Upload New Listing</div>
+            <div class="add-sub">PDF, DOCX, images supported</div>
+          </div>
+        </article>
+
+        <article class="listing-card featured">
+          <div class="lc-topbar gold"></div>
+          <div class="lc-body">
+            <div class="lc-header">
+              <div class="lc-meta">
+                <div class="lc-icon blue">📄</div>
+                <div>
+                  <div class="lc-title">CITS2401 – Complete Study Notes</div>
+                  <div class="lc-sub">
+                    <span class="unit-pill">CITS2401</span>
+                    <span class="lc-time">2 days ago</span>
+                  </div>
+                </div>
+              </div>
+              <span class="status-pill status-active"><i class="fa fa-circle" style="font-size:.45rem;"></i>Active</span>
+            </div>
+
+            <div class="lc-stats">
+              <div class="lc-stat">
+                <div class="lc-stat-val">124</div>
+                <div class="lc-stat-key">Views</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">8</div>
+                <div class="lc-stat-key">Saves</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">2</div>
+                <div class="lc-stat-key">Sales</div>
+              </div>
+            </div>
+
+            <div class="lc-footer">
+              <div class="lc-price">$12.00 <span>AUD</span></div>
+              <div class="icon-actions">
+                <button class="icon-btn"><i class="fa fa-pen"></i></button>
+                <button class="icon-btn"><i class="fa fa-link"></i></button>
+                <button class="icon-btn danger"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="listing-card">
+          <div class="lc-topbar blue"></div>
+          <div class="lc-body">
+            <div class="lc-header">
+              <div class="lc-meta">
+                <div class="lc-icon green">📊</div>
+                <div>
+                  <div class="lc-title">STAT1520 – Exam Cheat Sheets</div>
+                  <div class="lc-sub">
+                    <span class="unit-pill">STAT1520</span>
+                    <span class="lc-time">1 week ago</span>
+                  </div>
+                </div>
+              </div>
+              <span class="status-pill status-active"><i class="fa fa-circle" style="font-size:.45rem;"></i>Active</span>
+            </div>
+
+            <div class="lc-stats">
+              <div class="lc-stat">
+                <div class="lc-stat-val">87</div>
+                <div class="lc-stat-key">Views</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">5</div>
+                <div class="lc-stat-key">Saves</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">3</div>
+                <div class="lc-stat-key">Sales</div>
+              </div>
+            </div>
+
+            <div class="lc-footer">
+              <div class="lc-price">$8.00 <span>AUD</span></div>
+              <div class="icon-actions">
+                <button class="icon-btn"><i class="fa fa-pen"></i></button>
+                <button class="icon-btn"><i class="fa fa-link"></i></button>
+                <button class="icon-btn danger"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="listing-card">
+          <div class="lc-topbar gray"></div>
+          <div class="lc-body">
+            <div class="lc-header">
+              <div class="lc-meta">
+                <div class="lc-icon gray">📘</div>
+                <div>
+                  <div class="lc-title">LAWS1100 – Contract Law Notes</div>
+                  <div class="lc-sub">
+                    <span class="unit-pill">LAWS1100</span>
+                    <span class="lc-time">3 weeks ago</span>
+                  </div>
+                </div>
+              </div>
+              <span class="status-pill status-sold">Sold</span>
+            </div>
+
+            <div class="lc-stats">
+              <div class="lc-stat">
+                <div class="lc-stat-val">203</div>
+                <div class="lc-stat-key">Views</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">14</div>
+                <div class="lc-stat-key">Saves</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val">7</div>
+                <div class="lc-stat-key">Sales</div>
+              </div>
+            </div>
+
+            <div class="lc-footer">
+              <div class="lc-price">$15.00 <span>AUD</span></div>
+              <div class="icon-actions">
+                <button class="icon-btn"><i class="fa fa-rotate"></i></button>
+                <button class="icon-btn"><i class="fa fa-chart-line"></i></button>
+                <button class="icon-btn danger"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="listing-card">
+          <div class="lc-topbar navy"></div>
+          <div class="lc-body">
+            <div class="lc-header">
+              <div class="lc-meta">
+                <div class="lc-icon soft">📝</div>
+                <div>
+                  <div class="lc-title">CITS3403 – Web Tech Summary</div>
+                  <div class="lc-sub">
+                    <span class="unit-pill">CITS3403</span>
+                    <span class="lc-time">Not published yet</span>
+                  </div>
+                </div>
+              </div>
+              <span class="status-pill status-draft">Draft</span>
+            </div>
+
+            <div class="lc-stats">
+              <div class="lc-stat">
+                <div class="lc-stat-val" style="color:#aab0be;">—</div>
+                <div class="lc-stat-key">Views</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val" style="color:#aab0be;">—</div>
+                <div class="lc-stat-key">Saves</div>
+              </div>
+              <div class="lc-stat">
+                <div class="lc-stat-val" style="color:#aab0be;">—</div>
+                <div class="lc-stat-key">Sales</div>
+              </div>
+            </div>
+
+            <div class="lc-footer">
+              <div class="lc-price muted">$10.00 <span>AUD</span></div>
+              <div class="icon-actions">
+                <button class="icon-btn primary"><i class="fa fa-rocket"></i></button>
+                <button class="icon-btn"><i class="fa fa-pen"></i></button>
+                <button class="icon-btn danger"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside class="right-rail">
+      <section class="side-card">
+        <div class="side-card-body">
+          <div class="side-title">Listing Summary</div>
+          <div class="side-list">
+            <div class="mini-row"><span>Active listings</span><strong>3</strong></div>
+            <div class="mini-row"><span>Sold this month</span><strong>9</strong></div>
+            <div class="mini-row"><span>Conversion rate</span><strong>12.8%</strong></div>
+            <div class="mini-row"><span>Best performer</span><strong>CITS2401</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="side-card tip-card">
+        <div class="side-card-body">
+          <div class="side-title">Growth Tip</div>
+          <div class="tip-title">Boost your visibility</div>
+          <div class="tip-text">
+            Listings with a clear unit code, price, and short description usually get more saves and faster purchases.
+          </div>
+          <button class="tip-btn">
+            <i class="fa fa-wand-magic-sparkles"></i>
+            Improve listing
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <div id="uploadModal" class="modal-overlay" onclick="if(event.target===this) closeUploadModal()">
+    <div class="modal">
+      <button class="modal-close" onclick="closeUploadModal()">✕</button>
+
+      <div class="modal-title">New Listing</div>
+      <div class="modal-sub">Upload and publish your study materials to the marketplace.</div>
+
+      <div class="drop-zone">
+        <i class="fa fa-cloud-arrow-up"></i>
+        <div class="drop-zone-label">Drag & drop your file here, or <span style="color:#003087;font-weight:600;">browse</span></div>
+        <div class="drop-zone-sub">PDF, DOCX, PNG · Max 50MB</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input class="form-input" type="text" placeholder="e.g. CITS2401 Notes" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit Code</label>
+          <input class="form-input" type="text" placeholder="e.g. CITS2401" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (AUD)</label>
+          <input class="form-input" type="number" placeholder="$0.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select">
+            <option>Notes</option>
+            <option>Textbook</option>
+            <option>Past Exam</option>
+            <option>Bundle</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeUploadModal()">Cancel</button>
+        <button class="btn-secondary">Save Draft</button>
+        <button class="btn-listing">Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openUploadModal() {
+      document.getElementById('uploadModal').style.display = 'flex';
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').style.display = 'none';
+    }
+
+    document.querySelectorAll('.chip-group').forEach(group => {
+      group.querySelectorAll('.chip-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          group.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniShare — Sign in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f6fa; color: #0d0f1f;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  :root {
+    --dark:    #0d0f1f; --dark-2:  #1d2035; --mid: #4a5068; --muted: #8891a8;
+    --border:  rgba(0,0,0,0.07); --border-2: rgba(0,0,0,0.12);
+    --gold:    #c8950a; --surface: rgba(0,0,0,0.03);
+    --t: 0.2s; --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 58px;
+    display: flex; align-items: center;
+    background: rgba(245,246,250,0.85);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border-bottom: 1px solid var(--border); padding: 0 32px;
+  }
+  .nav-logo { font-size: 1.18rem; font-weight: 800; letter-spacing: -0.04em; flex: 1; }
+  .nav-logo span { color: var(--gold); }
+  .nav-btns { display: flex; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center;
+    padding: 8px 18px; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent;
+    transition: all var(--t) var(--ease); letter-spacing: -0.01em;
+  }
+  .btn-ghost { background: transparent; color: var(--mid); border-color: var(--border-2); }
+  .btn-ghost:hover { background: var(--surface); color: var(--dark); }
+  .btn-dark  { background: var(--dark); color: #fff; }
+  .btn-dark:hover { background: var(--dark-2); }
+
+  .page-body {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 80px 24px 48px;
+  }
+  .auth-logo { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.045em; color: var(--dark); margin-bottom: 28px; }
+  .auth-logo span { color: var(--gold); }
+
+  .flash-list { width: 100%; max-width: 420px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .flash { padding: 10px 16px; border-radius: 10px; font-size: 0.83rem; font-weight: 500; line-height: 1.5; }
+  .flash-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .flash-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .flash-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+  .auth-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 20px;
+    padding: 40px 40px 36px; width: 100%; max-width: 420px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03), 0 12px 48px rgba(0,0,0,0.07);
+    opacity: 0; transform: translateY(14px);
+    animation: reveal .5s cubic-bezier(0.22,1,0.36,1) .05s forwards;
+  }
+  @keyframes reveal { to { opacity:1; transform:none; } }
+
+  .auth-tabs {
+    display: flex; background: #f0f1f5; border-radius: 10px;
+    padding: 3px; gap: 3px; margin-bottom: 28px;
+  }
+  .auth-tab {
+    flex: 1; text-align: center; padding: 8px 0; border-radius: 8px;
+    font-size: 0.83rem; font-weight: 600; color: var(--muted); cursor: pointer;
+    transition: all var(--t) var(--ease); border: none; background: transparent;
+    font-family: 'Inter', sans-serif;
+  }
+  .auth-tab.active { background: #fff; color: var(--dark); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  .btn-uwa {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 11px 20px; border-radius: 10px; border: 1.5px solid #002d6e;
+    background: #fff; color: #002d6e;
+    font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; transition: all var(--t) var(--ease);
+    letter-spacing: -0.01em; margin-bottom: 20px; text-decoration: none;
+  }
+  .btn-uwa:hover { background: #f0f4ff; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
+  .btn-uwa-mark {
+    width: 20px; height: 20px; border-radius: 4px; background: #002d6e; color: #fff;
+    font-size: 0.72rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .auth-divider span { font-size: 0.73rem; color: var(--muted); white-space: nowrap; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--mid); margin-bottom: 5px; }
+  .field input {
+    width: 100%; padding: 10px 13px; border-radius: 8px;
+    border: 1.5px solid var(--border-2); background: #fafafa;
+    font-family: 'Inter', sans-serif; font-size: 0.86rem; color: var(--dark);
+    outline: none; transition: all var(--t) var(--ease);
+  }
+  .field input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(200,149,10,0.09); }
+  .field input::placeholder { color: var(--muted); }
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+
+  .forgot { font-size: 0.76rem; color: var(--muted); display: block; text-align: right; margin-top: -6px; margin-bottom: 18px; transition: color var(--t); }
+  .forgot:hover { color: var(--dark); }
+
+  .btn-submit {
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    background: var(--dark); color: #fff;
+    font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; letter-spacing: -0.01em; transition: all var(--t) var(--ease);
+  }
+  .btn-submit:hover { background: var(--dark-2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(13,15,31,0.16); }
+
+  .auth-terms { font-size: 0.71rem; color: var(--muted); text-align: center; margin-top: 18px; line-height: 1.65; }
+  .auth-terms a { color: var(--mid); border-bottom: 1px solid var(--border-2); }
+  .auth-terms a:hover { color: var(--dark); }
+
+  .page-footer { text-align: center; padding: 24px; font-size: 0.74rem; color: var(--muted); border-top: 1px solid var(--border); }
+  .page-footer a { color: var(--mid); }
+  .page-footer a:hover { color: var(--dark); }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="{{ url_for('index') }}" class="nav-logo">UniShare<span>.</span></a>
+    <div class="nav-btns">
+      <a href="{{ url_for('login') }}" class="btn btn-ghost">Log in</a>
+      <a href="{{ url_for('login') }}#signup" class="btn btn-dark">Sign up</a>
+    </div>
+  </nav>
+
+  <main class="page-body">
+    <div class="auth-logo">UniShare<span>.</span></div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-list">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="showLogin(this)">Sign in</button>
+        <button class="auth-tab" onclick="showSignup(this)">Create account</button>
+      </div>
+
+      <!-- Sign-in -->
+      <div id="login-view">
+        <div class="btn-uwa" style="cursor:default; opacity:0.55;">
+          <div class="btn-uwa-mark">W</div>
+          Continue with UWA SSO
+        </div>
+        <div class="auth-divider"><span>or sign in with email</span></div>
+        <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="action" value="login" />
+          <div class="field">
+            <label>UWA email</label>
+            <input type="email" name="email" placeholder="23456789@student.uwa.edu.au" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••••" required />
+          </div>
+          <a href="#" class="forgot">Forgot password?</a>
+          <button type="submit" class="btn-submit">Sign in</button>
+        </form>
+        <p class="auth-terms">
+          By continuing you agree to our <a href="{{ url_for('privacy') }}">Terms</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <!-- Create account -->
+      <div id="signup-view" style="display:none;">
+        <div class="btn-uwa" style="cursor:default; opacity:0.55;">
+          <div class="btn-uwa-mark">W</div>
+          Sign up with UWA SSO
+        </div>
+        <div class="auth-divider"><span>or create an account</span></div>
+        <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="action" value="register" />
+          <div class="field-row">
+            <div class="field">
+              <label>First name</label>
+              <input type="text" name="first_name" placeholder="Jessica" required />
+            </div>
+            <div class="field">
+              <label>Last name</label>
+              <input type="text" name="last_name" placeholder="Thompson" required />
+            </div>
+          </div>
+          <div class="field">
+            <label>UWA student email</label>
+            <input type="email" name="email" placeholder="23456789@student.uwa.edu.au" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="8+ characters" required />
+          </div>
+          <button type="submit" class="btn-submit">Create account</button>
+        </form>
+        <p class="auth-terms">
+          By continuing you agree to our <a href="{{ url_for('privacy') }}">Terms</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a>.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    &copy; 2025 UniShare &middot; <a href="{{ url_for('about') }}">Help</a> &middot; <a href="{{ url_for('privacy') }}">Privacy</a>
+  </footer>
+
+  <script>
+    function showLogin(btn) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('login-view').style.display = '';
+      document.getElementById('signup-view').style.display = 'none';
+    }
+    function showSignup(btn) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('signup-view').style.display = '';
+    }
+    if (window.location.hash === '#signup') showSignup(document.querySelectorAll('.auth-tab')[1]);
+  </script>
+</body>
+</html>

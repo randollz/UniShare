@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} — UniShare{% endblock %}
+{% block content %}
+<div class="page-inner">
+    <div class="profile-hero">
+        <div class="profile-av large" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+            {{ profile_user.first_name[0] }}{{ profile_user.last_name[0] }}
+        </div>
+        <div>
+            <h1>{{ profile_user.first_name }} {{ profile_user.last_name }}</h1>
+            <div style="display:flex;gap:12px;align-items:center;margin-top:6px;">
+                <span class="rank-badge rb-{{ profile_user.rank|lower|replace(' ','-') }}">{{ profile_user.rank }}</span>
+                <span style="color:var(--muted);font-size:.85rem;">{{ profile_user.xp }} XP</span>
+                {% if avg_rating %}<span style="color:var(--muted);font-size:.85rem;">⭐ {{ "%.1f"|format(avg_rating) }} ({{ profile_user.rating_count }} ratings)</span>{% endif %}
+            </div>
+            {% if profile_user.bio %}<p style="margin-top:12px;color:var(--mid);max-width:480px">{{ profile_user.bio }}</p>{% endif %}
+        </div>
+    </div>
+
+    <h2 style="margin:32px 0 16px">Active Listings</h2>
+    {% if listings %}
+    <div class="card-grid">
+        {% for l in listings %}
+        <div class="listing-card">
+            <div class="listing-card-top"><span class="unit-pill">{{ l.unit_code }}</span></div>
+            <h3 class="listing-title">{{ l.title }}</h3>
+            <div class="listing-footer"><span class="listing-price">${{ "%.2f"|format(l.price) }}</span></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}<p style="color:var(--muted)">No active listings.</p>{% endif %}
+
+    <h2 style="margin:32px 0 16px">Shared Notes</h2>
+    {% if notes %}
+    <div class="card-grid">
+        {% for n in notes %}
+        <div class="listing-card">
+            <div class="listing-card-top"><span class="unit-pill">{{ n.unit_code }}</span></div>
+            <h3 class="listing-title">{{ n.title }}</h3>
+            <div class="listing-footer"><span style="color:var(--muted);font-size:.82rem">▲ {{ n.upvotes }}</span></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}<p style="color:var(--muted)">No notes shared yet.</p>{% endif %}
+</div>
+{% endblock %}

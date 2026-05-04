@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Study Sessions — UniShare{% endblock %}
+{% block content %}
+<div class="page-inner">
+    <div class="page-header">
+        <h1>Study Sessions</h1>
+        {% if current_user %}<a href="{{ url_for('create_session') }}" class="btn btn-dark">+ New session</a>{% endif %}
+    </div>
+    <form class="filter-bar" method="GET">
+        <input type="text" name="unit" value="{{ unit }}" placeholder="Filter by unit code"
+            style="text-transform:uppercase" />
+        <button type="submit" class="btn btn-dark">Filter</button>
+        {% if unit %}<a href="{{ url_for('study_sessions') }}" class="btn btn-ghost">Clear</a>{% endif %}
+    </form>
+    {% if sessions %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for s in sessions %}
+        <div class="session-card">
+            <div style="flex:1">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+                    <span class="unit-pill">{{ s.unit_code }}</span>
+                    <span style="font-size:.75rem;color:var(--muted)">{{ s.rsvp_count }} attending{% if s.max_attendees
+                        %} / {{ s.max_attendees }} max{% endif %}</span>
+                </div>
+                <h3>{{ s.title }}</h3>
+                <p style="color:var(--muted);font-size:.83rem;margin-top:4px;">
+                    📅 {{ s.session_date }} {% if s.location %}· 📍 {{ s.location }}{% endif %}
+                </p>
+                {% if s.description %}<p style="margin-top:8px;font-size:.85rem;color:var(--mid)">{{ s.description }}
+                </p>{% endif %}
+                <p style="margin-top:8px;font-size:.78rem;color:var(--muted)">Hosted by <a
+                        href="{{ url_for('profile', user_id=s.host_id) }}">{{ s.first_name }} {{ s.last_name[0] }}.</a>
+                </p>
+            </div>
+            {% if current_user and current_user.id != s.host_id %}
+
+            {% if s.current_user_joined %}
+            <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}">
+                <button class="btn btn-ghost">Cancel RSVP</button>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}">
+                <button class="btn btn-dark">RSVP</button>
+            </form>
+            {% endif %}
+
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No sessions yet{% if unit %} for {{ unit }}{% endif %}.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

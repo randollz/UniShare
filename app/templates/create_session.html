@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}New Session — UniShare{% endblock %}
+{% block content %}
+<div class="page-inner" style="max-width:560px">
+    <h1 style="margin-bottom:28px">Create a study session</h1>
+    <form method="POST" class="form-card">
+        <div class="field"><label>Title <span class="required">*</span></label><input type="text" name="title" required placeholder="e.g. CITS3403 Exam Prep" /></div>
+        <div class="field-row">
+            <div class="field"><label>Unit code <span class="required">*</span></label><input type="text" name="unit_code" required placeholder="CITS3403" style="text-transform:uppercase" /></div>
+            <div class="field"><label>Max attendees</label><input type="number" name="max_attendees" min="2" placeholder="10" /></div>
+        </div>
+        <div class="field"><label>Date &amp; time <span class="required">*</span></label><input type="datetime-local" name="session_date" required /></div>
+        <div class="field"><label>Location</label><input type="text" name="location" placeholder="Reid Library Level 2" /></div>
+        <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="What will you cover?"></textarea></div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+            <button type="submit" class="btn btn-dark">Create session</button>
+            <a href="{{ url_for('study_sessions') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
