@@ -568,7 +568,7 @@ def study_sessions():
     sessions = db.execute(query, params).fetchall()
     db.close()
 
-    return render_template('session.html',
+    return render_template('sessions.html',
                            current_user=get_current_user(),
                            sessions=sessions, unit=unit)
 
