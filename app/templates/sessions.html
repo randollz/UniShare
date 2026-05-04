@@ -1,527 +1,372 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UniShare — Sessions & Bounties</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}" />
+{% extends 'base.html' %}
+{% block title %}Sessions &amp; Bounties — UniShare{% endblock %}
 
-  <style>
-  .page-wrap {
-    max-width: 1140px; margin: 0 auto;
-    padding: 88px 16px 40px;
-    display: grid; grid-template-columns: 220px 1fr 260px;
-    gap: 20px; align-items: start;
-  }
-  .main-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
-  .page-header-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 20px 20px 0;
-  }
-  .phc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
-  .phc-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
-  .phc-sub { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
-  .btn-post {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 9px 16px; border-radius: 8px;
-    background: var(--dark); color: #fff;
-    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
-    border: none; cursor: pointer; text-decoration: none;
-    transition: all var(--t) var(--ease); flex-shrink: 0;
-  }
-  .btn-post:hover { background: var(--dark2); transform: translateY(-1px); }
+.main-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
-  .tab-bar { display: flex; border-top: 1px solid var(--border); margin-top: 4px; }
-  .tab-item {
-    padding: 12px 20px; font-size: 0.83rem; font-weight: 600;
-    color: var(--muted); cursor: pointer; border: none; background: transparent;
-    font-family: 'Inter', sans-serif; border-bottom: 2px solid transparent;
-    transition: all var(--t); position: relative; top: 1px;
-  }
-  .tab-item:hover { color: var(--dark); }
-  .tab-item.active { color: var(--dark); border-bottom-color: var(--dark); }
-  .tab-count {
-    display: inline-flex; align-items: center; justify-content: center;
-    background: #f0f1f5; color: var(--mid);
-    font-size: 0.67rem; font-weight: 700;
-    padding: 1px 6px; border-radius: 99px; margin-left: 5px;
-  }
-  .tab-item.active .tab-count { background: var(--dark); color: #fff; }
+.page-header-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 20px 0;
+}
+.phc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.phc-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
+.phc-sub { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+.btn-post {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px; border-radius: 8px; background: var(--dark); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
+  border: none; cursor: pointer; text-decoration: none;
+  transition: all var(--t) var(--ease); flex-shrink: 0;
+}
+.btn-post:hover { background: var(--dark2); transform: translateY(-1px); }
 
-  .filter-row {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 10px 14px;
-    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-  }
-  .filter-search {
-    display: flex; align-items: center; gap: 7px;
-    background: #f3f4f8; border: 1.5px solid var(--border);
-    border-radius: 7px; padding: 7px 12px; flex: 1; min-width: 160px;
-  }
-  .filter-search i { color: var(--muted); font-size: 0.8rem; }
-  .filter-search input {
-    border: none; background: transparent; outline: none;
-    font-family: 'Inter', sans-serif; font-size: 0.83rem; color: var(--dark); width: 100%;
-  }
-  .filter-search input::placeholder { color: var(--muted); }
-  .filter-select {
-    border: 1.5px solid var(--border); background: #f3f4f8;
-    border-radius: 7px; padding: 7px 10px;
-    font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
-    color: var(--mid); outline: none; cursor: pointer;
-  }
+.tab-bar { display: flex; border-top: 1px solid var(--border); margin-top: 4px; }
+.tab-item {
+  padding: 12px 20px; font-size: 0.83rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; border: none; background: transparent;
+  font-family: 'Inter', sans-serif; border-bottom: 2px solid transparent;
+  transition: all var(--t); position: relative; top: 1px;
+}
+.tab-item:hover { color: var(--dark); }
+.tab-item.active { color: var(--dark); border-bottom-color: var(--dark); }
+.tab-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #f0f1f5; color: var(--mid);
+  font-size: 0.67rem; font-weight: 700;
+  padding: 1px 6px; border-radius: 99px; margin-left: 5px;
+}
+.tab-item.active .tab-count { background: var(--dark); color: #fff; }
 
-  /* Session card */
-  .session-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
-    transition: box-shadow var(--t), border-color var(--t);
-  }
-  .session-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
-  .sc-accent { height: 4px; }
-  .sc-body { padding: 16px 18px 14px; }
-  .sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
-  .sc-meta { display: flex; align-items: center; gap: 10px; }
-  .sc-av {
-    width: 38px; height: 38px; border-radius: 50%;
-    color: #fff; font-size: 0.85rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .sc-host-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); text-decoration: none; }
-  .sc-host-name:hover { text-decoration: underline; }
-  .sc-host-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
-  .sc-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-  .sc-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 99px;
-    font-size: 0.71rem; font-weight: 700;
-  }
-  .sc-pill-session { background: rgba(124,58,237,0.1); color: #6d28d9; }
-  .sc-pill-online  { background: rgba(16,185,129,0.1); color: #059669; }
-  .sc-pill-inperson{ background: rgba(59,130,246,0.1); color: #2563eb; }
-  .sc-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 5px; letter-spacing: -0.02em; }
-  .sc-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.55; margin-bottom: 12px; }
-  .sc-info { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 14px; margin-bottom: 14px; }
-  .sc-info-item { display: flex; align-items: center; gap: 7px; }
-  .sc-info-item i { font-size: 0.78rem; color: var(--muted); width: 14px; text-align: center; }
-  .sc-info-item span { font-size: 0.79rem; color: var(--mid); }
-  .sc-info-item strong { color: var(--dark); }
-  .sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .sc-tag { padding: 3px 9px; border-radius: 6px; background: #f0f1f5; color: var(--mid); font-size: 0.72rem; font-weight: 600; }
-  .sc-attendees { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-  .sc-att-label { font-size: 0.76rem; color: var(--muted); }
-  .sc-att-spots { margin-left: auto; font-size: 0.76rem; font-weight: 700; }
-  .sc-att-spots.open { color: #059669; } .sc-att-spots.few { color: #d97706; }
-  .sc-actions { display: flex; gap: 6px; border-top: 1px solid var(--border); padding-top: 12px; }
-  .sc-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 14px; border-radius: 8px;
-    font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
-    border: none; cursor: pointer; transition: all var(--t) var(--ease);
-  }
-  .sc-btn-join { background: var(--dark); color: #fff; }
-  .sc-btn-join:hover { background: var(--dark2); transform: translateY(-1px); }
-  .sc-btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
-  .sc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
+.filter-row {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 14px;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.filter-search {
+  display: flex; align-items: center; gap: 7px;
+  background: #f3f4f8; border: 1.5px solid var(--border);
+  border-radius: 7px; padding: 7px 12px; flex: 1; min-width: 160px;
+}
+.filter-search i { color: var(--muted); font-size: 0.8rem; }
+.filter-search input {
+  border: none; background: transparent; outline: none;
+  font-family: 'Inter', sans-serif; font-size: 0.83rem; color: var(--dark); width: 100%;
+}
+.filter-search input::placeholder { color: var(--muted); }
 
-  /* Bounty card */
-  .bounty-card {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
-    transition: box-shadow var(--t), border-color var(--t);
-  }
-  .bounty-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
-  .bc-accent { height: 4px; background: linear-gradient(90deg,#b45309,#f59e0b); }
-  .bc-body { padding: 16px 18px 14px; }
-  .bc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .bc-left { display: flex; align-items: center; gap: 10px; }
-  .bc-av {
-    width: 38px; height: 38px; border-radius: 50%;
-    color: #fff; font-size: 0.85rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    background: linear-gradient(135deg,#b45309,#d97706);
-  }
-  .bc-poster-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); text-decoration: none; }
-  .bc-poster-name:hover { text-decoration: underline; }
-  .bc-poster-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
-  .bc-reward { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
-  .bc-reward-amt { font-size: 1.15rem; font-weight: 800; color: var(--gold); letter-spacing: -0.03em; }
-  .bc-reward-label { font-size: 0.67rem; color: var(--muted); }
-  .bc-pill-bounty {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 99px;
-    background: rgba(245,158,11,0.12); color: #b45309;
-    font-size: 0.71rem; font-weight: 700; margin-bottom: 8px;
-  }
-  .bc-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 5px; letter-spacing: -0.02em; }
-  .bc-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.55; margin-bottom: 12px; }
-  .bc-footer { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); padding-top: 12px; }
-  .bc-btn-offer {
-    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: 8px;
-    background: linear-gradient(135deg,#b45309,#d97706);
-    color: #fff; font-family: 'Inter', sans-serif;
-    font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer;
-    transition: all var(--t) var(--ease);
-  }
-  .bc-btn-offer:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(180,83,9,0.25); }
-  .bc-btn-ghost {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 12px; border-radius: 8px;
-    background: transparent; color: var(--mid);
-    border: 1.5px solid var(--bdr2);
-    font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
-    cursor: pointer; transition: all var(--t) var(--ease);
-  }
-  .bc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
+.session-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
+  transition: box-shadow var(--t), border-color var(--t);
+}
+.session-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
+.sc-accent { height: 4px; }
+.sc-body { padding: 16px 18px 14px; }
+.sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+.sc-meta { display: flex; align-items: center; gap: 10px; }
+.sc-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  color: #fff; font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sc-host-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); text-decoration: none; }
+.sc-host-name:hover { text-decoration: underline; }
+.sc-host-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+.sc-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.sc-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px; font-size: 0.71rem; font-weight: 700; }
+.sc-pill-session { background: rgba(124,58,237,0.1); color: #6d28d9; }
+.sc-pill-online  { background: rgba(16,185,129,0.1); color: #059669; }
+.sc-pill-inperson{ background: rgba(59,130,246,0.1); color: #2563eb; }
+.sc-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 5px; letter-spacing: -0.02em; }
+.sc-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.55; margin-bottom: 12px; }
+.sc-info { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 14px; margin-bottom: 14px; }
+.sc-info-item { display: flex; align-items: center; gap: 7px; }
+.sc-info-item i { font-size: 0.78rem; color: var(--muted); width: 14px; text-align: center; }
+.sc-info-item span { font-size: 0.79rem; color: var(--mid); }
+.sc-info-item strong { color: var(--dark); }
+.sc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.sc-tag { padding: 3px 9px; border-radius: 6px; background: #f0f1f5; color: var(--mid); font-size: 0.72rem; font-weight: 600; }
+.sc-attendees { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.sc-att-label { font-size: 0.76rem; color: var(--muted); }
+.sc-att-spots { margin-left: auto; font-size: 0.76rem; font-weight: 700; }
+.sc-att-spots.open { color: #059669; } .sc-att-spots.few { color: #d97706; }
+.sc-actions { display: flex; gap: 6px; border-top: 1px solid var(--border); padding-top: 12px; }
+.sc-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
+  border: none; cursor: pointer; transition: all var(--t) var(--ease);
+}
+.sc-btn-join { background: var(--dark); color: #fff; }
+.sc-btn-join:hover { background: var(--dark2); transform: translateY(-1px); }
+.sc-btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
+.sc-btn-ghost:hover { background: #f3f4f8; color: var(--dark); }
 
-  /* Right panel */
-  .right { position: sticky; top: 68px; display: flex; flex-direction: column; gap: 12px; }
-  .rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
-  .rcard-title { font-size: 0.84rem; font-weight: 700; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.02em; }
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-box { background: #f5f6fa; border-radius: 10px; padding: 11px 12px; }
-  .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
-  .stat-lbl { font-size: 0.69rem; color: var(--muted); margin-top: 1px; line-height: 1.3; }
-  .cta-card { background: var(--dark); border-radius: var(--r); padding: 18px 16px; }
-  .cta-title { font-size: 0.9rem; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.03em; }
-  .cta-sub { font-size: 0.77rem; color: rgba(255,255,255,0.55); line-height: 1.55; margin-bottom: 14px; }
-  .cta-btn {
-    display: block; width: 100%; padding: 10px; border-radius: 9px;
-    background: var(--gold); color: #fff; text-align: center;
-    font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
-    border: none; cursor: pointer; text-decoration: none;
-    transition: all var(--t) var(--ease);
-  }
-  .cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-  .cta-btn + .cta-btn { margin-top: 7px; background: rgba(255,255,255,0.1); }
-  .cta-btn + .cta-btn:hover { background: rgba(255,255,255,0.16); }
+.empty-state {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 48px 24px; text-align: center; color: var(--muted);
+}
+.empty-state p { font-size: 0.9rem; margin-bottom: 14px; }
 
-  .empty-state {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 48px 24px;
-    text-align: center; color: var(--muted);
-  }
-  .empty-state p { font-size: 0.9rem; margin-bottom: 14px; }
+.right { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 12px; }
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.rcard-title { font-size: 0.84rem; font-weight: 700; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.02em; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-box { background: #f5f6fa; border-radius: 10px; padding: 11px 12px; }
+.stat-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
+.stat-lbl { font-size: 0.69rem; color: var(--muted); margin-top: 1px; line-height: 1.3; }
+.cta-card { background: var(--dark); border-radius: var(--r); padding: 18px 16px; }
+.cta-title { font-size: 0.9rem; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.03em; }
+.cta-sub { font-size: 0.77rem; color: rgba(255,255,255,0.55); line-height: 1.55; margin-bottom: 14px; }
+.cta-btn {
+  display: block; width: 100%; padding: 10px; border-radius: 9px;
+  background: var(--gold); color: #fff; text-align: center;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700;
+  border: none; cursor: pointer; text-decoration: none; transition: all var(--t) var(--ease);
+}
+.cta-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.cta-btn + .cta-btn { margin-top: 7px; background: rgba(255,255,255,0.1); }
+.cta-btn + .cta-btn:hover { background: rgba(255,255,255,0.16); }
+</style>
+{% endblock %}
 
-  .flash-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-  .flash { padding: 10px 16px; border-radius: 10px; font-size: 0.83rem; font-weight: 500; }
-  .flash-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-  .flash-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-  .flash-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-  </style>
-</head>
-<body class="app-page">
+{% block content %}
+<main class="main-col">
 
-  <!-- TOP NAV -->
-  <header class="topbar">
-    <div class="tb-brand">
-      <img src="{{ url_for('static', filename='images/uwa-logo.png') }}" alt="UWA" class="tb-uwa" />
-      <div class="tb-divider"></div>
-      <span class="tb-logo">UniShare<span>.</span></span>
-    </div>
-    <div class="tb-search">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Search sessions, bounties, units…" />
-    </div>
-    <nav class="tb-nav">
-      <a href="{{ url_for('dashboard') }}" class="tb-nav-item"><i class="fa-solid fa-house"></i> Feed</a>
-      <a href="{{ url_for('marketplace') }}" class="tb-nav-item"><i class="fa-solid fa-tag"></i> Marketplace</a>
-      <a href="{{ url_for('notes') }}" class="tb-nav-item"><i class="fa-solid fa-file-lines"></i> Notes</a>
-      <a href="{{ url_for('study_sessions') }}" class="tb-nav-item active"><i class="fa-solid fa-users"></i> Sessions</a>
-    </nav>
-    <div class="tb-right">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-list">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="page-header-card">
+    <div class="phc-top">
+      <div>
+        <div class="phc-title">Sessions &amp; Bounties</div>
+        <div class="phc-sub">Find study groups, book tutors, or post a bounty for help you need</div>
+      </div>
       {% if current_user %}
-        <a href="{{ url_for('profile', user_id=current_user.id) }}" class="tb-av">
-          {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
-        </a>
-      {% else %}
-        <a href="{{ url_for('login') }}" class="btn-post" style="padding:8px 14px;">Sign in</a>
+      <a href="{{ url_for('create_session') }}" class="btn-post">
+        <i class="fa-solid fa-plus"></i> Post Session
+      </a>
       {% endif %}
     </div>
-  </header>
-
-  <div class="page-wrap">
-
-    <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
-      {% if current_user %}
-      <div class="sb-card">
-        <div class="sb-profile-banner"></div>
-        <div class="sb-profile-body">
-          <div class="sb-profile-av">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</div>
-          <div class="sb-profile-name">{{ current_user.first_name }} {{ current_user.last_name }}</div>
-          <div class="sb-profile-detail">University of Western Australia</div>
-          <div class="sb-profile-stats">
-            <div class="sb-stat-row">
-              <span class="sb-stat-label">XP</span>
-              <span class="sb-stat-val">{{ current_user.xp }}</span>
-            </div>
-            <div class="sb-stat-row">
-              <span class="sb-stat-label">Rank</span>
-              <span class="sb-stat-val">{{ current_user.rank }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      <div class="sb-nav-card">
-        <a href="{{ url_for('dashboard') }}" class="sb-link"><i class="fa-solid fa-house"></i> Feed</a>
-        <a href="{{ url_for('marketplace') }}" class="sb-link"><i class="fa-solid fa-tag"></i> Marketplace</a>
-        <a href="{{ url_for('notes') }}" class="sb-link"><i class="fa-solid fa-file-lines"></i> Notes</a>
-        <a href="{{ url_for('study_sessions') }}" class="sb-link active"><i class="fa-solid fa-users"></i> Study Sessions</a>
-        <a href="{{ url_for('bounties') }}" class="sb-link"><i class="fa-solid fa-bolt"></i> Bounties</a>
-        {% if current_user %}
-        <a href="{{ url_for('settings') }}" class="sb-link"><i class="fa-solid fa-gear"></i> Settings</a>
-        {% endif %}
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-col">
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="flash-list">
-            {% for category, message in messages %}
-              <div class="flash flash-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-
-      <div class="page-header-card">
-        <div class="phc-top">
-          <div>
-            <div class="phc-title">Sessions &amp; Bounties</div>
-            <div class="phc-sub">Find study groups, book tutors, or post a bounty for help you need</div>
-          </div>
-          {% if current_user %}
-          <a href="{{ url_for('create_session') }}" class="btn-post">
-            <i class="fa-solid fa-plus"></i> Post Session
-          </a>
-          {% endif %}
-        </div>
-        <div class="tab-bar">
-          <button class="tab-item active" onclick="switchTab(this,'sessions-list','bounties-list')">
-            Study Sessions <span class="tab-count">{{ sessions|length }}</span>
-          </button>
-          <button class="tab-item" onclick="switchTab(this,'bounties-list','sessions-list')">
-            Bounties
-          </button>
-        </div>
-      </div>
-
-      <!-- Filter -->
-      <form class="filter-row" method="GET" action="{{ url_for('study_sessions') }}">
-        <div class="filter-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" name="unit" value="{{ unit }}" placeholder="Filter by unit code e.g. CITS3403" style="text-transform:uppercase" />
-        </div>
-        <button type="submit" class="btn-post" style="padding:8px 14px;">Filter</button>
-        {% if unit %}
-        <a href="{{ url_for('study_sessions') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
-        {% endif %}
-      </form>
-
-      <!-- SESSIONS LIST -->
-      <div id="sessions-list">
-        {% set accent_colors = [
-          'linear-gradient(90deg,#1d4ed8,#3b82f6)',
-          'linear-gradient(90deg,#0d9488,#34d399)',
-          'linear-gradient(90deg,#7c3aed,#a78bfa)',
-          'linear-gradient(90deg,#be185d,#f472b6)',
-          'linear-gradient(90deg,#b45309,#f59e0b)',
-          'linear-gradient(90deg,#059669,#34d399)',
-          'linear-gradient(90deg,#2563eb,#60a5fa)',
-          'linear-gradient(90deg,#6d28d9,#8b5cf6)'
-        ] %}
-        {% set av_colors = ['#1d4ed8','#0d9488','#7c3aed','#be185d','#b45309','#059669','#2563eb','#6d28d9'] %}
-
-        {% if sessions %}
-          {% for s in sessions %}
-          {% set idx = loop.index0 % 8 %}
-          <div class="session-card">
-            <div class="sc-accent" style="background: {{ accent_colors[idx] }};"></div>
-            <div class="sc-body">
-              <div class="sc-header">
-                <div class="sc-meta">
-                  <div class="sc-av" style="background: {{ av_colors[idx] }};">
-                    {{ s.host.first_name[0] }}{{ s.host.last_name[0] }}
-                  </div>
-                  <div>
-                    <a href="{{ url_for('profile', user_id=s.host_id) }}" class="sc-host-name">
-                      {{ s.host.first_name }} {{ s.host.last_name[0] }}.
-                    </a>
-                    <div class="sc-host-detail">Host · {{ s.rsvp_count }} attending</div>
-                  </div>
-                </div>
-                <div class="sc-badges">
-                  <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
-                  {% if s.location and 'online' in s.location|lower %}
-                  <span class="sc-pill sc-pill-online"><i class="fa-solid fa-wifi"></i> Online</span>
-                  {% else %}
-                  <span class="sc-pill sc-pill-inperson"><i class="fa-solid fa-location-dot"></i> In person</span>
-                  {% endif %}
-                </div>
-              </div>
-
-              <div class="sc-title">{{ s.title }}</div>
-              {% if s.description %}
-              <div class="sc-desc">{{ s.description }}</div>
-              {% endif %}
-
-              <div class="sc-info">
-                <div class="sc-info-item">
-                  <i class="fa-regular fa-calendar"></i>
-                  <span><strong>{{ s.session_date }}</strong></span>
-                </div>
-                {% if s.location %}
-                <div class="sc-info-item">
-                  <i class="fa-solid fa-location-dot"></i>
-                  <span>{{ s.location }}</span>
-                </div>
-                {% endif %}
-                <div class="sc-info-item">
-                  <i class="fa-solid fa-book"></i>
-                  <span><strong>{{ s.unit_code }}</strong></span>
-                </div>
-                <div class="sc-info-item">
-                  <i class="fa-solid fa-users"></i>
-                  <span>{{ s.rsvp_count }} attending{% if s.max_attendees %} / {{ s.max_attendees }} max{% endif %}</span>
-                </div>
-              </div>
-
-              <div class="sc-tags">
-                <span class="sc-tag">{{ s.unit_code }}</span>
-              </div>
-
-              <div class="sc-attendees">
-                <span class="sc-att-label">{{ s.rsvp_count }} going</span>
-                {% if s.max_attendees %}
-                  {% set spots = s.max_attendees - s.rsvp_count %}
-                  {% if spots <= 0 %}
-                  <span class="sc-att-spots" style="color:#dc2626;">Full</span>
-                  {% elif spots <= 2 %}
-                  <span class="sc-att-spots few">{{ spots }} spot{{ 's' if spots != 1 }} left</span>
-                  {% else %}
-                  <span class="sc-att-spots open">{{ spots }} spots left</span>
-                  {% endif %}
-                {% endif %}
-              </div>
-
-              <div class="sc-actions">
-                {% if current_user and current_user.id != s.host_id %}
-                  {% if s.id in joined_ids %}
-                  <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
-                    <button type="submit" class="sc-btn sc-btn-ghost">
-                      <i class="fa-solid fa-xmark"></i> Cancel RSVP
-                    </button>
-                  </form>
-                  {% else %}
-                  <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
-                    <button type="submit" class="sc-btn sc-btn-join">
-                      <i class="fa-solid fa-arrow-right"></i> Join session
-                    </button>
-                  </form>
-                  {% endif %}
-                {% elif not current_user %}
-                <a href="{{ url_for('login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
-                {% else %}
-                <span class="sc-btn" style="background:#f0f1f5;color:var(--muted);cursor:default;">
-                  <i class="fa-solid fa-star"></i> You're hosting
-                </span>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-
-        {% else %}
-        <div class="empty-state">
-          <p>No sessions yet{% if unit %} for {{ unit }}{% endif %}.</p>
-          {% if current_user %}
-          <a href="{{ url_for('create_session') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
-            <i class="fa-solid fa-plus"></i> Create the first one
-          </a>
-          {% endif %}
-        </div>
-        {% endif %}
-      </div>
-      <!-- /sessions-list -->
-
-      <!-- BOUNTIES LIST (hidden by default) -->
-      <div id="bounties-list" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-size:.83rem;color:var(--muted);">Open bounties from students</span>
-          {% if current_user %}
-          <a href="{{ url_for('create_bounty') }}" class="btn-post" style="padding:8px 14px;">
-            <i class="fa-solid fa-plus"></i> Post Bounty
-          </a>
-          {% endif %}
-        </div>
-        <div class="empty-state">
-          <p>View all bounties on the dedicated board.</p>
-          <a href="{{ url_for('bounties') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
-            <i class="fa-solid fa-bolt"></i> Go to Bounty Board
-          </a>
-        </div>
-      </div>
-      <!-- /bounties-list -->
-
-    </main>
-
-    <!-- RIGHT PANEL -->
-    <aside class="right">
-      <div class="rcard">
-        <div class="rcard-title">Session stats</div>
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div class="stat-num">{{ sessions|length }}</div>
-            <div class="stat-lbl">Active sessions</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-num">{{ sessions|sum(attribute='rsvp_count') if sessions else 0 }}</div>
-            <div class="stat-lbl">Total RSVPs</div>
-          </div>
-        </div>
-      </div>
-
-      {% if current_user %}
-      <div class="cta-card">
-        <div class="cta-title">Got something to offer?</div>
-        <div class="cta-sub">Host a study session or post a bounty and earn XP helping your peers.</div>
-        <a href="{{ url_for('create_session') }}" class="cta-btn">
-          <i class="fa-solid fa-calendar-plus"></i> Post a session
-        </a>
-        <a href="{{ url_for('create_bounty') }}" class="cta-btn">
-          <i class="fa-solid fa-bolt"></i> Create a bounty
-        </a>
-      </div>
-      {% else %}
-      <div class="cta-card">
-        <div class="cta-title">Join UniShare</div>
-        <div class="cta-sub">Sign up to RSVP to sessions, host your own, and earn XP.</div>
-        <a href="{{ url_for('login') }}" class="cta-btn">Create account</a>
-      </div>
-      {% endif %}
-    </aside>
-
+    <div class="tab-bar">
+      <button class="tab-item active" onclick="switchTab(this,'sessions-list','bounties-list')">
+        Study Sessions <span class="tab-count">{{ sessions|length }}</span>
+      </button>
+      <button class="tab-item" onclick="switchTab(this,'bounties-list','sessions-list')">
+        Bounties
+      </button>
+    </div>
   </div>
 
-  <script>
-    function switchTab(btn, showId, hideId) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(showId).style.display = '';
-      document.getElementById(hideId).style.display = 'none';
-    }
-  </script>
+  <form class="filter-row" method="GET" action="{{ url_for('study_sessions') }}">
+    <div class="filter-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" name="unit" value="{{ unit }}" placeholder="Filter by unit code e.g. CITS3403" style="text-transform:uppercase" />
+    </div>
+    <button type="submit" class="btn-post" style="padding:8px 14px;">Filter</button>
+    {% if unit %}
+    <a href="{{ url_for('study_sessions') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
+    {% endif %}
+  </form>
 
-</body>
-</html>
+  <!-- SESSIONS LIST -->
+  <div id="sessions-list">
+    {% set accent_colors = [
+      'linear-gradient(90deg,#1d4ed8,#3b82f6)',
+      'linear-gradient(90deg,#0d9488,#34d399)',
+      'linear-gradient(90deg,#7c3aed,#a78bfa)',
+      'linear-gradient(90deg,#be185d,#f472b6)',
+      'linear-gradient(90deg,#b45309,#f59e0b)',
+      'linear-gradient(90deg,#059669,#34d399)',
+      'linear-gradient(90deg,#2563eb,#60a5fa)',
+      'linear-gradient(90deg,#6d28d9,#8b5cf6)'
+    ] %}
+    {% set av_colors = ['#1d4ed8','#0d9488','#7c3aed','#be185d','#b45309','#059669','#2563eb','#6d28d9'] %}
+
+    {% if sessions %}
+    {% for s in sessions %}
+    {% set idx = loop.index0 % 8 %}
+    <div class="session-card">
+      <div class="sc-accent" style="background: {{ accent_colors[idx] }};"></div>
+      <div class="sc-body">
+        <div class="sc-header">
+          <div class="sc-meta">
+            <div class="sc-av" style="background: {{ av_colors[idx] }};">
+              {{ s.host.first_name[0] }}{{ s.host.last_name[0] }}
+            </div>
+            <div>
+              <a href="{{ url_for('profile', user_id=s.host_id) }}" class="sc-host-name">
+                {{ s.host.first_name }} {{ s.host.last_name[0] }}.
+              </a>
+              <div class="sc-host-detail">Host · {{ s.rsvp_count }} attending</div>
+            </div>
+          </div>
+          <div class="sc-badges">
+            <span class="sc-pill sc-pill-session"><i class="fa-solid fa-users"></i> Study group</span>
+            {% if s.location and 'online' in s.location|lower %}
+            <span class="sc-pill sc-pill-online"><i class="fa-solid fa-wifi"></i> Online</span>
+            {% else %}
+            <span class="sc-pill sc-pill-inperson"><i class="fa-solid fa-location-dot"></i> In person</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="sc-title">{{ s.title }}</div>
+        {% if s.description %}
+        <div class="sc-desc">{{ s.description }}</div>
+        {% endif %}
+
+        <div class="sc-info">
+          <div class="sc-info-item">
+            <i class="fa-regular fa-calendar"></i>
+            <span><strong>{{ s.session_date }}</strong></span>
+          </div>
+          {% if s.location %}
+          <div class="sc-info-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>{{ s.location }}</span>
+          </div>
+          {% endif %}
+          <div class="sc-info-item">
+            <i class="fa-solid fa-book"></i>
+            <span><strong>{{ s.unit_code }}</strong></span>
+          </div>
+          <div class="sc-info-item">
+            <i class="fa-solid fa-users"></i>
+            <span>{{ s.rsvp_count }} attending{% if s.max_attendees %} / {{ s.max_attendees }} max{% endif %}</span>
+          </div>
+        </div>
+
+        <div class="sc-tags">
+          <span class="sc-tag">{{ s.unit_code }}</span>
+        </div>
+
+        <div class="sc-attendees">
+          <span class="sc-att-label">{{ s.rsvp_count }} going</span>
+          {% if s.max_attendees %}
+            {% set spots = s.max_attendees - s.rsvp_count %}
+            {% if spots <= 0 %}
+            <span class="sc-att-spots" style="color:#dc2626;">Full</span>
+            {% elif spots <= 2 %}
+            <span class="sc-att-spots few">{{ spots }} spot{{ 's' if spots != 1 }} left</span>
+            {% else %}
+            <span class="sc-att-spots open">{{ spots }} spots left</span>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <div class="sc-actions">
+          {% if current_user and current_user.id != s.host_id %}
+            {% if s.id in joined_ids %}
+            <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
+              <button type="submit" class="sc-btn sc-btn-ghost">
+                <i class="fa-solid fa-xmark"></i> Cancel RSVP
+              </button>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
+              <button type="submit" class="sc-btn sc-btn-join">
+                <i class="fa-solid fa-arrow-right"></i> Join session
+              </button>
+            </form>
+            {% endif %}
+          {% elif not current_user %}
+          <a href="{{ url_for('login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
+          {% else %}
+          <span class="sc-btn" style="background:#f0f1f5;color:var(--muted);cursor:default;">
+            <i class="fa-solid fa-star"></i> You're hosting
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="empty-state">
+      <p>No sessions yet{% if unit %} for {{ unit }}{% endif %}.</p>
+      {% if current_user %}
+      <a href="{{ url_for('create_session') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+        <i class="fa-solid fa-plus"></i> Create the first one
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- BOUNTIES LIST (hidden by default) -->
+  <div id="bounties-list" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:.83rem;color:var(--muted);">Open bounties from students</span>
+      {% if current_user %}
+      <a href="{{ url_for('create_bounty') }}" class="btn-post" style="padding:8px 14px;">
+        <i class="fa-solid fa-plus"></i> Post Bounty
+      </a>
+      {% endif %}
+    </div>
+    <div class="empty-state">
+      <p>View all bounties on the dedicated board.</p>
+      <a href="{{ url_for('bounties') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+        <i class="fa-solid fa-bolt"></i> Go to Bounty Board
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function switchTab(btn, showId, hideId) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(showId).style.display = '';
+    document.getElementById(hideId).style.display = 'none';
+  }
+</script>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Session stats</div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-num">{{ sessions|length }}</div>
+        <div class="stat-lbl">Active sessions</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">{{ sessions|sum(attribute='rsvp_count') if sessions else 0 }}</div>
+        <div class="stat-lbl">Total RSVPs</div>
+      </div>
+    </div>
+  </div>
+
+  {% if current_user %}
+  <div class="cta-card">
+    <div class="cta-title">Got something to offer?</div>
+    <div class="cta-sub">Host a study session or post a bounty and earn XP helping your peers.</div>
+    <a href="{{ url_for('create_session') }}" class="cta-btn">
+      <i class="fa-solid fa-calendar-plus"></i> Post a session
+    </a>
+    <a href="{{ url_for('create_bounty') }}" class="cta-btn">
+      <i class="fa-solid fa-bolt"></i> Create a bounty
+    </a>
+  </div>
+  {% else %}
+  <div class="cta-card">
+    <div class="cta-title">Join UniShare</div>
+    <div class="cta-sub">Sign up to RSVP to sessions, host your own, and earn XP.</div>
+    <a href="{{ url_for('login') }}" class="cta-btn">Create account</a>
+  </div>
+  {% endif %}
+</aside>
+{% endblock %}

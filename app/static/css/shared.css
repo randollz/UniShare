@@ -463,3 +463,54 @@ body.app-page {
 .sb-link.active { background: rgba(255,255,255,0.09); color: #fff; }
 .sb-link.active i { color: var(--gold); }
 .sb-link i { width: 17px; text-align: center; font-size: 0.88rem; color: rgba(255,255,255,0.5); transition: color var(--t); }
+
+/* ================================================================
+   App shell layout — page-wrap grid + flash + form utilities
+   ================================================================ */
+
+/* ── Page layout grid ─────────────────────────────────────────── */
+body.app-page .page-wrap {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 88px 16px 40px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Flash messages ───────────────────────────────────────────── */
+.flash-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.flash      { padding: 10px 16px; border-radius: 10px; font-size: 0.83rem; font-weight: 500; }
+.flash-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.flash-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.flash-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+/* ── Create / form pages ──────────────────────────────────────── */
+.page-inner { padding-top: 8px; }
+.form-card  {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 28px 32px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field label { font-size: 0.82rem; font-weight: 600; color: var(--dark); }
+.required { color: #dc2626; }
+.field input, .field select, .field textarea {
+  padding: 9px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  font-family: var(--font); font-size: 0.88rem; color: var(--dark);
+  background: #f3f4f8; outline: none;
+  transition: border-color var(--t);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--gold); background: #fff;
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-dark  { background: var(--dark);  color: #fff; }
+.btn-dark:hover  { background: var(--dark2); transform: translateY(-1px); }
+
+/* ── Detail page wrapper (listing / note / bounty detail) ─────── */
+body.app-page .detail-wrap {
+  max-width: 860px;
+  padding-top: 8px;
+}
