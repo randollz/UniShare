@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% block title %}Feed — UniShare{% endblock %}
+
+{% block head %}
+<style>
+/* ── Feed layout ──────────────────────────── */
+.feed-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Compose box ──────────────────────────── */
+.compose-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.compose-card h2 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.compose-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  color: var(--dark);
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--t);
+  line-height: 1.5;
+}
+.compose-textarea:focus { border-color: var(--gold); }
+.compose-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.type-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.type-tab {
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  transition: all 120ms;
+}
+.type-tab.selected,
+.type-tab:hover { border-color: var(--dark); color: var(--dark); background: #f3f4f8; }
+.type-tab[data-type="event"].selected   { border-color: var(--gold); color: var(--gold); background: #fffbf0; }
+.type-tab[data-type="news"].selected    { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+.type-tab[data-type="resource"].selected { border-color: #10b981; color: #10b981; background: #ecfdf5; }
+.compose-hidden-type { display: none; }
+.compose-submit {
+  padding: 9px 22px;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background var(--t);
+}
+.compose-submit:hover { background: var(--dark2); }
+
+/* ── Post type badges ─────────────────────── */
+.post-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+.badge-general  { background: #f3f4f8; color: var(--muted); }
+.badge-event    { background: #fffbf0; color: #92700a; }
+.badge-news     { background: #eff6ff; color: #1d4ed8; }
+.badge-resource { background: #ecfdf5; color: #065f46; }
+
+/* ── Post cards ───────────────────────────── */
+.post-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.post-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.post-meta { flex: 1; min-width: 0; }
+.post-author {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--dark);
+  text-decoration: none;
+}
+.post-author:hover { text-decoration: underline; }
+.post-time {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.post-body {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--dark);
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 120ms;
+}
+.like-btn:hover { background: #f3f4f8; color: var(--dark); }
+.like-btn.liked { color: #ef4444; }
+.like-btn .like-icon { font-size: 0.9rem; }
+.delete-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  transition: all 120ms;
+}
+.delete-btn:hover { background: #fef2f2; color: #dc2626; }
+
+/* ── Pagination ────────────────────────────── */
+.feed-pagination {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+.pg-btn {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--dark);
+  text-decoration: none;
+  transition: all 120ms;
+}
+.pg-btn:hover { background: #f3f4f8; }
+
+/* ── Right panel ──────────────────────────── */
+.feed-right {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.right-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+}
+.right-card h3 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.trend-item {
+  display: block;
+  padding: 8px 0;
+  text-decoration: none;
+  color: var(--dark);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.83rem;
+  font-weight: 600;
+  line-height: 1.4;
+  transition: color 120ms;
+}
+.trend-item:last-child { border-bottom: none; }
+.trend-item:hover { color: var(--gold); }
+.trend-sub {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Empty state ──────────────────────────── */
+.feed-empty {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.feed-empty .empty-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+  display: block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feed-col">
+
+  <!-- Compose -->
+  <div class="compose-card">
+    <h2>Share something</h2>
+    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form">
+      <textarea class="compose-textarea" name="body" id="compose-body"
+                placeholder="What's on your mind? Share a note, event, or update…"
+                maxlength="2000" required></textarea>
+      <div class="compose-footer">
+        <div class="type-tabs" role="group" aria-label="Post type">
+          <button type="button" class="type-tab selected" data-type="general">General</button>
+          <button type="button" class="type-tab" data-type="event">Event</button>
+          <button type="button" class="type-tab" data-type="news">News</button>
+          <button type="button" class="type-tab" data-type="resource">Resource</button>
+        </div>
+        <input type="hidden" name="post_type" id="post-type-input" value="general" />
+        <span id="char-counter" style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">0 / 2000</span>
+        <button type="submit" class="compose-submit">Post</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div style="padding:12px 16px;border-radius:8px;font-size:0.84rem;font-weight:600;
+                  background:{% if category=='error' %}#fef2f2;color:#dc2626;border:1px solid #fecaca{% else %}#f0fdf4;color:#166534;border:1px solid #bbf7d0{% endif %};">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- Posts -->
+  {% if posts.items %}
+    {% for post in posts.items %}
+      {% set initials = post.author.first_name[0] ~ post.author.last_name[0] %}
+      <div class="post-card" id="post-{{ post.id }}">
+        <div class="post-header">
+          <div class="post-av">{{ initials }}</div>
+          <div class="post-meta">
+            <a href="{{ url_for('profile', user_id=post.author_id) }}" class="post-author">
+              {{ post.author.first_name }} {{ post.author.last_name }}
+            </a>
+            <div class="post-time">{{ post.created_at.strftime('%b %d, %Y · %I:%M %p') }}</div>
+          </div>
+          {% if post.post_type == 'event' %}
+            <span class="post-badge badge-event"><i class="fa-solid fa-calendar"></i> Event</span>
+          {% elif post.post_type == 'news' %}
+            <span class="post-badge badge-news"><i class="fa-solid fa-newspaper"></i> News</span>
+          {% elif post.post_type == 'resource' %}
+            <span class="post-badge badge-resource"><i class="fa-solid fa-link"></i> Resource</span>
+          {% else %}
+            <span class="post-badge badge-general">General</span>
+          {% endif %}
+        </div>
+
+        <div class="post-body">{{ post.body }}</div>
+
+        <div class="post-actions">
+          <button class="like-btn {% if post.id in liked_ids %}liked{% endif %}"
+                  data-post-id="{{ post.id }}"
+                  aria-label="Like post">
+            <span class="like-icon">{% if post.id in liked_ids %}&#9829;{% else %}&#9825;{% endif %}</span>
+            <span class="like-count">{{ post.likes_count }}</span>
+          </button>
+
+          {% if post.author_id == current_user.id %}
+            <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
+                  style="margin-left:auto;"
+                  onsubmit="return confirm('Delete this post?');">
+              <button type="submit" class="delete-btn">Delete</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if posts.has_prev or posts.has_next %}
+    <div class="feed-pagination">
+      {% if posts.has_prev %}
+        <a href="{{ url_for('feed', page=posts.prev_num) }}" class="pg-btn">← Newer</a>
+      {% endif %}
+      {% if posts.has_next %}
+        <a href="{{ url_for('feed', page=posts.next_num) }}" class="pg-btn">Older →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  {% else %}
+    <div class="feed-empty">
+      <span class="empty-icon">📢</span>
+      No posts yet. Be the first to share something!
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="feed-right">
+  <div class="right-card">
+    <h3>Top Notes This Week</h3>
+    {% if top_notes %}
+      {% for note in top_notes %}
+        <a href="{{ url_for('view_note', note_id=note.id) }}" class="trend-item">
+          {{ note.title }}
+          <span class="trend-sub">{{ note.unit_code }} · {{ note.upvotes }} upvotes</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--muted);font-size:0.82rem;">No notes yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="right-card">
+    <h3>Popular Sessions</h3>
+    {% if top_sessions %}
+      {% for s in top_sessions %}
+        <a href="{{ url_for('view_session', session_id=s.id) }}" class="trend-item">
+          {{ s.title }}
+          <span class="trend-sub">{{ s.unit_code }} · {{ s.attendee_count() }} attending</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--muted);font-size:0.82rem;">No sessions yet.</p>
+    {% endif %}
+  </div>
+</aside>
+{% endblock %}
+
+<script>
+// Type tab selection
+(function () {
+  const tabs  = document.querySelectorAll('.type-tab');
+  const input = document.getElementById('post-type-input');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('selected'));
+      tab.classList.add('selected');
+      input.value = tab.dataset.type;
+    });
+  });
+})();
+
+// Character counter
+(function () {
+  const textarea = document.getElementById('compose-body');
+  const counter  = document.getElementById('char-counter');
+  if (!textarea || !counter) return;
+  textarea.addEventListener('input', () => {
+    counter.textContent = `${textarea.value.length} / 2000`;
+  });
+})();
+
+// Like button AJAX
+(function () {
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const postId = btn.dataset.postId;
+      try {
+        const res  = await fetch(`/feed/${postId}/like`, { method: 'POST' });
+        const data = await res.json();
+        const icon  = btn.querySelector('.like-icon');
+        const count = btn.querySelector('.like-count');
+        count.textContent = data.count;
+        if (data.liked) {
+          btn.classList.add('liked');
+          icon.innerHTML = '&#9829;';
+        } else {
+          btn.classList.remove('liked');
+          icon.innerHTML = '&#9825;';
+        }
+      } catch (_) {}
+    });
+  });
+})();
+</script>

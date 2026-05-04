@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 from app.extensions import db
 from app.models import (User, Listing, Note, StudySession, SessionRSVP,
-                        Bounty, SavedListing, Rating, Message)
+                        Bounty, SavedListing, Rating, Message, Post, PostLike)
 from app import controllers
 from validators import LISTING_CONDITIONS
 
@@ -126,12 +126,24 @@ def register_routes(app):
 
         top_users = User.query.order_by(User.xp.desc()).limit(5).all()
 
+        page = request.args.get('page', 1, type=int)
+        posts = (Post.query
+                 .order_by(Post.created_at.desc())
+                 .paginate(page=page, per_page=20, error_out=False))
+
+        liked_ids = {
+            pl.post_id for pl in
+            PostLike.query.filter_by(user_id=current_user.id).all()
+        }
+
         return render_template('dashboard.html',
                                user=current_user,
                                my_listings=my_listings,
                                saved=saved,
                                my_sessions=my_sessions,
-                               top_users=top_users)
+                               top_users=top_users,
+                               posts=posts,
+                               liked_ids=liked_ids)
 
     # ── Marketplace ─────────────────────────────────────────────
 
@@ -634,6 +646,59 @@ def register_routes(app):
             {'id': u.id, 'name': f'{u.first_name} {u.last_name}', 'email': u.email}
             for u in users
         ])
+
+    # ── Social Feed ─────────────────────────────────────────────
+
+    VALID_POST_TYPES = {'general', 'event', 'news', 'resource'}
+
+    @app.route('/feed')
+    @login_required
+    def feed():
+        return redirect(url_for('dashboard'))
+
+    @app.route('/feed/create', methods=['POST'])
+    @login_required
+    def feed_create():
+        body      = request.form.get('body', '').strip()
+        post_type = request.form.get('post_type', 'general').strip()
+        if not body:
+            flash('Post body cannot be empty.', 'error')
+            return redirect(url_for('dashboard'))
+        if post_type not in VALID_POST_TYPES:
+            post_type = 'general'
+        post = Post(author_id=current_user.id, body=body, post_type=post_type)
+        db.session.add(post)
+        current_user.xp += 5
+        db.session.commit()
+        flash('Post shared!', 'success')
+        return redirect(url_for('dashboard'))
+
+    @app.route('/feed/<int:post_id>/like', methods=['POST'])
+    @login_required
+    def feed_like(post_id):
+        post = Post.query.get_or_404(post_id)
+        existing = PostLike.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+        if existing:
+            db.session.delete(existing)
+            post.likes_count = max(0, post.likes_count - 1)
+            liked = False
+        else:
+            db.session.add(PostLike(user_id=current_user.id, post_id=post_id))
+            post.likes_count += 1
+            liked = True
+        db.session.commit()
+        return jsonify({'liked': liked, 'count': post.likes_count})
+
+    @app.route('/feed/<int:post_id>/delete', methods=['POST'])
+    @login_required
+    def feed_delete(post_id):
+        post = Post.query.get_or_404(post_id)
+        if post.author_id != current_user.id:
+            return jsonify({'error': 'forbidden'}), 403
+        db.session.delete(post)
+        db.session.commit()
+        flash('Post deleted.', 'success')
+        return redirect(url_for('dashboard'))
 
     # ── Stub pages ──────────────────────────────────────────────
 

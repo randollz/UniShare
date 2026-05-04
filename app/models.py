@@ -31,6 +31,7 @@ class User(UserMixin, db.Model):
     ratings_received = db.relationship('Rating', foreign_keys='Rating.rated_id', back_populates='rated', lazy='dynamic')
     sent_messages    = db.relationship('Message', foreign_keys='Message.sender_id',   back_populates='sender',   lazy='dynamic')
     received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', back_populates='receiver', lazy='dynamic')
+    posts            = db.relationship('Post', back_populates='author', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -186,3 +187,34 @@ class Message(db.Model):
 
     def __repr__(self):
         return f'<Message from={self.sender_id} to={self.receiver_id}>'
+
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    author_id   = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body        = db.Column(db.Text, nullable=False)
+    post_type   = db.Column(db.String(20), default='general')   # general | event | news | resource
+    created_at  = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    likes_count = db.Column(db.Integer, default=0)
+
+    author = db.relationship('User', back_populates='posts')
+    likes  = db.relationship('PostLike', back_populates='post', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Post {self.id} by user={self.author_id}>'
+
+
+class PostLike(db.Model):
+    __tablename__ = 'post_likes'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    post_id    = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    post = db.relationship('Post', back_populates='likes')
+    user = db.relationship('User', backref=db.backref('post_likes', lazy='dynamic'))
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='uq_post_like'),)
