@@ -395,7 +395,7 @@ def register_routes(app):
     @app.route('/leaderboard')
     def leaderboard():
         users = User.query.order_by(User.xp.desc()).all()
-        return render_template('new_leaderboard.html', users=users)
+        return render_template('leaderboard.html', users=users)
 
     # ── Messages ────────────────────────────────────────────────
 
