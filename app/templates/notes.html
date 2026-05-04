@@ -623,7 +623,7 @@
               <div class="lib-title">{{ n.title }}</div>
               <div class="lib-sub">
                 by <a href="{{ url_for('profile', user_id=n.author_id) }}" style="color:inherit;">
-                  {{ n.first_name }} {{ n.last_name[0] }}.
+                  {{ n.author.first_name }} {{ n.author.last_name[0] }}.
                 </a>
               </div>
               {% if n.description %}

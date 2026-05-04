@@ -352,11 +352,11 @@
               <div class="sc-header">
                 <div class="sc-meta">
                   <div class="sc-av" style="background: {{ av_colors[idx] }};">
-                    {{ s.first_name[0] }}{{ s.last_name[0] }}
+                    {{ s.host.first_name[0] }}{{ s.host.last_name[0] }}
                   </div>
                   <div>
                     <a href="{{ url_for('profile', user_id=s.host_id) }}" class="sc-host-name">
-                      {{ s.first_name }} {{ s.last_name[0] }}.
+                      {{ s.host.first_name }} {{ s.host.last_name[0] }}.
                     </a>
                     <div class="sc-host-detail">Host · {{ s.rsvp_count }} attending</div>
                   </div>
@@ -417,7 +417,7 @@
 
               <div class="sc-actions">
                 {% if current_user and current_user.id != s.host_id %}
-                  {% if s.current_user_joined %}
+                  {% if s.id in joined_ids %}
                   <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
                     <button type="submit" class="sc-btn sc-btn-ghost">
                       <i class="fa-solid fa-xmark"></i> Cancel RSVP

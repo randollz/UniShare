@@ -486,11 +486,11 @@
 
             <div class="lc-seller">
               <div class="lc-av" style="background: {{ avcolors[idx] }};">
-                {{ l.first_name[0] }}
+                {{ l.seller.first_name[0] }}
               </div>
               <div>
                 <a href="{{ url_for('profile', user_id=l.seller_id) }}" class="lc-seller-name" style="text-decoration:none;">
-                  {{ l.first_name }} {{ l.last_name[0] }}.
+                  {{ l.seller.first_name }} {{ l.seller.last_name[0] }}.
                 </a>
                 <div class="lc-seller-time">{{ l.unit_code }}</div>
               </div>
