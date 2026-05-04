@@ -14,7 +14,7 @@ from app import create_app
 from app.extensions import db
 from app.models import (
     User, Listing, Note, StudySession, SessionRSVP,
-    Bounty, SavedListing, Rating, Message,
+    Bounty, SavedListing, Rating, Message, Post,
 )
 
 # ─────────────────────────────────────────────────────────────────
@@ -356,6 +356,8 @@ def reset_db():
     db.session.execute(db.text("DELETE FROM saved_listings"))
     db.session.execute(db.text("DELETE FROM session_rsvps"))
     db.session.execute(db.text("DELETE FROM messages"))
+    db.session.execute(db.text("DELETE FROM post_likes"))
+    db.session.execute(db.text("DELETE FROM posts"))
     db.session.execute(db.text("DELETE FROM bounties"))
     db.session.execute(db.text("DELETE FROM sessions"))
     db.session.execute(db.text("DELETE FROM notes"))
@@ -469,6 +471,33 @@ def seed_core():
     db.session.flush()
     print(f"  ✓ {len(MESSAGES)} messages")
 
+    # ── Posts
+    CORE_POSTS = [
+        # (user_idx, post_type, body, hours_ago, likes)
+        (0, 'general',  "Just finished my CITS3200 project — REST API in Flask, full test suite, deployed. If anyone needs help with Flask or SQLAlchemy hit me up!", 2, 14),
+        (1, 'resource', "CLRS 4th edition is absolutely essential if you're doing CITS2200. The pseudocode is much cleaner than the 3rd edition. Worth every cent.", 5, 9),
+        (2, 'event',    "Study session for STAT2401 this Thursday at Reid Library Level 3, 4–6pm. We'll be working through Week 9 problem sets. All welcome!", 8, 7),
+        (3, 'news',     "UWA CS department just announced new electives for 2026 — Machine Learning Systems and Distributed Computing. Enrolment opens next Monday.", 12, 11),
+        (4, 'general',  "Anyone else finding PHIL1001 surprisingly useful for thinking about AI ethics? I keep citing it in my CompSci essays lol", 18, 5),
+        (5, 'resource', "Posted my full MATH1722 notes from Semester 1 — all 12 weeks, typed up in LaTeX. Check the Notes section. Free to download.", 24, 18),
+        (6, 'event',    "Hackathon at Guild Village this Saturday! Teams of 2–4. Theme is 'Smart Campus'. Prizes up to $500. Sign up at the Guild desk.", 30, 22),
+        (7, 'news',     "Reminder: HASS enrolment changes apply from next semester. Double-check your degree plan in StudentConnect before Week 10.", 36, 3),
+        (0, 'resource', "My CITS3001 revision notes are up — covers all algorithm complexity proofs we did in tutorials. Should help for the final.", 48, 8),
+        (1, 'general',  "Hot take: office hours are criminally underused. Just had a 30-min chat with the CITS2200 unit coordinator and it cleared up 3 weeks of confusion.", 60, 16),
+        (2, 'event',    "FREE Python workshop next Tuesday, 1–3pm in CS building Lab 2. Beginners welcome. Just bring your laptop.", 72, 12),
+        (3, 'news',     "The Guild is running a textbook buyback scheme this week. Drop off your old books at the Guild building for vouchers.", 96, 6),
+    ]
+    for u_i, ptype, body, hrs_ago, likes in CORE_POSTS:
+        db.session.add(Post(
+            author_id=user_objs[u_i].id,
+            body=body,
+            post_type=ptype,
+            created_at=now - timedelta(hours=hrs_ago),
+            likes_count=likes,
+        ))
+    db.session.flush()
+    print(f"  ✓ {len(CORE_POSTS)} posts")
+
     db.session.commit()
     return user_objs, listing_objs, session_objs
 
@@ -570,6 +599,26 @@ def seed_extra(user_objs, listing_objs, session_objs):
         ))
     db.session.flush()
     print(f"  ✓ {len(extra_messages)} extra messages")
+
+    # ── Extra posts
+    all_users = user_objs + extra_user_objs
+    extra_posts = [
+        # (user_obj, post_type, body, hours_ago, likes)
+        (all_users[8],  'resource', "Posted CITS1401 Week 1–6 Python notes — beginner-friendly, lots of worked examples. Perfect if you're just starting out.", 15, 7),
+        (all_users[9],  'event',    "ECON1101 group study at Hackett Hall tomorrow, 10am. Covering market structures and game theory. Bring practice papers!", 20, 5),
+        (all_users[10], 'general',  "Just got my first internship offer! If anyone wants tips on technical interviews for Perth-based companies, I'm happy to chat.", 28, 31),
+        (all_users[11], 'news',     "Library hours extended until midnight during SWOTVAC. All floors open, including group study rooms — book early via the portal.", 40, 9),
+    ]
+    for u_obj, ptype, body, hrs_ago, likes in extra_posts:
+        db.session.add(Post(
+            author_id=u_obj.id,
+            body=body,
+            post_type=ptype,
+            created_at=now - timedelta(hours=hrs_ago),
+            likes_count=likes,
+        ))
+    db.session.flush()
+    print(f"  ✓ {len(extra_posts)} extra posts")
 
     db.session.commit()
 

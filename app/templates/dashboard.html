@@ -124,19 +124,51 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     <span>· recent activity from the platform</span>
   </div>
 
-  <!-- Quick compose -->
-  <div class="compose">
-    <div class="compose-row">
-      <div class="compose-av">{{ current_user.first_name[0] }}</div>
-      <input class="compose-input" type="text" placeholder="Share a listing, note, or update…" readonly />
-    </div>
-    <div class="compose-actions">
-      <a href="{{ url_for('create_listing') }}" class="compose-btn"><i class="fa-solid fa-tag"></i> Sell</a>
-      <a href="{{ url_for('create_note') }}" class="compose-btn"><i class="fa-solid fa-file-lines"></i> Notes</a>
-      <a href="{{ url_for('create_session') }}" class="compose-btn"><i class="fa-solid fa-users"></i> Study session</a>
-      <a href="{{ url_for('create_bounty') }}" class="compose-btn"><i class="fa-solid fa-bolt"></i> Bounty</a>
-    </div>
+  <!-- Compose -->
+  <div class="compose" id="compose-box">
+    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form">
+      <div class="compose-row">
+        <div class="compose-av">{{ current_user.first_name[0] }}</div>
+        <textarea id="compose-body" name="body"
+                  class="compose-input"
+                  placeholder="Share an update, event, resource, or news…"
+                  maxlength="2000" required
+                  style="resize:none;height:42px;padding:10px 16px;border-radius:12px;line-height:1.4;overflow:hidden;"></textarea>
+      </div>
+      <div class="compose-actions" style="justify-content:space-between;align-items:center;">
+        <div style="display:flex;gap:2px;">
+          <button type="button" class="compose-btn type-tab-btn selected" data-type="general">
+            <i class="fa-solid fa-comment"></i> General
+          </button>
+          <button type="button" class="compose-btn type-tab-btn" data-type="event" style="color:#92700a;">
+            <i class="fa-solid fa-calendar"></i> Event
+          </button>
+          <button type="button" class="compose-btn type-tab-btn" data-type="news" style="color:#1d4ed8;">
+            <i class="fa-solid fa-newspaper"></i> News
+          </button>
+          <button type="button" class="compose-btn type-tab-btn" data-type="resource" style="color:#065f46;">
+            <i class="fa-solid fa-link"></i> Resource
+          </button>
+        </div>
+        <input type="hidden" name="post_type" id="post-type-input" value="general" />
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="char-counter" style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">0 / 2000</span>
+          <button type="submit" class="compose-btn" style="background:var(--dark);color:#fff;font-weight:700;padding:7px 16px;">Post</button>
+        </div>
+      </div>
+    </form>
   </div>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div style="padding:11px 16px;border-radius:8px;font-size:0.83rem;font-weight:600;
+                  {% if category=='error' %}background:#fef2f2;color:#dc2626;border:1px solid #fecaca;
+                  {% else %}background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
 
   <!-- My listings -->
   {% if my_listings %}
@@ -162,112 +194,139 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   {% endif %}
 
   <!-- Feed posts -->
-  <div class="post-card">
-    <div class="post-top">
-      <div class="post-meta">
-        <div class="post-av" style="background:#1d4ed8;">J</div>
-        <div>
-          <div class="post-name">Jessica Thompson</div>
-          <div class="post-detail">Computer Science · 2nd year</div>
+  {% if posts.items %}
+    {% for post in posts.items %}
+      {% set initials = post.author.first_name[0] ~ post.author.last_name[0] %}
+      {% set av_colors = ['#1d4ed8','#7c3aed','#b45309','#065f46','#be123c','#0369a1','#6d28d9','#047857'] %}
+      {% set av_color = av_colors[post.author_id % av_colors|length] %}
+      <div class="post-card" id="post-{{ post.id }}">
+        <div class="post-top">
+          <div class="post-meta">
+            <div class="post-av" style="background:{{ av_color }};">{{ initials }}</div>
+            <div>
+              <a href="{{ url_for('profile', user_id=post.author_id) }}"
+                 class="post-name" style="text-decoration:none;color:var(--dark);">
+                {{ post.author.first_name }} {{ post.author.last_name }}
+              </a>
+              <div class="post-detail">{{ post.created_at.strftime('%b %d · %I:%M %p') }}</div>
+            </div>
+          </div>
+          <div class="post-time-more">
+            {% if post.post_type == 'event' %}
+              <span class="post-pill pill-bounty"><i class="fa-solid fa-calendar"></i> Event</span>
+            {% elif post.post_type == 'news' %}
+              <span class="post-pill pill-notes"><i class="fa-solid fa-newspaper"></i> News</span>
+            {% elif post.post_type == 'resource' %}
+              <span class="post-pill pill-sell"><i class="fa-solid fa-link"></i> Resource</span>
+            {% else %}
+              <span class="post-pill pill-group"><i class="fa-solid fa-comment"></i> General</span>
+            {% endif %}
+          </div>
         </div>
-      </div>
-      <div class="post-time-more">
-        <span class="post-time">2h ago</span>
-        <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
-      </div>
-    </div>
-    <span class="post-pill pill-sell"><i class="fa-solid fa-tag"></i> Selling</span>
-    <div class="post-body">
-      Selling my <strong>CITS3403 textbook</strong> — barely used, bought it at the start of semester and ended up using the online version the whole time.
-    </div>
-    <div class="post-image-placeholder" style="background: linear-gradient(135deg,#1d3a6e,#2a52a0);">
-      <i class="fa-solid fa-book"></i> Agile Web Development with Rails 7
-    </div>
-    <div class="post-listing" style="margin-top:14px;">
-      <div>
-        <div class="pl-title">Agile Web Development with Rails 7</div>
-        <div class="pl-sub"><span class="unit-badge">CITS3403</span> Paperback · Near new</div>
-      </div>
-      <div class="pl-price">$38</div>
-    </div>
-    <div class="post-reactions">
-      <div class="reaction-icons">
-        <div class="ri" style="background:#3b82f6;">👍</div>
-        <div class="ri" style="background:#f59e0b;">⭐</div>
-      </div>
-      &nbsp;24 reactions · 6 comments
-    </div>
-    <div class="post-actions">
-      <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-      <button class="post-action"><i class="fa-regular fa-comment"></i> Comment</button>
-      <a href="{{ url_for('marketplace') }}" class="post-action"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>
-    </div>
-  </div>
 
-  <div class="post-card">
-    <div class="post-top">
-      <div class="post-meta">
-        <div class="post-av" style="background:#7c3aed;">M</div>
-        <div>
-          <div class="post-name">Marcus Lee</div>
-          <div class="post-detail">Data Science · 3rd year</div>
-        </div>
-      </div>
-      <div class="post-time-more">
-        <span class="post-time">4h ago</span>
-        <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
-      </div>
-    </div>
-    <span class="post-pill pill-notes"><i class="fa-solid fa-file-lines"></i> Notes</span>
-    <div class="post-body">
-      Just uploaded my full <strong>STAT2401 lecture notes</strong> from S1 2024. Covers everything up to the mid-semester exam. Completely free — hope it helps.
-    </div>
-    <div class="post-listing">
-      <div>
-        <div class="pl-title">STAT2401 — Full semester notes (S1 2024)</div>
-        <div class="pl-sub"><span class="unit-badge">STAT2401</span> PDF · 84 pages</div>
-      </div>
-      <div class="pl-price pl-free">Free</div>
-    </div>
-    <div class="post-actions">
-      <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-      <button class="post-action"><i class="fa-regular fa-comment"></i> Comment</button>
-      <a href="{{ url_for('notes') }}" class="post-action"><i class="fa-solid fa-download"></i> Browse Notes</a>
-    </div>
-  </div>
+        <div class="post-body" style="white-space:pre-wrap;word-break:break-word;">{{ post.body }}</div>
 
-  <div class="post-card">
-    <div class="post-top">
-      <div class="post-meta">
-        <div class="post-av" style="background:#b45309;">K</div>
-        <div>
-          <div class="post-name">Kyle Nguyen</div>
-          <div class="post-detail">Cybersecurity · 2nd year</div>
+        <div class="post-actions" style="border-top:1px solid var(--border);padding-top:4px;">
+          <button class="post-action like-btn {% if post.id in liked_ids %}liked{% endif %}"
+                  data-post-id="{{ post.id }}"
+                  style="{% if post.id in liked_ids %}color:#ef4444;{% endif %}">
+            <i class="fa-{% if post.id in liked_ids %}solid{% else %}regular{% endif %} fa-heart"></i>
+            <span class="like-count">{{ post.likes_count }}</span>
+          </button>
+          {% if post.author_id == current_user.id %}
+            <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
+                  style="margin-left:auto;" onsubmit="return confirm('Delete this post?');">
+              <button type="submit" class="post-action" style="color:var(--muted);font-size:0.78rem;">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </form>
+          {% endif %}
         </div>
       </div>
-      <div class="post-time-more">
-        <span class="post-time">Yesterday</span>
-        <button class="post-more"><i class="fa-solid fa-ellipsis"></i></button>
-      </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if posts.has_prev or posts.has_next %}
+    <div style="display:flex;gap:8px;justify-content:center;padding:4px 0;">
+      {% if posts.has_prev %}
+        <a href="{{ url_for('dashboard', page=posts.prev_num) }}"
+           class="compose-btn" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 16px;">← Newer</a>
+      {% endif %}
+      {% if posts.has_next %}
+        <a href="{{ url_for('dashboard', page=posts.next_num) }}"
+           class="compose-btn" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 16px;">Older →</a>
+      {% endif %}
     </div>
-    <span class="post-pill pill-bounty"><i class="fa-solid fa-bolt"></i> Bounty</span>
-    <div class="post-body">
-      Struggling with networking content in <strong>CITS1003</strong>. Looking for someone to run through the key concepts. Happy to pay for the session.
+    {% endif %}
+
+  {% else %}
+    <div class="post-card" style="text-align:center;padding:40px 24px;color:var(--muted);font-size:0.88rem;">
+      <div style="font-size:1.8rem;margin-bottom:12px;">📢</div>
+      No posts yet — be the first to share something!
     </div>
-    <div class="post-listing">
-      <div>
-        <div class="pl-title">CITS1003 — Networking tutoring</div>
-        <div class="pl-sub"><span class="unit-badge">CITS1003</span> 1–2 sessions · Flexible timing</div>
-      </div>
-      <div class="pl-price">$25 / hr</div>
-    </div>
-    <div class="post-actions">
-      <button class="post-action"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-      <a href="{{ url_for('bounties') }}" class="post-action"><i class="fa-solid fa-hand-point-up"></i> View Bounties</a>
-    </div>
-  </div>
+  {% endif %}
 
 </main>
+
+<script>
+// Auto-grow textarea
+(function () {
+  const ta = document.getElementById('compose-body');
+  if (!ta) return;
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(42, ta.scrollHeight) + 'px';
+  });
+})();
+
+// Character counter
+(function () {
+  const ta      = document.getElementById('compose-body');
+  const counter = document.getElementById('char-counter');
+  if (!ta || !counter) return;
+  ta.addEventListener('input', () => { counter.textContent = `${ta.value.length} / 2000`; });
+})();
+
+// Type tab selection
+(function () {
+  const tabs  = document.querySelectorAll('.type-tab-btn');
+  const input = document.getElementById('post-type-input');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => { t.classList.remove('selected'); t.style.background = ''; t.style.fontWeight = ''; });
+      tab.classList.add('selected');
+      tab.style.background = '#f3f4f8';
+      tab.style.fontWeight = '700';
+      input.value = tab.dataset.type;
+    });
+  });
+})();
+
+// Like button AJAX
+(function () {
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const postId = btn.dataset.postId;
+      try {
+        const res  = await fetch(`/feed/${postId}/like`, { method: 'POST' });
+        const data = await res.json();
+        const icon  = btn.querySelector('i');
+        const count = btn.querySelector('.like-count');
+        count.textContent = data.count;
+        if (data.liked) {
+          btn.classList.add('liked');
+          btn.style.color = '#ef4444';
+          icon.className = 'fa-solid fa-heart';
+        } else {
+          btn.classList.remove('liked');
+          btn.style.color = '';
+          icon.className = 'fa-regular fa-heart';
+        }
+      } catch (_) {}
+    });
+  });
+})();
+</script>
 {% endblock %}
 
 {% block right_panel %}
