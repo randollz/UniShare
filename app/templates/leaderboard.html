@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard — UniShare{% endblock %}
+
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
+
+.main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.page-head {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.page-head h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.page-head p { font-size: 0.83rem; color: var(--muted); }
+
+.rank-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(200,149,10,0.08);
+  border: 1px solid rgba(200,149,10,0.18);
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rank-chip strong { color: var(--dark); font-weight: 800; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.summary-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+}
+.summary-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.summary-value {
+  font-size: 1.42rem;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+.summary-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+/* Podium */
+.podium-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 18px 16px;
+}
+.podium-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+}
+.podium-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.podium-user { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.podium-av {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+.podium-name { font-size: 0.78rem; font-weight: 700; color: var(--dark); white-space: nowrap; }
+.podium-pts { font-size: 0.68rem; color: var(--muted); }
+.podium-block {
+  width: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px 10px 0 0;
+  font-size: 1.12rem;
+  font-weight: 900;
+}
+.p1 { height: 92px; background: linear-gradient(to top,rgba(200,149,10,.18),rgba(200,149,10,.05)); border: 1px solid rgba(200,149,10,.24); color: var(--gold); }
+.p2 { height: 66px; background: linear-gradient(to top,rgba(148,163,184,.15),rgba(148,163,184,.05)); border: 1px solid rgba(148,163,184,.2); color: #94a3b8; }
+.p3 { height: 50px; background: linear-gradient(to top,rgba(180,120,50,.15),rgba(180,120,50,.05)); border: 1px solid rgba(180,120,50,.2); color: #b47832; }
+
+/* Rank list */
+.leaderboard-list { display: flex; flex-direction: column; gap: 10px; }
+.rank-row {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: box-shadow var(--t), border-color var(--t), transform var(--t);
+  text-decoration: none;
+}
+.rank-row:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  border-color: rgba(0,0,0,.14);
+  transform: translateY(-2px);
+}
+.rank-row.you {
+  background: linear-gradient(180deg,rgba(0,48,135,.06),rgba(245,200,66,.06));
+  border-color: rgba(200,149,10,.35);
+  box-shadow: 0 6px 20px rgba(200,149,10,.08);
+}
+.rank-num { width: 28px; flex-shrink: 0; text-align: center; font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+.rank-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+}
+.rank-info { flex: 1; min-width: 0; }
+.rank-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.rank-sub { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+.rank-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.rank-points { font-size: 0.98rem; font-weight: 800; color: var(--gold); letter-spacing: -0.03em; }
+.rank-points-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.rank-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.rank-newbie  { background: rgba(148,163,184,.1); color: #64748b; border: 1px solid rgba(148,163,184,.15); }
+.rank-hustler { background: rgba(200,149,10,.1); color: var(--gold); border: 1px solid rgba(200,149,10,.2); }
+.rank-legend  { background: rgba(200,149,10,.15); color: var(--gold); border: 1px solid rgba(200,149,10,.3); }
+
+.empty-lb { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 0.9rem; }
+
+/* Right rail */
+.right-rail { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 84px; }
+.side-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.side-card-body { padding: 16px 18px; }
+.side-title { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
+.mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--mid);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.mini-row:last-child { border-bottom: none; padding-bottom: 0; }
+.mini-row strong { color: var(--dark); font-weight: 700; }
+.progress-wrap { margin-top: 10px; }
+.progress-label { font-size: 0.78rem; color: var(--mid); margin-bottom: 6px; }
+.progress-bar { height: 6px; background: #eef1f6; border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#c8950a,#f5c842); }
+.tip-card { background: linear-gradient(135deg,#011a55 0%,#003087 100%); color: #fff; border: none; }
+.tip-card .side-card-body { padding: 18px; }
+.tip-card .side-title { color: rgba(255,255,255,0.65); margin-bottom: 10px; }
+.tip-title { font-size: 0.96rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+.tip-text { font-size: 0.78rem; line-height: 1.6; color: rgba(255,255,255,0.76); margin-bottom: 12px; }
+.tip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  text-decoration: none;
+}
+.tip-btn:hover { background: rgba(255,255,255,0.18); }
+
+@media (max-width: 1024px) {
+  body.app-page .page-wrap { grid-template-columns: 220px 1fr; }
+  .right-rail { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set av_colors = ['#3B6EF5','#22c55e','#8b5cf6','#ef4444','#06b6d4','#f59e0b','#ec4899','#14b8a6','#a855f7','#f97316'] %}
+
+<main class="main">
+
+  {# Flash messages #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-list">
+        {% for cat, msg in messages %}
+          <li class="flash flash-{{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <section class="page-head">
+    <div>
+      <h1>Leaderboard</h1>
+      <p>Top contributors earning XP by sharing notes, hosting sessions, and helping students.</p>
+    </div>
+    {% if current_user %}
+    {% set my_rank = namespace(val=0) %}
+    {% for u in users %}
+      {% if u.id == current_user.id %}{% set my_rank.val = loop.index %}{% endif %}
+    {% endfor %}
+    {% if my_rank.val %}
+    <div class="rank-chip">
+      <i class="fa fa-bolt"></i>
+      You're ranked <strong>#{{ my_rank.val }}</strong>
+    </div>
+    {% endif %}
+    {% endif %}
+  </section>
+
+  {# Summary strip #}
+  <section class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Total Students</div>
+      <div class="summary-value">{{ users | length }}</div>
+      <div class="summary-sub">Ranked on UniShare</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Top Score</div>
+      <div class="summary-value">{{ users[0].xp if users else 0 }} XP</div>
+      <div class="summary-sub">{{ (users[0].first_name + ' ' + users[0].last_name) if users else '—' }}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Your XP</div>
+      <div class="summary-value">{{ current_user.xp if current_user else '—' }}</div>
+      <div class="summary-sub">{{ current_user.rank if current_user else 'Sign in to rank' }}</div>
+    </div>
+  </section>
+
+  {# Podium — top 3 #}
+  {% if users | length >= 3 %}
+  <section class="podium-card">
+    <div class="podium-label">Top 3 Contributors</div>
+    <div class="podium">
+      {# 2nd place (left) #}
+      <div class="podium-slot">
+        <div class="podium-user">
+          <div class="podium-av" style="background:{{ av_colors[1 % av_colors|length] }};">{{ users[1].first_name[0] }}{{ users[1].last_name[0] }}</div>
+          <div class="podium-name">{{ users[1].first_name }} {{ users[1].last_name[0] }}.</div>
+          <div class="podium-pts">{{ users[1].xp }} XP</div>
+        </div>
+        <div class="podium-block p2">2</div>
+      </div>
+      {# 1st place (centre, tallest) #}
+      <div class="podium-slot">
+        <div class="podium-user">
+          <div style="font-size:1rem; margin-bottom:2px;">👑</div>
+          <div class="podium-av" style="background:{{ av_colors[0 % av_colors|length] }};">{{ users[0].first_name[0] }}{{ users[0].last_name[0] }}</div>
+          <div class="podium-name">{{ users[0].first_name }} {{ users[0].last_name[0] }}.</div>
+          <div class="podium-pts">{{ users[0].xp }} XP</div>
+        </div>
+        <div class="podium-block p1">1</div>
+      </div>
+      {# 3rd place (right) #}
+      <div class="podium-slot">
+        <div class="podium-user">
+          <div class="podium-av" style="background:{{ av_colors[2 % av_colors|length] }};">{{ users[2].first_name[0] }}{{ users[2].last_name[0] }}</div>
+          <div class="podium-name">{{ users[2].first_name }} {{ users[2].last_name[0] }}.</div>
+          <div class="podium-pts">{{ users[2].xp }} XP</div>
+        </div>
+        <div class="podium-block p3">3</div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {# Full rank list #}
+  {% if users %}
+  <div class="leaderboard-list">
+    {% for u in users %}
+    {% set is_me = current_user and u.id == current_user.id %}
+    <a href="{{ url_for('profile', user_id=u.id) }}"
+       class="rank-row {{ 'you' if is_me else '' }}">
+      <div class="rank-num">{{ loop.index }}</div>
+      <div class="rank-av" style="background:{{ av_colors[loop.index0 % av_colors|length] }};">
+        {{ u.first_name[0] }}{{ u.last_name[0] }}
+      </div>
+      <div class="rank-info">
+        <div class="rank-name">
+          {{ u.first_name }} {{ u.last_name }}
+          {% if is_me %}<span class="rank-pill rank-hustler">You</span>{% endif %}
+          {% if u.rank %}
+            <span class="rank-pill rank-{{ u.rank | lower }}">{{ u.rank }}</span>
+          {% endif %}
+        </div>
+        <div class="rank-sub">{{ u.email }}</div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-points">{{ u.xp }} XP</div>
+        <div class="rank-points-label">points</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-lb">
+    <i class="fa-solid fa-trophy" style="font-size:2rem; margin-bottom:12px; color:var(--border);"></i><br>
+    No users on the leaderboard yet. Be the first!
+  </div>
+  {% endif %}
+
+</main>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right-rail">
+
+  {% if current_user %}
+  <section class="side-card">
+    <div class="side-card-body">
+      <div class="side-title">Your Standing</div>
+      {% set my_rank = namespace(val=0) %}
+      {% for u in users %}
+        {% if u.id == current_user.id %}{% set my_rank.val = loop.index %}{% endif %}
+      {% endfor %}
+      {% set xp_to_next = 1000 - (current_user.xp % 1000) if current_user.xp % 1000 != 0 else 1000 %}
+      <div class="mini-row"><span>Your rank</span><strong>#{{ my_rank.val if my_rank.val else '—' }}</strong></div>
+      <div class="mini-row"><span>Your XP</span><strong>{{ current_user.xp }}</strong></div>
+      <div class="mini-row"><span>Status</span><strong>{{ current_user.rank or 'Newbie' }}</strong></div>
+      <div class="progress-wrap">
+        <div class="progress-label">Progress to next rank</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:{{ ((current_user.xp % 1000) / 10) | int }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if users %}
+  <section class="side-card">
+    <div class="side-card-body">
+      <div class="side-title">Leaderboard Stats</div>
+      <div class="mini-row"><span>Total ranked</span><strong>{{ users | length }}</strong></div>
+      <div class="mini-row"><span>Top score</span><strong>{{ users[0].xp }} XP</strong></div>
+      {% if users | length >= 2 %}
+      <div class="mini-row"><span>#2 score</span><strong>{{ users[1].xp }} XP</strong></div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="side-card tip-card">
+    <div class="side-card-body">
+      <div class="side-title">Climb Faster</div>
+      <div class="tip-title">Earn XP every day</div>
+      <div class="tip-text">
+        Upload notes, host study sessions, and help others to earn XP and climb the leaderboard.
+      </div>
+      <a href="{{ url_for('create_note') }}" class="tip-btn">
+        <i class="fa fa-bolt"></i>
+        Upload notes
+      </a>
+    </div>
+  </section>
+
+</aside>
+{% endblock %}
