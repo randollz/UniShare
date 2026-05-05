@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import (User, Listing, Note, StudySession, SessionRSVP,
-                        Bounty, SavedListing, Rating, Message, Post, PostLike, PostComment)
+                        Bounty, SavedListing, SavedNote, Rating, Message, Post, PostLike, PostComment)
 from app import controllers
 from validators import LISTING_CONDITIONS
 
@@ -770,6 +770,130 @@ def register_routes(app):
         db.session.commit()
         flash('Post deleted.', 'success')
         return redirect(url_for('dashboard'))
+
+    # ── Activity ─────────────────────────────────────────────────
+
+    @app.route('/activity')
+    @login_required
+    def activity():
+        import datetime as dt
+        uid = current_user.id
+
+        events = []
+
+        for p in Post.query.filter_by(author_id=uid).order_by(Post.created_at.desc()).limit(30):
+            events.append({
+                'type': 'post', 'time': p.created_at,
+                'label': 'You shared a post',
+                'excerpt': p.body[:120] + ('…' if len(p.body) > 120 else ''),
+                'link': url_for('dashboard'),
+                'badge': p.post_type,
+            })
+
+        for c in PostComment.query.filter_by(author_id=uid).order_by(PostComment.created_at.desc()).limit(30):
+            post = Post.query.get(c.post_id)
+            author_name = f'{post.author.first_name} {post.author.last_name}' if post else 'someone'
+            events.append({
+                'type': 'comment', 'time': c.created_at,
+                'label': f'You commented on {author_name}\'s post',
+                'excerpt': c.body[:120] + ('…' if len(c.body) > 120 else ''),
+                'link': url_for('dashboard'),
+                'badge': None,
+            })
+
+        for lk in PostLike.query.filter_by(user_id=uid).order_by(PostLike.created_at.desc()).limit(30):
+            post = Post.query.get(lk.post_id)
+            if post:
+                author_name = f'{post.author.first_name} {post.author.last_name}'
+                events.append({
+                    'type': 'like', 'time': lk.created_at,
+                    'label': f'You liked {author_name}\'s post',
+                    'excerpt': post.body[:80] + ('…' if len(post.body) > 80 else ''),
+                    'link': url_for('dashboard'),
+                    'badge': None,
+                })
+
+        for rsvp in SessionRSVP.query.filter_by(user_id=uid).all():
+            sess = StudySession.query.get(rsvp.session_id)
+            if sess:
+                events.append({
+                    'type': 'rsvp', 'time': sess.created_at,
+                    'label': f'You joined "{sess.title}"',
+                    'excerpt': f'{sess.unit_code} · {sess.location}',
+                    'link': url_for('study_sessions'),
+                    'badge': None,
+                })
+
+        events.sort(key=lambda e: e['time'] or dt.datetime.min, reverse=True)
+        events = events[:60]
+
+        now = dt.datetime.now(dt.timezone.utc)
+        for e in events:
+            t = e['time']
+            if t is None:
+                e['time_str'] = 'some time ago'
+                continue
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=dt.timezone.utc)
+            diff = now - t
+            secs = int(diff.total_seconds())
+            if secs < 60:
+                e['time_str'] = 'just now'
+            elif secs < 3600:
+                e['time_str'] = f'{secs // 60}m ago'
+            elif secs < 86400:
+                e['time_str'] = f'{secs // 3600}h ago'
+            else:
+                e['time_str'] = f'{secs // 86400}d ago'
+
+        return render_template('activity.html', events=events)
+
+    # ── Library ──────────────────────────────────────────────────
+
+    @app.route('/library')
+    @login_required
+    def library():
+        saved = (SavedNote.query
+                 .filter_by(user_id=current_user.id)
+                 .order_by(SavedNote.saved_at.desc())
+                 .all())
+        saved_notes = [sn.note for sn in saved]
+        saved_ids   = {sn.note_id for sn in saved}
+        my_notes    = Note.query.filter_by(author_id=current_user.id).order_by(Note.created_at.desc()).all()
+        return render_template('library.html', saved_notes=saved_notes,
+                               my_notes=my_notes, saved_ids=saved_ids)
+
+    @app.route('/save_note/<int:note_id>', methods=['POST'])
+    @login_required
+    def save_note(note_id):
+        note = Note.query.get_or_404(note_id)
+        existing = SavedNote.query.filter_by(user_id=current_user.id, note_id=note_id).first()
+        if existing:
+            db.session.delete(existing)
+            db.session.commit()
+            return jsonify({'saved': False})
+        sn = SavedNote(user_id=current_user.id, note_id=note_id)
+        db.session.add(sn)
+        db.session.commit()
+        return jsonify({'saved': True})
+
+    # ── My Listings ───────────────────────────────────────────────
+
+    @app.route('/my-listings')
+    @login_required
+    def my_listings_page():
+        my_listings = (Listing.query
+                       .filter_by(seller_id=current_user.id)
+                       .order_by(Listing.created_at.desc())
+                       .all())
+        saved = (SavedListing.query
+                 .filter_by(user_id=current_user.id)
+                 .order_by(SavedListing.listing_id.desc())
+                 .all())
+        saved_listings = [sl.listing for sl in saved]
+        return render_template('my_listings.html',
+                               my_listings=my_listings,
+                               saved_listings=saved_listings)
 
     # ── Stub pages ──────────────────────────────────────────────
 

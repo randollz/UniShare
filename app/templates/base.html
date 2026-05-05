@@ -125,6 +125,22 @@
           <span style="margin-left:auto;background:#ef4444;color:#fff;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:99px;">{{ unread_count }}</span>
           {% endif %}
         </a>
+        <a href="{{ url_for('leaderboard') }}"
+           class="sb-link {% if request.endpoint == 'leaderboard' %}active{% endif %}">
+          <i class="fa-solid fa-trophy"></i> Leaderboard
+        </a>
+        <a href="{{ url_for('activity') }}"
+           class="sb-link {% if request.endpoint == 'activity' %}active{% endif %}">
+          <i class="fa-solid fa-bell"></i> Activity
+        </a>
+        <a href="{{ url_for('library') }}"
+           class="sb-link {% if request.endpoint == 'library' %}active{% endif %}">
+          <i class="fa-solid fa-bookmark"></i> Library
+        </a>
+        <a href="{{ url_for('my_listings_page') }}"
+           class="sb-link {% if request.endpoint == 'my_listings_page' %}active{% endif %}">
+          <i class="fa-solid fa-store"></i> My Listings
+        </a>
         <a href="{{ url_for('settings') }}"
            class="sb-link {% if request.endpoint == 'settings' %}active{% endif %}">
           <i class="fa-solid fa-gear"></i> Settings
@@ -141,5 +157,6 @@
 
   </div>
 
+{% block scripts %}{% endblock %}
 </body>
 </html>
