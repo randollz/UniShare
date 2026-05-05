@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2027"/>
+      <stop offset="100%" stop-color="#1a3a4a"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="420" fill="url(#bgGrad)"/>
+
+  <!-- Subtle grid lines (code editor feel) -->
+  <g stroke="#1a3d4f" stroke-width="1" opacity="0.5">
+    <line x1="0" y1="70" x2="800" y2="70"/>
+    <line x1="0" y1="140" x2="800" y2="140"/>
+    <line x1="0" y1="210" x2="800" y2="210"/>
+    <line x1="0" y1="280" x2="800" y2="280"/>
+    <line x1="0" y1="350" x2="800" y2="350"/>
+  </g>
+
+  <!-- Decorative circles -->
+  <circle cx="685" cy="75" r="130" fill="#0891b2" opacity="0.09"/>
+  <circle cx="755" cy="355" r="105" fill="#06b6d4" opacity="0.07"/>
+
+  <!-- Terminal window right side -->
+  <rect x="490" y="65" width="272" height="226" rx="10" fill="#0a1929" opacity="0.90"/>
+  <rect x="490" y="65" width="272" height="32" rx="10" fill="#132030"/>
+  <rect x="490" y="85" width="272" height="12" rx="0" fill="#132030"/>
+  <!-- dots -->
+  <circle cx="512" cy="81" r="5.5" fill="#ef4444"/>
+  <circle cx="530" cy="81" r="5.5" fill="#fbbf24"/>
+  <circle cx="548" cy="81" r="5.5" fill="#22c55e"/>
+  <!-- title bar text -->
+  <text x="626" y="85" font-family="'SF Mono', 'Fira Code', monospace" font-size="10"
+        fill="#475569" text-anchor="middle">terminal</text>
+  <!-- terminal lines -->
+  <text x="508" y="116" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#22c55e">$ flask run</text>
+  <text x="508" y="133" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#64748b">* Serving Flask app 'app'</text>
+  <text x="508" y="150" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#64748b">* Debug mode: on</text>
+  <text x="508" y="167" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#06b6d4">* Running on http://127.0.0.1:5000</text>
+  <text x="508" y="184" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#64748b">* Press CTRL+C to quit</text>
+  <text x="508" y="208" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#a3e635">GET /dashboard  200</text>
+  <text x="508" y="225" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#a3e635">GET /notes      200</text>
+  <text x="508" y="242" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#a3e635">POST /feed/create 201</text>
+  <text x="508" y="266" font-family="'SF Mono', 'Fira Code', monospace" font-size="10" fill="#22c55e">$ _</text>
+
+  <!-- SHIPPED stamp -->
+  <g transform="rotate(-11 648 135)">
+    <rect x="558" y="295" width="184" height="60" rx="5" fill="none" stroke="#22c55e" stroke-width="3" opacity="0.82"/>
+    <text x="650" y="332" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+          font-size="30" font-weight="900" fill="#22c55e" text-anchor="middle" opacity="0.82">SHIPPED</text>
+  </g>
+
+  <!-- Left accent bar -->
+  <rect x="60" y="122" width="5" height="170" rx="2.5" fill="url(#tealGrad)"/>
+
+  <!-- Project type label -->
+  <text x="76" y="96" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" font-weight="700" fill="#67e8f9" letter-spacing="3.5">
+    FULL-STACK WEB PROJECT
+  </text>
+
+  <!-- Project name -->
+  <text x="76" y="185" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="66" font-weight="900" fill="white" letter-spacing="-2">UniNote</text>
+
+  <!-- Subtitle -->
+  <text x="76" y="223" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="19" fill="#a5f3fc">Study Resource Platform</text>
+
+  <!-- Tech stack pills -->
+  <rect x="76" y="248" width="74" height="27" rx="13.5" fill="#132030" stroke="#06b6d4" stroke-width="1"/>
+  <text x="113" y="266" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" font-weight="600" fill="#67e8f9" text-anchor="middle">Flask</text>
+
+  <rect x="160" y="248" width="112" height="27" rx="13.5" fill="#132030" stroke="#06b6d4" stroke-width="1"/>
+  <text x="216" y="266" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" font-weight="600" fill="#67e8f9" text-anchor="middle">SQLAlchemy</text>
+
+  <rect x="282" y="248" width="70" height="27" rx="13.5" fill="#132030" stroke="#06b6d4" stroke-width="1"/>
+  <text x="317" y="266" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" font-weight="600" fill="#67e8f9" text-anchor="middle">Jinja2</text>
+
+  <rect x="362" y="248" width="76" height="27" rx="13.5" fill="#132030" stroke="#06b6d4" stroke-width="1"/>
+  <text x="400" y="266" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="11.5" font-weight="600" fill="#67e8f9" text-anchor="middle">Python</text>
+
+  <!-- Feature list -->
+  <text x="76" y="318" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="14.5" fill="#cffafe">
+    Marketplace  ·  Notes  ·  Sessions  ·  Bounties  ·  Leaderboard
+  </text>
+
+  <!-- GitHub link -->
+  <text x="76" y="356" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="13" fill="#06b6d4">github.com/jessica-t/uninote</text>
+  <line x1="76" y1="359" x2="268" y2="359" stroke="#06b6d4" stroke-width="1" opacity="0.55"/>
+
+  <!-- Stats line -->
+  <text x="76" y="392" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+        font-size="12.5" fill="#475569">&#9733; 47 stars  ·  v1.2.0  ·  MIT License</text>
+</svg>

@@ -1,11 +1,15 @@
+import os
+import uuid
+
 from flask import (render_template, request, redirect,
                    url_for, session, flash, jsonify, Response)
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import (User, Listing, Note, StudySession, SessionRSVP,
-                        Bounty, SavedListing, Rating, Message, Post, PostLike)
+                        Bounty, SavedListing, Rating, Message, Post, PostLike, PostComment)
 from app import controllers
 from validators import LISTING_CONDITIONS
 
@@ -656,6 +660,9 @@ def register_routes(app):
     def feed():
         return redirect(url_for('dashboard'))
 
+    ALLOWED_IMAGE_MIMES = {'image/jpeg', 'image/png'}
+    MAX_POST_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
+
     @app.route('/feed/create', methods=['POST'])
     @login_required
     def feed_create():
@@ -666,7 +673,51 @@ def register_routes(app):
             return redirect(url_for('dashboard'))
         if post_type not in VALID_POST_TYPES:
             post_type = 'general'
+
         post = Post(author_id=current_user.id, body=body, post_type=post_type)
+
+        # ── Image attachment ─────────────────────────────────────
+        attachment = request.files.get('attachment')
+        if attachment and attachment.filename:
+            if attachment.mimetype not in ALLOWED_IMAGE_MIMES:
+                flash('Only JPG and PNG images are supported.', 'error')
+                return redirect(url_for('dashboard'))
+            data = attachment.read()
+            if len(data) > MAX_POST_IMAGE_BYTES:
+                flash('Image must be under 10 MB.', 'error')
+                return redirect(url_for('dashboard'))
+            ext = 'jpg' if attachment.mimetype == 'image/jpeg' else 'png'
+            filename = f"{uuid.uuid4().hex}_{secure_filename(attachment.filename)}"
+            upload_dir = os.path.join(app.static_folder, 'uploads', 'posts')
+            os.makedirs(upload_dir, exist_ok=True)
+            with open(os.path.join(upload_dir, filename), 'wb') as f:
+                f.write(data)
+            post.image_path = f"uploads/posts/{filename}"
+            post.image_name = attachment.filename
+
+        # ── Link preview (only if no image) ──────────────────────
+        elif (link_url := request.form.get('link_url', '').strip()):
+            if link_url.startswith(('http://', 'https://')):
+                post.link_url = link_url
+                try:
+                    import requests as _requests
+                    from bs4 import BeautifulSoup
+                    resp = _requests.get(link_url, timeout=3,
+                                        headers={'User-Agent': 'UniShare/1.0'})
+                    soup = BeautifulSoup(resp.text, 'html.parser')
+
+                    def _og(prop):
+                        tag = soup.find('meta', property=f'og:{prop}')
+                        if tag:
+                            return (tag.get('content') or '').strip() or None
+                        return None
+
+                    post.link_title       = _og('title') or (soup.title.string.strip() if soup.title else None)
+                    post.link_description = _og('description')
+                    post.link_image_url   = _og('image')
+                except Exception:
+                    pass  # Network/parse errors are non-fatal
+
         db.session.add(post)
         current_user.xp += 5
         db.session.commit()
@@ -688,6 +739,26 @@ def register_routes(app):
             liked = True
         db.session.commit()
         return jsonify({'liked': liked, 'count': post.likes_count})
+
+    @app.route('/feed/<int:post_id>/comment', methods=['POST'])
+    @login_required
+    def feed_comment(post_id):
+        post = Post.query.get_or_404(post_id)
+        body = (request.json or {}).get('body', '').strip()
+        if not body or len(body) > 500:
+            return jsonify({'error': 'invalid'}), 400
+        comment = PostComment(post_id=post_id, author_id=current_user.id, body=body)
+        db.session.add(comment)
+        post.comments_count += 1
+        db.session.commit()
+        return jsonify({
+            'id':       comment.id,
+            'body':     comment.body,
+            'author':   f'{current_user.first_name} {current_user.last_name}',
+            'initials': f'{current_user.first_name[0]}{current_user.last_name[0]}',
+            'time':     'just now',
+            'count':    post.comments_count,
+        })
 
     @app.route('/feed/<int:post_id>/delete', methods=['POST'])
     @login_required

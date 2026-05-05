@@ -199,8 +199,21 @@ class Post(db.Model):
     created_at  = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     likes_count = db.Column(db.Integer, default=0)
 
-    author = db.relationship('User', back_populates='posts')
-    likes  = db.relationship('PostLike', back_populates='post', cascade='all, delete-orphan')
+    # Media attachment (image or link — mutually exclusive)
+    image_path       = db.Column(db.String(256), nullable=True)   # relative path under static/
+    image_name       = db.Column(db.String(256), nullable=True)   # original filename
+    link_url         = db.Column(db.String(512), nullable=True)
+    link_title       = db.Column(db.String(256), nullable=True)
+    link_description = db.Column(db.Text,        nullable=True)
+    link_image_url   = db.Column(db.String(512), nullable=True)
+
+    comments_count = db.Column(db.Integer, default=0)
+
+    author   = db.relationship('User', back_populates='posts')
+    likes    = db.relationship('PostLike', back_populates='post', cascade='all, delete-orphan')
+    comments = db.relationship('PostComment', back_populates='post',
+                               cascade='all, delete-orphan',
+                               order_by='PostComment.created_at')
 
     def __repr__(self):
         return f'<Post {self.id} by user={self.author_id}>'
@@ -218,3 +231,19 @@ class PostLike(db.Model):
     user = db.relationship('User', backref=db.backref('post_likes', lazy='dynamic'))
 
     __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='uq_post_like'),)
+
+
+class PostComment(db.Model):
+    __tablename__ = 'post_comments'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    post_id   = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body      = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    post   = db.relationship('Post', back_populates='comments')
+    author = db.relationship('User', backref=db.backref('post_comments_written', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<PostComment {self.id} on post={self.post_id}>'

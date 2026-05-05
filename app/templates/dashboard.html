@@ -62,7 +62,90 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
 .post-body { padding: 0 18px 14px; font-size: 0.88rem; color: var(--mid); line-height: 1.72; }
 .post-body strong { color: var(--dark); font-weight: 600; }
-.post-image-placeholder { width: 100%; aspect-ratio: 16/8; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 500; gap: 8px; }
+
+/* ── Media blocks ─────────────────────────── */
+.post-img {
+  display: block; width: 100%; max-height: 420px;
+  object-fit: cover; margin: 0 0 14px;
+  border-top: 1px solid var(--border);
+}
+.link-preview {
+  display: flex; margin: 0 18px 14px; border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; text-decoration: none;
+  color: inherit; transition: box-shadow 120ms;
+}
+.link-preview:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.link-preview-thumb {
+  width: 110px; min-height: 90px; flex-shrink: 0;
+  object-fit: cover; background: #f3f4f8;
+}
+.link-preview-thumb-placeholder {
+  width: 110px; flex-shrink: 0; background: #f3f4f8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: var(--muted);
+}
+.link-preview-body { padding: 12px 14px; flex: 1; min-width: 0; }
+.link-preview-title {
+  font-size: 0.86rem; font-weight: 700; color: var(--dark);
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.link-preview-desc {
+  font-size: 0.76rem; color: var(--muted); margin-top: 4px;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.link-preview-domain { font-size: 0.7rem; color: var(--muted); margin-top: 6px; }
+
+/* ── Compose attachment area ──────────────── */
+.compose-attachment {
+  margin: 8px 0 0; padding: 10px 12px;
+  background: #f8f9fb; border: 1.5px solid var(--border);
+  border-radius: 10px; display: none;
+}
+.compose-attachment.visible { display: block; }
+.compose-img-preview {
+  max-height: 180px; max-width: 100%; border-radius: 8px;
+  display: block; margin-bottom: 8px;
+}
+.compose-attach-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 600; color: var(--mid);
+  border: none; background: transparent; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all var(--t) var(--ease);
+}
+.compose-attach-btn:hover { background: #f3f4f8; color: var(--dark); }
+.compose-attach-btn.active { background: #f3f4f8; color: var(--dark); }
+
+/* ── Comments ─────────────────────────────── */
+.comments-section { border-top: 1px solid var(--border); padding: 10px 18px 4px; display: none; }
+.comments-section.open { display: block; }
+.comment-item { display: flex; gap: 9px; margin-bottom: 10px; }
+.comment-av {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--dark); color: #fff;
+  font-size: 0.65rem; font-weight: 700; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.comment-bubble {
+  background: #f3f4f8; border-radius: 12px; padding: 8px 12px; flex: 1; min-width: 0;
+}
+.comment-author { font-size: 0.76rem; font-weight: 700; color: var(--dark); }
+.comment-body   { font-size: 0.82rem; color: var(--mid); margin-top: 2px; line-height: 1.5; word-break: break-word; }
+.comment-time   { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
+.comment-form   { display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; padding-top: 6px; }
+.comment-input  {
+  flex: 1; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 20px;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; outline: none; resize: none;
+  min-height: 36px; line-height: 1.4; transition: border-color var(--t);
+}
+.comment-input:focus { border-color: var(--gold); }
+.comment-submit {
+  padding: 7px 14px; background: var(--dark); color: #fff; border: none; border-radius: 20px;
+  font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: background var(--t); flex-shrink: 0;
+}
+.comment-submit:hover { background: var(--dark2, #1a1a2e); }
 
 .post-listing { margin: 0 18px 14px; background: #f3f4f8; border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .pl-title { font-size: 0.87rem; font-weight: 700; color: var(--dark); }
@@ -126,7 +209,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
   <!-- Compose -->
   <div class="compose" id="compose-box">
-    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form">
+    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form"
+          enctype="multipart/form-data">
       <div class="compose-row">
         <div class="compose-av">{{ current_user.first_name[0] }}</div>
         <textarea id="compose-body" name="body"
@@ -135,25 +219,60 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
                   maxlength="2000" required
                   style="resize:none;height:42px;padding:10px 16px;border-radius:12px;line-height:1.4;overflow:hidden;"></textarea>
       </div>
-      <div class="compose-actions" style="justify-content:space-between;align-items:center;">
+
+      <!-- Image attachment panel (placeholder — upload coming soon) -->
+      <div class="compose-attachment" id="photo-panel">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:0.78rem;">
+          <i class="fa-regular fa-image" style="font-size:1.1rem;"></i>
+          <span>Photo uploads coming soon — stay tuned!</span>
+        </div>
+      </div>
+
+      <!-- Link URL panel -->
+      <div class="compose-attachment" id="link-panel">
+        <input type="url" name="link_url" id="link-input"
+               placeholder="Paste a URL (https://…)"
+               style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+                      font-family:'Inter',sans-serif;font-size:0.84rem;outline:none;box-sizing:border-box;"
+               pattern="https?://.*" />
+        <div style="font-size:0.7rem;color:var(--muted);margin-top:5px;">
+          A preview card will be generated automatically.
+        </div>
+      </div>
+
+      <!-- Row 1: type tabs -->
+      <div style="display:flex;gap:4px;padding:8px 0 8px;border-top:1px solid var(--border);">
+        <button type="button" class="compose-btn type-tab-btn selected" data-type="general">
+          <i class="fa-solid fa-comment"></i> General
+        </button>
+        <button type="button" class="compose-btn type-tab-btn" data-type="event" style="color:#92700a;">
+          <i class="fa-solid fa-calendar"></i> Event
+        </button>
+        <button type="button" class="compose-btn type-tab-btn" data-type="news" style="color:#1d4ed8;">
+          <i class="fa-solid fa-newspaper"></i> News
+        </button>
+        <button type="button" class="compose-btn type-tab-btn" data-type="resource" style="color:#065f46;">
+          <i class="fa-solid fa-bookmark"></i> Resource
+        </button>
+      </div>
+
+      <!-- Row 2: attachments + submit -->
+      <div class="compose-actions" style="justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid var(--border);">
         <div style="display:flex;gap:2px;">
-          <button type="button" class="compose-btn type-tab-btn selected" data-type="general">
-            <i class="fa-solid fa-comment"></i> General
+          <button type="button" class="compose-attach-btn" id="photo-btn" title="Attach a photo">
+            <i class="fa-regular fa-image"></i> Photo
           </button>
-          <button type="button" class="compose-btn type-tab-btn" data-type="event" style="color:#92700a;">
-            <i class="fa-solid fa-calendar"></i> Event
-          </button>
-          <button type="button" class="compose-btn type-tab-btn" data-type="news" style="color:#1d4ed8;">
-            <i class="fa-solid fa-newspaper"></i> News
-          </button>
-          <button type="button" class="compose-btn type-tab-btn" data-type="resource" style="color:#065f46;">
-            <i class="fa-solid fa-link"></i> Resource
+          <button type="button" class="compose-attach-btn" id="link-btn" title="Share a link">
+            <i class="fa-solid fa-link"></i> Link
           </button>
         </div>
         <input type="hidden" name="post_type" id="post-type-input" value="general" />
         <div style="display:flex;align-items:center;gap:10px;">
           <span id="char-counter" style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">0 / 2000</span>
-          <button type="submit" class="compose-btn" style="background:var(--dark);color:#fff;font-weight:700;padding:7px 16px;">Post</button>
+          <button type="submit" class="compose-btn"
+                  style="background:var(--dark);color:#fff;font-weight:700;padding:7px 16px;">
+            Post
+          </button>
         </div>
       </div>
     </form>
@@ -226,12 +345,52 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
         <div class="post-body" style="white-space:pre-wrap;word-break:break-word;">{{ post.body }}</div>
 
+        {# ── Inline image ─────────────────────────────── #}
+        {% if post.image_path %}
+          {% if post.image_path.startswith('http') %}
+            <img src="{{ post.image_path }}" alt="Post image" class="post-img" loading="lazy" />
+          {% else %}
+            <img src="{{ url_for('static', filename=post.image_path) }}"
+                 alt="{{ post.image_name or 'Post image' }}"
+                 class="post-img" />
+          {% endif %}
+        {# ── Link preview card ────────────────────────── #}
+        {% elif post.link_url %}
+          <a href="{{ post.link_url }}" target="_blank" rel="noopener noreferrer"
+             class="link-preview">
+            {% if post.link_image_url %}
+              <img src="{{ post.link_image_url }}" alt="" class="link-preview-thumb"
+                   loading="lazy" onerror="this.style.display='none'" />
+            {% else %}
+              <div class="link-preview-thumb-placeholder">
+                <i class="fa-solid fa-globe"></i>
+              </div>
+            {% endif %}
+            <div class="link-preview-body">
+              {% if post.link_title %}
+                <div class="link-preview-title">{{ post.link_title }}</div>
+              {% endif %}
+              {% if post.link_description %}
+                <div class="link-preview-desc">{{ post.link_description }}</div>
+              {% endif %}
+              <div class="link-preview-domain">
+                {{ post.link_url | replace('https://', '') | replace('http://', '') | truncate(50, true, '…') }}
+              </div>
+            </div>
+          </a>
+        {% endif %}
+
         <div class="post-actions" style="border-top:1px solid var(--border);padding-top:4px;">
           <button class="post-action like-btn {% if post.id in liked_ids %}liked{% endif %}"
                   data-post-id="{{ post.id }}"
                   style="{% if post.id in liked_ids %}color:#ef4444;{% endif %}">
             <i class="fa-{% if post.id in liked_ids %}solid{% else %}regular{% endif %} fa-heart"></i>
             <span class="like-count">{{ post.likes_count }}</span>
+          </button>
+          <button class="post-action comment-toggle-btn"
+                  data-post-id="{{ post.id }}">
+            <i class="fa-regular fa-comment"></i>
+            <span class="comment-count">{{ post.comments_count }}</span>
           </button>
           {% if post.author_id == current_user.id %}
             <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
@@ -241,6 +400,35 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
               </button>
             </form>
           {% endif %}
+        </div>
+
+        {# ── Comments section ──────────────────────── #}
+        <div class="comments-section" id="comments-{{ post.id }}">
+          {% set av_colors = ['#1d4ed8','#7c3aed','#b45309','#065f46','#be123c','#0369a1','#6d28d9','#047857'] %}
+          {% for c in post.comments %}
+            <div class="comment-item">
+              <div class="comment-av"
+                   style="background:{{ av_colors[c.author_id % av_colors|length] }};">
+                {{ c.author.first_name[0] }}{{ c.author.last_name[0] }}
+              </div>
+              <div class="comment-bubble">
+                <div class="comment-author">{{ c.author.first_name }} {{ c.author.last_name }}</div>
+                <div class="comment-body">{{ c.body }}</div>
+                <div class="comment-time">{{ c.created_at.strftime('%b %d · %I:%M %p') }}</div>
+              </div>
+            </div>
+          {% endfor %}
+          <div class="comment-form">
+            <div class="comment-av" style="background:var(--dark);">
+              {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+            </div>
+            <textarea class="comment-input new-comment-input"
+                      data-post-id="{{ post.id }}"
+                      placeholder="Write a comment…"
+                      maxlength="500"
+                      rows="1"></textarea>
+            <button class="comment-submit" data-post-id="{{ post.id }}">Reply</button>
+          </div>
         </div>
       </div>
     {% endfor %}
@@ -300,6 +488,130 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       input.value = tab.dataset.type;
     });
   });
+})();
+
+// Photo / Link attachment toggles
+(function () {
+  const photoBtn   = document.getElementById('photo-btn');
+  const linkBtn    = document.getElementById('link-btn');
+  const photoPanel = document.getElementById('photo-panel');
+  const linkPanel  = document.getElementById('link-panel');
+  const linkInput  = document.getElementById('link-input');
+  if (!photoBtn) return;
+
+  function hideAll() {
+    photoPanel.classList.remove('visible');
+    linkPanel.classList.remove('visible');
+    photoBtn.classList.remove('active');
+    linkBtn.classList.remove('active');
+  }
+
+  photoBtn.addEventListener('click', () => {
+    const isOpen = photoPanel.classList.contains('visible');
+    hideAll();
+    if (!isOpen) {
+      photoPanel.classList.add('visible');
+      photoBtn.classList.add('active');
+      if (linkInput) linkInput.value = '';
+    }
+  });
+
+  linkBtn.addEventListener('click', () => {
+    const isOpen = linkPanel.classList.contains('visible');
+    hideAll();
+    if (!isOpen) {
+      linkPanel.classList.add('visible');
+      linkBtn.classList.add('active');
+      if (linkInput) { linkInput.value = ''; linkInput.focus(); }
+    }
+  });
+})();
+
+// Comments — toggle + AJAX submit
+(function () {
+  const av_colors = ['#1d4ed8','#7c3aed','#b45309','#065f46','#be123c','#0369a1','#6d28d9','#047857'];
+
+  // Toggle open/close
+  document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const postId  = btn.dataset.postId;
+      const section = document.getElementById(`comments-${postId}`);
+      if (!section) return;
+      section.classList.toggle('open');
+      if (section.classList.contains('open')) {
+        const ta = section.querySelector('.new-comment-input');
+        if (ta) ta.focus();
+      }
+    });
+  });
+
+  // Auto-grow comment textarea
+  document.querySelectorAll('.new-comment-input').forEach(ta => {
+    ta.addEventListener('input', () => {
+      ta.style.height = 'auto';
+      ta.style.height = Math.max(36, ta.scrollHeight) + 'px';
+    });
+    // Submit on Enter (Shift+Enter = newline)
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const postId = ta.dataset.postId;
+        submitComment(postId, ta);
+      }
+    });
+  });
+
+  // Submit button click
+  document.querySelectorAll('.comment-submit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const postId = btn.dataset.postId;
+      const section = document.getElementById(`comments-${postId}`);
+      const ta = section ? section.querySelector('.new-comment-input') : null;
+      if (ta) submitComment(postId, ta);
+    });
+  });
+
+  async function submitComment(postId, ta) {
+    const body = ta.value.trim();
+    if (!body) return;
+    try {
+      const res  = await fetch(`/feed/${postId}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Build new comment element
+      const colorIdx = data.id % av_colors.length;
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      div.innerHTML = `
+        <div class="comment-av" style="background:${av_colors[colorIdx]};">${data.initials}</div>
+        <div class="comment-bubble">
+          <div class="comment-author">${data.author}</div>
+          <div class="comment-body">${escHtml(data.body)}</div>
+          <div class="comment-time">${data.time}</div>
+        </div>`;
+
+      const section = document.getElementById(`comments-${postId}`);
+      const form = section.querySelector('.comment-form');
+      section.insertBefore(div, form);
+
+      // Update count
+      const countEl = document.querySelector(`.comment-toggle-btn[data-post-id="${postId}"] .comment-count`);
+      if (countEl) countEl.textContent = data.count;
+
+      ta.value = '';
+      ta.style.height = '36px';
+    } catch (_) {}
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
 })();
 
 // Like button AJAX
