@@ -29,3 +29,6 @@ app.db
 *.egg-info/
 dist/
 build/
+
+# User-uploaded files
+app/static/uploads/

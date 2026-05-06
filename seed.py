@@ -14,7 +14,7 @@ from app import create_app
 from app.extensions import db
 from app.models import (
     User, Listing, Note, StudySession, SessionRSVP,
-    Bounty, SavedListing, Rating, Message,
+    Bounty, SavedListing, Rating, Message, Post, PostComment,
 )
 
 # ─────────────────────────────────────────────────────────────────
@@ -356,6 +356,9 @@ def reset_db():
     db.session.execute(db.text("DELETE FROM saved_listings"))
     db.session.execute(db.text("DELETE FROM session_rsvps"))
     db.session.execute(db.text("DELETE FROM messages"))
+    db.session.execute(db.text("DELETE FROM post_comments"))
+    db.session.execute(db.text("DELETE FROM post_likes"))
+    db.session.execute(db.text("DELETE FROM posts"))
     db.session.execute(db.text("DELETE FROM bounties"))
     db.session.execute(db.text("DELETE FROM sessions"))
     db.session.execute(db.text("DELETE FROM notes"))
@@ -469,6 +472,177 @@ def seed_core():
     db.session.flush()
     print(f"  ✓ {len(MESSAGES)} messages")
 
+    # ── Posts
+    CORE_POSTS = [
+        # Dict keys: u (user_idx), ptype, body, hrs_ago, likes
+        # Optional: link_url, link_title, link_description, link_image_url
+        dict(u=0, ptype='general', hrs_ago=2, likes=14,
+             body="Just finished my CITS3200 project — REST API in Flask, full test suite, "
+                  "deployed to a VPS. If anyone needs help with Flask or SQLAlchemy, hit me up! 🚀",
+             image_path='images/posts/flask_project.svg'),
+
+        dict(u=1, ptype='resource', hrs_ago=5, likes=9,
+             body="CLRS 4th edition is absolutely essential if you're doing CITS2200. "
+                  "The pseudocode is much cleaner than the 3rd edition and the new chapters on "
+                  "randomised algorithms are brilliant. Worth every cent.",
+             link_url='https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/',
+             link_title='Introduction to Algorithms, Fourth Edition — MIT Press',
+             link_description='A comprehensive update of the leading algorithms text, with new chapters, '
+                              'revised pseudocode, and expanded coverage of graph algorithms and data structures.',
+             link_image_url=None),
+
+        dict(u=2, ptype='event', hrs_ago=8, likes=7,
+             body="Study session for STAT2401 this Thursday at Reid Library Level 3, 4–6pm. "
+                  "We'll be working through Week 9 problem sets together. All welcome — "
+                  "especially if you're struggling with hypothesis testing!"),
+
+        dict(u=3, ptype='news', hrs_ago=12, likes=11,
+             body="UWA CS department just announced new electives for 2026 — Machine Learning Systems "
+                  "and Distributed Computing. Enrolment opens next Monday. "
+                  "Both units look incredible, check the course outline.",
+             link_url='https://www.uwa.edu.au/study/courses-and-degrees/by-faculty/faculty-of-engineering-and-mathematical-sciences',
+             link_title='Engineering and Mathematical Sciences — The University of Western Australia',
+             link_description='Explore undergraduate and postgraduate courses in engineering, computer science, '
+                              'mathematics, and data science at UWA.',
+             link_image_url=None),
+
+        dict(u=4, ptype='general', hrs_ago=18, likes=5,
+             body="Anyone else finding PHIL1001 surprisingly useful for thinking about AI ethics? "
+                  "I keep citing it in my CompSci essays lol. The trolley problem hits different "
+                  "when you're writing autonomous vehicle code."),
+
+        dict(u=5, ptype='resource', hrs_ago=24, likes=18,
+             body="Posted my full MATH1722 notes from Semester 1 — all 12 weeks, typed up in LaTeX "
+                  "with worked examples for every major theorem. Check the Notes section. Free to download. "
+                  "Upvote if it helps, it motivates me to keep sharing!"),
+
+        dict(u=6, ptype='event', hrs_ago=30, likes=22,
+             body="Hackathon at Guild Village this Saturday! Teams of 2–4. "
+                  "Theme is 'Smart Campus'. Prizes up to $500 cash and cloud credits. "
+                  "Sign up at the Guild desk or drop me a message — still 2 spots on my team.",
+             image_path='images/posts/hackathon_poster.svg'),
+
+        dict(u=7, ptype='news', hrs_ago=36, likes=3,
+             body="Reminder: HASS enrolment changes apply from next semester. "
+                  "Double-check your degree plan in StudentConnect before Week 10 or "
+                  "you might end up with a gap in your requirements. Don't get caught out!"),
+
+        dict(u=0, ptype='resource', hrs_ago=48, likes=8,
+             body="My CITS3001 revision notes are up — covers all algorithm complexity proofs "
+                  "we did in tutorials. Includes a comparison table of time complexities "
+                  "that I wish I'd had in Week 1. Should help for the final.",
+             link_url='https://github.com',
+             link_title='GitHub — Where the world builds software',
+             link_description='Millions of developers and companies build, ship, and maintain their software '
+                              'on GitHub — the largest and most advanced development platform in the world.',
+             link_image_url=None),
+
+        dict(u=1, ptype='general', hrs_ago=60, likes=16,
+             body="Hot take: office hours are criminally underused. Just had a 30-min chat with "
+                  "the CITS2200 unit coordinator and it cleared up 3 weeks of confusion in one go. "
+                  "Most lecturers genuinely love it when students come. Just go."),
+
+        dict(u=2, ptype='event', hrs_ago=72, likes=12,
+             body="FREE Python workshop next Tuesday, 1–3pm in CS Building Lab 2. "
+                  "Covering data manipulation with pandas and matplotlib. "
+                  "Beginners welcome — no prior Python needed. Just bring your laptop.",
+             image_path='images/posts/python_workshop.svg'),
+
+        dict(u=3, ptype='news', hrs_ago=96, likes=6,
+             body="The Guild is running a textbook buyback scheme this week. "
+                  "Drop off your old books at the Guild building for vouchers. "
+                  "Good way to clear out last semester's stuff before SWOTVAC."),
+
+        dict(u=4, ptype='resource', hrs_ago=110, likes=4,
+             body="Found a great free resource for CITS3003 — the learnopengl.com site covers "
+                  "basically everything in the unit with interactive examples. "
+                  "Much clearer than the lecture slides for shaders.",
+             link_url='https://learnopengl.com',
+             link_title='Learn OpenGL — Graphics Programming Tutorials',
+             link_description='LearnOpenGL is the ultimate resource for learning modern OpenGL, '
+                              'with detailed tutorials covering shaders, lighting, textures, and more.',
+             link_image_url=None),
+    ]
+    post_objs = []
+    for p in CORE_POSTS:
+        post_objs.append(db.session.add(Post(
+            author_id=user_objs[p['u']].id,
+            body=p['body'],
+            post_type=p['ptype'],
+            created_at=now - timedelta(hours=p['hrs_ago']),
+            likes_count=p['likes'],
+            image_path=p.get('image_path'),
+            link_url=p.get('link_url'),
+            link_title=p.get('link_title'),
+            link_description=p.get('link_description'),
+            link_image_url=p.get('link_image_url'),
+        )) or Post.query.filter_by(
+            author_id=user_objs[p['u']].id,
+            body=p['body'],
+        ).order_by(Post.id.desc()).first())
+    db.session.flush()
+    # Re-fetch ordered list after flush
+    post_objs = Post.query.order_by(Post.created_at.desc()).limit(len(CORE_POSTS)).all()
+    post_objs = list(reversed(post_objs))   # oldest first, matches CORE_POSTS order
+    print(f"  ✓ {len(CORE_POSTS)} posts")
+
+    # ── Comments
+    # (post_idx, commenter_idx, body, mins_after_post)
+    CORE_COMMENTS = [
+        # On post 0 (Jessica's Flask project)
+        (0, 1, "That's awesome Jess! What database did you use — SQLite or Postgres?", 15),
+        (0, 2, "Congrats! Did you deploy on Fly.io or a proper VPS?", 25),
+        (0, 3, "Need someone for my CITS3200 project — can I message you?", 40),
+        (0, 1, "I'd also love to see the repo if it's public!", 60),
+
+        # On post 1 (Liam's CLRS recommendation)
+        (1, 0, "100% agree. The new chapter on approximation algorithms alone is worth it.", 20),
+        (1, 4, "Is the 4th edition covered in CITS2200 or do they still use the 3rd?", 35),
+        (1, 0, "Check with your unit coordinator — my cohort used 4th ed this semester.", 50),
+
+        # On post 2 (Priya's STAT study session)
+        (2, 0, "I'll be there! Struggling with hypothesis testing so this is perfect timing.", 30),
+        (2, 5, "What chapter are we up to? Want to review before coming.", 45),
+        (2, 0, "Week 9 — two-sample tests and paired comparisons. Bring your R notes!", 60),
+
+        # On post 3 (Callum's UWA news)
+        (3, 1, "ML Systems sounds incredible. Finally a proper deep learning elective!", 25),
+        (3, 4, "Do you know if it has prerequisites? Hoping CITS2200 counts.", 50),
+
+        # On post 5 (Oliver's MATH notes)
+        (5, 2, "Just downloaded — the integration section is incredibly clear. Thank you!", 20),
+        (5, 6, "This is gold. The LaTeX formatting makes it so much easier to read.", 40),
+        (5, 2, "Happy to help! Let me know if you want me to add more worked examples.", 65),
+
+        # On post 6 (Aisha's hackathon)
+        (6, 0, "I'm in! Already have a project idea around lecture room occupancy tracking.", 10),
+        (6, 7, "What's the team size limit? Can we enter as a pair?", 20),
+        (6, 0, "Yep, teams of 2–4 are all fine. Solo entries are also allowed!", 35),
+        (6, 1, "Is there a Discord for participants? Would love to connect beforehand.", 45),
+
+        # On post 9 (Liam's office hours take)
+        (9, 0, "This!! I went to office hours for the first time last week and it changed my grade.", 30),
+        (9, 3, "Guilty of never going. This is the sign I needed lol", 55),
+        (9, 0, "Most coordinators genuinely enjoy it — they want you to get it.", 70),
+
+        # On post 10 (Priya's Python workshop)
+        (10, 4, "Will there be recording available for those who can't make it?", 15),
+        (10, 5, "Signed up! Can't wait. Do we need to install anything beforehand?", 30),
+        (10, 2, "Just Python 3 and a Jupyter notebook — I'll send a setup guide before the session.", 45),
+    ]
+    for post_idx, user_idx, body, mins in CORE_COMMENTS:
+        if post_idx < len(post_objs):
+            post = post_objs[post_idx]
+            db.session.add(PostComment(
+                post_id=post.id,
+                author_id=user_objs[user_idx].id,
+                body=body,
+                created_at=post.created_at + timedelta(minutes=mins),
+            ))
+            post.comments_count += 1
+    db.session.flush()
+    print(f"  ✓ {len(CORE_COMMENTS)} comments")
+
     db.session.commit()
     return user_objs, listing_objs, session_objs
 
@@ -570,6 +744,48 @@ def seed_extra(user_objs, listing_objs, session_objs):
         ))
     db.session.flush()
     print(f"  ✓ {len(extra_messages)} extra messages")
+
+    # ── Extra posts
+    all_users = user_objs + extra_user_objs
+    extra_posts = [
+        dict(u_obj=all_users[8],  ptype='resource', hrs_ago=15, likes=7,
+             body="Posted CITS1401 Week 1–6 Python notes — beginner-friendly, lots of worked examples. "
+                  "Covers loops, functions, file I/O, and basic data structures. Perfect if you're just starting out.",
+             link_url='https://docs.python.org/3/tutorial/',
+             link_title='The Python Tutorial — Python 3 Documentation',
+             link_description='This tutorial introduces the reader informally to the basic concepts and features '
+                              'of the Python language and system.',
+             link_image_url=None),
+
+        dict(u_obj=all_users[9],  ptype='event', hrs_ago=20, likes=5,
+             body="ECON1101 group study at Hackett Hall tomorrow, 10am. "
+                  "Covering market structures and game theory. Bring practice papers — "
+                  "we'll work through 2023 past exam Q3–Q6 together."),
+
+        dict(u_obj=all_users[10], ptype='general', hrs_ago=28, likes=31,
+             body="Just got my first internship offer! If anyone wants tips on technical interviews "
+                  "for Perth-based companies, I'm happy to chat. "
+                  "The Leetcode grind is real but it works. DM me."),
+
+        dict(u_obj=all_users[11], ptype='news', hrs_ago=40, likes=9,
+             body="Library hours extended until midnight during SWOTVAC. "
+                  "All floors open, including group study rooms — book early via the portal. "
+                  "Level 3 silent zone is first-come-first-served."),
+    ]
+    for p in extra_posts:
+        db.session.add(Post(
+            author_id=p['u_obj'].id,
+            body=p['body'],
+            post_type=p['ptype'],
+            created_at=now - timedelta(hours=p['hrs_ago']),
+            likes_count=p['likes'],
+            link_url=p.get('link_url'),
+            link_title=p.get('link_title'),
+            link_description=p.get('link_description'),
+            link_image_url=p.get('link_image_url'),
+        ))
+    db.session.flush()
+    print(f"  ✓ {len(extra_posts)} extra posts")
 
     db.session.commit()
 
