@@ -2,7 +2,7 @@ import os
 import uuid
 
 from flask import (render_template, request, redirect,
-                   url_for, session, flash, jsonify, Response)
+                   url_for, session, flash, jsonify, Response, send_from_directory, current_app)
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
@@ -293,7 +293,28 @@ def register_routes(app):
     def create_note():
         if request.method == 'POST':
             try:
-                controllers.create_note(current_user.id, request.form)
+                note = controllers.create_note(current_user.id, request.form)
+                attachment = request.files.get('attachment')
+                if attachment and attachment.filename:
+                    allowed_mimes = {'application/pdf', 'application/msword',
+                                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                     'image/jpeg', 'image/png'}
+                    mime = attachment.mimetype
+                    if mime not in allowed_mimes:
+                        flash('Unsupported file type. Please upload PDF, DOCX, JPG or PNG.', 'error')
+                        return render_template('create_note.html', errors={}, form=request.form)
+                    attachment.seek(0, 2)
+                    if attachment.tell() > 10 * 1024 * 1024:
+                        flash('File is too large (max 10 MB).', 'error')
+                        return render_template('create_note.html', errors={}, form=request.form)
+                    attachment.seek(0)
+                    upload_dir = os.path.join(current_app.static_folder, 'uploads', 'notes')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    fname = f"{uuid.uuid4().hex}_{secure_filename(attachment.filename)}"
+                    attachment.save(os.path.join(upload_dir, fname))
+                    note.file_path = f"uploads/notes/{fname}"
+                    note.file_name = attachment.filename
+                    db.session.commit()
                 flash('Notes shared!', 'success')
                 return redirect(url_for('notes'))
             except ValueError as e:
@@ -311,11 +332,21 @@ def register_routes(app):
     @app.route('/notes/<int:note_id>')
     def view_note(note_id):
         note = Note.query.get_or_404(note_id)
-        return render_template('note_detail.html', note=note)
+        is_saved = False
+        if current_user and current_user.is_authenticated:
+            is_saved = SavedNote.query.filter_by(
+                user_id=current_user.id, note_id=note_id).first() is not None
+        return render_template('note_detail.html', note=note, is_saved=is_saved)
 
     @app.route('/notes/<int:note_id>/download')
     def download_note(note_id):
         note = Note.query.get_or_404(note_id)
+        if note.file_path:
+            directory = os.path.join(current_app.static_folder, 'uploads', 'notes')
+            filename = os.path.basename(note.file_path)
+            return send_from_directory(directory, filename,
+                                       as_attachment=True,
+                                       download_name=note.file_name or filename)
         content = (
             f"{note.title}\n\n"
             f"Unit: {note.unit_code}\n"

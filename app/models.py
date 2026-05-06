@@ -72,14 +72,24 @@ class Listing(db.Model):
 class Note(db.Model):
     __tablename__ = 'notes'
 
-    id          = db.Column(db.Integer,    primary_key=True)
-    author_id   = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
-    title       = db.Column(db.String(150), nullable=False)
-    unit_code   = db.Column(db.String(16),  nullable=False)
-    semester    = db.Column(db.String(50),  default='')
-    description = db.Column(db.Text,       default='')
-    upvotes     = db.Column(db.Integer,    default=0)
-    created_at  = db.Column(db.DateTime,   server_default=db.func.now())
+    id           = db.Column(db.Integer,    primary_key=True)
+    author_id    = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
+    title        = db.Column(db.String(150), nullable=False)
+    unit_code    = db.Column(db.String(16),  nullable=False)
+    semester     = db.Column(db.String(50),  default='')
+    description  = db.Column(db.Text,       default='')
+    upvotes      = db.Column(db.Integer,    default=0)
+    created_at   = db.Column(db.DateTime,   server_default=db.func.now())
+
+    # Enriched content (seed-data only in V1; user HTML requires sanitization before enabling)
+    content_html = db.Column(db.Text,        nullable=True)
+
+    # File attachment
+    file_path    = db.Column(db.String(256), nullable=True)  # relative path under static/uploads/notes/
+    file_name    = db.Column(db.String(256), nullable=True)  # original filename shown to user
+
+    # Cover image (SVG/PNG relative path under static/)
+    cover_image  = db.Column(db.String(256), nullable=True)
 
     author   = db.relationship('User',      back_populates='notes')
     saved_by = db.relationship('SavedNote', back_populates='note', lazy='dynamic')
