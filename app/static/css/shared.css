@@ -331,7 +331,7 @@ body.app-page {
   --dark:   #0d0f1f;
   --dark2:  #1d2035;
   --mid:    #4a5068;
-  --muted:  #8891a8;
+  --muted:  #5e6783;
   --bdr2:   rgba(0,0,0,0.13);
   --gold:   #c8950a;
   --navy:   #003087;
@@ -434,7 +434,7 @@ body.app-page {
 .sidebar::-webkit-scrollbar-track { background: transparent; }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
 
-.sb-card { background: #012f87; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r); overflow: hidden; }
+.sb-card { background: #012f87; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r); overflow: visible; }
 .sb-profile-banner { height: 58px; background: linear-gradient(135deg,#010e38 0%,#011e60 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
 .sb-profile-body { padding: 0 16px 16px; }
 .sb-profile-av {
