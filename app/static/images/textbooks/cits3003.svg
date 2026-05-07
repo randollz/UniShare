@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a0d00"/><stop offset="100%" stop-color="#2f1800"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#0d0600" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-128" y="10" transform="rotate(-90)" fill="rgba(168,85,247,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS3003 · COMPUTER GRAPHICS</text>
+  <rect x="16" y="0" width="184" height="4" fill="#a855f7"/>
+  <g transform="translate(108, 78)" opacity="0.88">
+    <rect x="-20" y="-10" width="30" height="30" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+    <rect x="-10" y="-22" width="30" height="30" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1"/>
+    <line x1="-20" y1="-10" x2="-10" y2="-22" stroke="rgba(168,85,247,0.5)" stroke-width="1"/>
+    <line x1="10" y1="-10" x2="20" y2="-22" stroke="rgba(168,85,247,0.5)" stroke-width="1"/>
+    <line x1="10" y1="20" x2="20" y2="8" stroke="rgba(168,85,247,0.5)" stroke-width="1"/>
+    <line x1="-20" y1="20" x2="-10" y2="8" stroke="rgba(168,85,247,0.5)" stroke-width="1"/>
+  </g>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Computer Graphics</text>
+  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">OpenGL · SHADERS · RENDERING</text>
+  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#a855f7" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS3003</text>
+</svg>

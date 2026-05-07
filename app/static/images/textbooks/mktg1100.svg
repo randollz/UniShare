@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#200a15"/><stop offset="100%" stop-color="#380f22"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#100508" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-122" y="10" transform="rotate(-90)" fill="rgba(236,72,153,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">MKTG1100 · MARKETING FUNDAMENTALS</text>
+  <rect x="16" y="0" width="184" height="4" fill="#ec4899"/>
+  <g transform="translate(108, 82)" opacity="0.88">
+    <line x1="-36" y1="22" x2="36" y2="22" stroke="rgba(236,72,153,0.4)" stroke-width="1.5"/>
+    <rect x="-34" y="2" width="14" height="20" rx="2" fill="rgba(236,72,153,0.25)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="-16" y="-10" width="14" height="32" rx="2" fill="rgba(236,72,153,0.45)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="2" y="-22" width="14" height="44" rx="2" fill="rgba(236,72,153,0.65)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="20" y="-34" width="14" height="56" rx="2" fill="#ec4899" stroke="#ec4899" stroke-width="1"/>
+    <path d="M -28 6 L 28 -30" fill="none" stroke="rgba(236,72,153,0.45)" stroke-width="1.5" stroke-dasharray="3 2"/>
+  </g>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="148" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Marketing Fundamentals</text>
+  <text x="108" y="164" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">STRATEGY · CONSUMER · BRAND</text>
+  <text x="108" y="180" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="60" y="230" width="88" height="18" rx="9" fill="#ec4899" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">MKTG1100</text>
+</svg>

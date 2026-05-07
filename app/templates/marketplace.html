@@ -237,16 +237,16 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
     {% for l in listings %}
     {% set idx = loop.index0 % 8 %}
     {% set _covers = {
-      'CITS3403': 'images/notes/cits3403_web_dev.svg',
-      'CITS2200': 'images/notes/cits2200_algorithms.svg',
-      'CITS2002': 'images/notes/cits2002_systems.svg',
-      'CITS3003': 'images/notes/cits3003_graphics.svg',
-      'CITS3200': 'images/notes/cits3403_cheatsheet.svg',
-      'MATH1012': 'images/notes/math1012_calculus.svg',
-      'MATH2402': 'images/notes/math2402_linear_algebra.svg',
-      'STAT2401': 'images/notes/stat2401_stats.svg',
-      'BIOC2002': 'images/notes/bioc2002_biochem.svg',
-      'MKTG1100': 'images/notes/mktg1100_marketing.svg',
+      'CITS3403': 'images/textbooks/cits3403.svg',
+      'CITS2200': 'images/textbooks/cits2200.svg',
+      'CITS2002': 'images/textbooks/cits2002.svg',
+      'CITS3003': 'images/textbooks/cits3003.svg',
+      'CITS3200': 'images/textbooks/cits3200.svg',
+      'MATH1012': 'images/textbooks/math1012.svg',
+      'MATH2402': 'images/textbooks/math2402.svg',
+      'STAT2401': 'images/textbooks/stat2401.svg',
+      'BIOC2002': 'images/textbooks/bioc2002.svg',
+      'MKTG1100': 'images/textbooks/mktg1100.svg',
     } %}
     {% set _cover = _covers.get(l.unit_code, '') %}
     <div class="listing-card">
