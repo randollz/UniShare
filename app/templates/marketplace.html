@@ -236,11 +236,29 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
   <div class="listings-grid">
     {% for l in listings %}
     {% set idx = loop.index0 % 8 %}
+    {% set _covers = {
+      'CITS3403': 'images/notes/cits3403_web_dev.svg',
+      'CITS2200': 'images/notes/cits2200_algorithms.svg',
+      'CITS2002': 'images/notes/cits2002_systems.svg',
+      'CITS3003': 'images/notes/cits3003_graphics.svg',
+      'CITS3200': 'images/notes/cits3403_cheatsheet.svg',
+      'MATH1012': 'images/notes/math1012_calculus.svg',
+      'MATH2402': 'images/notes/math2402_linear_algebra.svg',
+      'STAT2401': 'images/notes/stat2401_stats.svg',
+      'BIOC2002': 'images/notes/bioc2002_biochem.svg',
+      'MKTG1100': 'images/notes/mktg1100_marketing.svg',
+    } %}
+    {% set _cover = _covers.get(l.unit_code, '') %}
     <div class="listing-card">
       <div class="lc-image" style="background: {{ colors[idx] }};">
         <div class="lc-image-inner">
+          {% if _cover %}
+          <img src="{{ url_for('static', filename=_cover) }}" alt="{{ l.title }}"
+               style="height:90%;width:auto;max-width:55%;box-shadow:0 8px 24px rgba(0,0,0,0.5);border-radius:3px;flex-shrink:0;" loading="lazy"/>
+          {% else %}
           <i class="fa-solid fa-book"></i>
           {{ l.title[:20] }}…
+          {% endif %}
         </div>
         <div class="lc-badges">
           <span class="lc-unit">{{ l.unit_code }}</span>

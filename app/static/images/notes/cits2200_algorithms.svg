@@ -1,86 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0d0221"/>
-      <stop offset="50%" stop-color="#1a0a3e"/>
-      <stop offset="100%" stop-color="#0a1628"/>
-    </linearGradient>
-    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#a855f7"/>
-      <stop offset="100%" stop-color="#ec4899"/>
+      <stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#2d1454"/>
     </linearGradient>
   </defs>
-
-  <rect width="800" height="420" fill="url(#bg)"/>
-
-  <!-- Graph nodes & edges (right side visualization) -->
-  <!-- Edges -->
-  <g stroke="rgba(168,85,247,0.35)" stroke-width="1.5" fill="none">
-    <line x1="600" y1="100" x2="520" y2="180"/>
-    <line x1="600" y1="100" x2="680" y2="190"/>
-    <line x1="520" y1="180" x2="460" y2="280"/>
-    <line x1="520" y1="180" x2="590" y2="290"/>
-    <line x1="680" y1="190" x2="590" y2="290"/>
-    <line x1="680" y1="190" x2="740" y2="285"/>
-    <line x1="460" y1="280" x2="530" y2="360"/>
-    <line x1="590" y1="290" x2="530" y2="360"/>
-    <line x1="590" y1="290" x2="660" y2="360"/>
-    <line x1="740" y1="285" x2="660" y2="360"/>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#0f0520" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-132" y="10" transform="rotate(-90)" fill="rgba(232,121,249,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS2200 · ALGORITHMS &amp; DATA STRUCTURES</text>
+  <rect x="16" y="0" width="184" height="4" fill="#e879f9"/>
+  <g transform="translate(108, 78)" opacity="0.9">
+    <circle cx="0" cy="-30" r="9" fill="rgba(232,121,249,0.18)" stroke="#e879f9" stroke-width="1.5"/>
+    <circle cx="-28" cy="4" r="9" fill="rgba(232,121,249,0.18)" stroke="#e879f9" stroke-width="1.5"/>
+    <circle cx="28" cy="4" r="9" fill="rgba(232,121,249,0.18)" stroke="#e879f9" stroke-width="1.5"/>
+    <circle cx="-14" cy="34" r="7" fill="rgba(232,121,249,0.12)" stroke="#e879f9" stroke-width="1.5"/>
+    <circle cx="14" cy="34" r="7" fill="rgba(232,121,249,0.12)" stroke="#e879f9" stroke-width="1.5"/>
+    <line x1="0" y1="-21" x2="-22" y2="-3" stroke="#e879f9" stroke-width="1" opacity="0.5"/>
+    <line x1="0" y1="-21" x2="22" y2="-3" stroke="#e879f9" stroke-width="1" opacity="0.5"/>
+    <line x1="-22" y1="11" x2="-14" y2="27" stroke="#e879f9" stroke-width="1" opacity="0.5"/>
+    <line x1="22" y1="11" x2="14" y2="27" stroke="#e879f9" stroke-width="1" opacity="0.5"/>
   </g>
-
-  <!-- Node circles -->
-  <g fill="rgba(168,85,247,0.2)" stroke="rgba(168,85,247,0.7)" stroke-width="1.5">
-    <circle cx="600" cy="100" r="18"/>
-    <circle cx="520" cy="180" r="16"/>
-    <circle cx="680" cy="190" r="16"/>
-    <circle cx="460" cy="280" r="14"/>
-    <circle cx="590" cy="290" r="14"/>
-    <circle cx="740" cy="285" r="14"/>
-    <circle cx="530" cy="360" r="14"/>
-    <circle cx="660" cy="360" r="14"/>
-  </g>
-
-  <!-- Node labels (Big-O costs) -->
-  <g font-family="monospace" font-size="10" fill="#c084fc" text-anchor="middle">
-    <text x="600" y="104">O(1)</text>
-    <text x="520" y="184">lg n</text>
-    <text x="680" y="194">n</text>
-    <text x="460" y="284">n²</text>
-    <text x="590" y="294">n³</text>
-    <text x="740" y="289">2ⁿ</text>
-    <text x="530" y="364">n!</text>
-    <text x="660" y="364">∞</text>
-  </g>
-
-  <!-- Left content -->
-  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
-  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">CITS2200</text>
-
-  <text x="44" y="130" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Algorithm</text>
-  <text x="44" y="172" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Analysis</text>
-  <text x="44" y="214" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Notes</text>
-
-  <text x="44" y="248" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">Data Structures &amp; Algorithms  ·  S1 2025</text>
-
-  <g transform="translate(44, 275)">
-    <rect width="74" height="26" rx="13" fill="rgba(168,85,247,0.15)" stroke="rgba(168,85,247,0.35)" stroke-width="1"/>
-    <text x="37" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#c084fc" text-anchor="middle">Big-O</text>
-  </g>
-  <g transform="translate(128, 275)">
-    <rect width="84" height="26" rx="13" fill="rgba(236,72,153,0.12)" stroke="rgba(236,72,153,0.3)" stroke-width="1"/>
-    <text x="42" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f472b6" text-anchor="middle">Dijkstra</text>
-  </g>
-  <g transform="translate(222, 275)">
-    <rect width="60" height="26" rx="13" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.3)" stroke-width="1"/>
-    <text x="30" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#818cf8" text-anchor="middle">DP</text>
-  </g>
-
-  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
-    <text x="44" y="340">✦  Sorting Algorithms</text>
-    <text x="44" y="360">✦  Graph Traversals (BFS/DFS)</text>
-    <text x="44" y="380">✦  Dynamic Programming</text>
-  </g>
-
-  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
-  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
+  <line x1="26" y1="130" x2="184" y2="130" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="152" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="12.5" font-weight="800" letter-spacing="-0.02em">Algorithms &amp; DS</text>
+  <text x="108" y="168" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">COMPLEXITY · GRAPHS · SORTING</text>
+  <text x="108" y="184" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#e879f9" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS2200</text>
+  <circle cx="168" cy="200" r="24" fill="rgba(232,121,249,0.04)" stroke="rgba(232,121,249,0.1)" stroke-width="1"/>
 </svg>

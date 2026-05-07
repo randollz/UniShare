@@ -1,90 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#022c22"/>
-      <stop offset="50%" stop-color="#065f46"/>
-      <stop offset="100%" stop-color="#022c22"/>
-    </linearGradient>
-    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#34d399"/>
-    </linearGradient>
-    <linearGradient id="helix1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#059669"/>
-    </linearGradient>
-    <linearGradient id="helix2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#34d399"/>
-      <stop offset="100%" stop-color="#047857"/>
+      <stop offset="0%" stop-color="#071410"/><stop offset="100%" stop-color="#0f2218"/>
     </linearGradient>
   </defs>
-
-  <rect width="800" height="420" fill="url(#bg)"/>
-
-  <!-- DNA double helix (right side) -->
-  <!-- Left strand -->
-  <path d="M 520 40 C 560 80 480 130 520 170 C 560 210 480 260 520 300 C 560 340 480 380 520 420" fill="none" stroke="url(#helix1)" stroke-width="2.5" opacity="0.8"/>
-  <!-- Right strand -->
-  <path d="M 620 40 C 580 80 660 130 620 170 C 580 210 660 260 620 300 C 580 340 660 380 620 420" fill="none" stroke="url(#helix2)" stroke-width="2.5" opacity="0.8"/>
-
-  <!-- Base pairs (rungs) -->
-  <g stroke-width="2" opacity="0.6">
-    <line x1="524" y1="72" x2="616" y2="72" stroke="#2dd4bf"/>
-    <line x1="500" y1="110" x2="640" y2="110" stroke="#34d399"/>
-    <line x1="506" y1="148" x2="634" y2="148" stroke="#2dd4bf"/>
-    <line x1="524" y1="186" x2="616" y2="186" stroke="#a7f3d0"/>
-    <line x1="506" y1="224" x2="634" y2="224" stroke="#2dd4bf"/>
-    <line x1="500" y1="262" x2="640" y2="262" stroke="#34d399"/>
-    <line x1="506" y1="300" x2="634" y2="300" stroke="#2dd4bf"/>
-    <line x1="524" y1="338" x2="616" y2="338" stroke="#a7f3d0"/>
-    <line x1="500" y1="378" x2="640" y2="378" stroke="#2dd4bf"/>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#030a08" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-106" y="10" transform="rotate(-90)" fill="rgba(132,204,22,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">BIOC2002 · BIOCHEMISTRY</text>
+  <rect x="16" y="0" width="184" height="4" fill="#84cc16"/>
+  <g transform="translate(108, 78)" opacity="0.88">
+    <path d="M -12 -36 Q -24 -24 -12 -12 Q 0 0 -12 12 Q -24 24 -12 36" fill="none" stroke="#84cc16" stroke-width="2"/>
+    <path d="M 12 -36 Q 24 -24 12 -12 Q 0 0 12 12 Q 24 24 12 36" fill="none" stroke="rgba(132,204,22,0.5)" stroke-width="2"/>
+    <line x1="-12" y1="-30" x2="12" y2="-30" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="-18" x2="18" y2="-18" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
+    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="6" x2="18" y2="6" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
+    <line x1="-12" y1="18" x2="12" y2="18" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="30" x2="18" y2="30" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
   </g>
-
-  <!-- Base pair labels -->
-  <g font-family="monospace" font-size="10" fill="rgba(167,243,208,0.7)">
-    <text x="558" y="71">A-T</text>
-    <text x="558" y="109">G-C</text>
-    <text x="558" y="147">T-A</text>
-    <text x="558" y="185">C-G</text>
-    <text x="558" y="223">A-T</text>
-    <text x="558" y="261">G-C</text>
-    <text x="558" y="299">T-A</text>
-    <text x="558" y="337">A-T</text>
-  </g>
-
-  <!-- Ribosome / mRNA illustration -->
-  <ellipse cx="710" cy="230" rx="65" ry="42" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.3)" stroke-width="1.5"/>
-  <ellipse cx="710" cy="215" rx="50" ry="30" fill="rgba(52,211,153,0.06)" stroke="rgba(52,211,153,0.2)" stroke-width="1"/>
-  <text x="710" y="223" font-family="Inter, sans-serif" font-size="10" fill="rgba(167,243,208,0.6)" text-anchor="middle" font-weight="600">Ribosome</text>
-  <!-- mRNA thread -->
-  <path d="M 660 240 Q 680 250 710 248 Q 740 246 760 240" fill="none" stroke="rgba(245,158,11,0.5)" stroke-width="2.5"/>
-  <text x="710" y="265" font-family="monospace" font-size="9" fill="rgba(245,158,11,0.6)" text-anchor="middle">5'—AUG·UAA—3'</text>
-
-  <!-- Left content -->
-  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
-  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">BIOC2002</text>
-
-  <text x="44" y="135" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Protein</text>
-  <text x="44" y="178" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Synthesis</text>
-  <text x="44" y="221" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Summary</text>
-
-  <text x="44" y="254" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">Molecular Biology  ·  S1 2025</text>
-
-  <g transform="translate(44, 278)">
-    <rect width="106" height="26" rx="13" fill="rgba(45,212,191,0.12)" stroke="rgba(45,212,191,0.3)" stroke-width="1"/>
-    <text x="53" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" text-anchor="middle">Transcription</text>
-  </g>
-  <g transform="translate(160, 278)">
-    <rect width="98" height="26" rx="13" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.3)" stroke-width="1"/>
-    <text x="49" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#34d399" text-anchor="middle">Translation</text>
-  </g>
-
-  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
-    <text x="44" y="344">✦  DNA → mRNA → Protein</text>
-    <text x="44" y="364">✦  Post-translational Modifications</text>
-    <text x="44" y="384">✦  Protein Folding Overview</text>
-  </g>
-
-  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
-  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Biochemistry</text>
+  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">DNA · PROTEINS · METABOLISM</text>
+  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#84cc16" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#071410" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">BIOC2002</text>
+  <circle cx="164" cy="200" r="22" fill="rgba(132,204,22,0.04)" stroke="rgba(132,204,22,0.1)" stroke-width="1"/>
 </svg>

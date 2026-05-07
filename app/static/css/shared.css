@@ -435,7 +435,7 @@ body.app-page {
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
 
 .sb-card { background: #012f87; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r); overflow: visible; }
-.sb-profile-banner { height: 58px; background: linear-gradient(135deg,#010e38 0%,#011e60 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sb-profile-banner { height: 58px; background: linear-gradient(135deg,#010e38 0%,#011e60 100%); border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: var(--r) var(--r) 0 0; }
 .sb-profile-body { padding: 0 16px 16px; }
 .sb-profile-av {
   width: 52px; height: 52px; border-radius: 50%;

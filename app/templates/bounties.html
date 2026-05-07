@@ -31,6 +31,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 }
 .bounty-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
 .bc-accent { height: 4px; background: linear-gradient(90deg,#b45309,#f59e0b); }
+.bc-banner { height: 88px; overflow: hidden; }
+.bc-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bc-body { padding: 16px 18px 14px; }
 .bc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .bc-left { display: flex; align-items: center; gap: 10px; }
@@ -131,7 +133,16 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   {% for b in bounties %}
   {% set idx = loop.index0 % 8 %}
   <div class="bounty-card">
+    {% set _uc = b.unit_code[:4].upper() if b.unit_code else '' %}
+    {% set _bmap = {'CITS': 'images/banners/banner_cs.svg', 'MATH': 'images/banners/banner_math.svg', 'STAT': 'images/banners/banner_stats.svg'} %}
+    {% set _banner = _bmap.get(_uc, '') %}
+    {% if _banner %}
+    <div class="bc-banner">
+      <img src="{{ url_for('static', filename=_banner) }}" alt="" loading="lazy"/>
+    </div>
+    {% else %}
     <div class="bc-accent"></div>
+    {% endif %}
     <div class="bc-body">
       <div class="bc-header">
         <div class="bc-left">

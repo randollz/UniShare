@@ -1,96 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0f0a"/>
-      <stop offset="50%" stop-color="#0d1f0d"/>
-      <stop offset="100%" stop-color="#071a1a"/>
-    </linearGradient>
-    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#22c55e"/>
-      <stop offset="100%" stop-color="#14b8a6"/>
+      <stop offset="0%" stop-color="#040d08"/><stop offset="100%" stop-color="#091a10"/>
     </linearGradient>
   </defs>
-
-  <rect width="800" height="420" fill="url(#bg)"/>
-
-  <!-- Scanlines -->
-  <rect width="800" height="420" fill="url(#bg)" opacity="0.5"/>
-  <g opacity="0.04" stroke="#22c55e" stroke-width="1">
-    <line x1="0" y1="30" x2="800" y2="30"/>
-    <line x1="0" y1="60" x2="800" y2="60"/>
-    <line x1="0" y1="90" x2="800" y2="90"/>
-    <line x1="0" y1="120" x2="800" y2="120"/>
-    <line x1="0" y1="150" x2="800" y2="150"/>
-    <line x1="0" y1="180" x2="800" y2="180"/>
-    <line x1="0" y1="210" x2="800" y2="210"/>
-    <line x1="0" y1="240" x2="800" y2="240"/>
-    <line x1="0" y1="270" x2="800" y2="270"/>
-    <line x1="0" y1="300" x2="800" y2="300"/>
-    <line x1="0" y1="330" x2="800" y2="330"/>
-    <line x1="0" y1="360" x2="800" y2="360"/>
-    <line x1="0" y1="390" x2="800" y2="390"/>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#020806" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-130" y="10" transform="rotate(-90)" fill="rgba(34,197,94,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS2002 · SYSTEMS PROGRAMMING</text>
+  <rect x="16" y="0" width="184" height="4" fill="#22c55e"/>
+  <g transform="translate(108, 78)">
+    <rect x="-38" y="-36" width="76" height="52" rx="6" fill="rgba(0,0,0,0.6)" stroke="rgba(34,197,94,0.5)" stroke-width="1.5"/>
+    <circle cx="-24" cy="-26" r="3.5" fill="#ff5f57" opacity="0.8"/>
+    <circle cx="-13" cy="-26" r="3.5" fill="#febc2e" opacity="0.8"/>
+    <circle cx="-2" cy="-26" r="3.5" fill="#28c840" opacity="0.8"/>
+    <text x="-30" y="-6" fill="#22c55e" font-family="monospace" font-size="13" font-weight="700">&gt;_</text>
+    <rect x="-14" y="-14" width="30" height="2" rx="1" fill="rgba(34,197,94,0.5)"/>
+    <rect x="-30" y="-2" width="20" height="2" rx="1" fill="rgba(34,197,94,0.3)"/>
+    <rect x="-30" y="6" width="36" height="2" rx="1" fill="rgba(34,197,94,0.2)"/>
   </g>
-
-  <!-- Terminal window -->
-  <rect x="400" y="35" width="380" height="320" rx="8" fill="rgba(0,0,0,0.7)" stroke="rgba(34,197,94,0.25)" stroke-width="1"/>
-  <rect x="400" y="35" width="380" height="28" rx="8" fill="rgba(34,197,94,0.08)"/>
-  <circle cx="420" cy="49" r="5" fill="#ef4444" opacity="0.7"/>
-  <circle cx="436" cy="49" r="5" fill="#f59e0b" opacity="0.7"/>
-  <circle cx="452" cy="49" r="5" fill="#22c55e" opacity="0.7"/>
-  <text x="475" y="53" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.3)">bash  ~</text>
-
-  <!-- Terminal content -->
-  <g font-family="monospace" font-size="12" fill="#22c55e">
-    <text x="415" y="85">$ gcc -o prog main.c</text>
-    <text x="415" y="103" opacity="0.7">Compiled: main.c → prog</text>
-    <text x="415" y="121">$ ./prog</text>
-    <text x="415" y="139" fill="#14b8a6">Child PID: 4821</text>
-    <text x="415" y="157" fill="#14b8a6">Fork returned: 0</text>
-    <text x="415" y="175">$ cat memory_map.c</text>
-    <text x="415" y="207" fill="#a3e635">int *ptr = malloc(</text>
-    <text x="415" y="225" fill="#a3e635">    sizeof(int) * n);</text>
-    <text x="415" y="243" fill="#a3e635">if (!ptr) {</text>
-    <text x="415" y="261" fill="#a3e635">  perror("malloc");</text>
-    <text x="415" y="279" fill="#a3e635">  exit(1);</text>
-    <text x="415" y="297" fill="#a3e635">}</text>
-    <text x="415" y="315" fill="#a3e635">free(ptr);</text>
-    <text x="415" y="335">$ valgrind ./prog</text>
-    <text x="415" y="353" fill="#14b8a6">All heap blocks freed</text>
-  </g>
-  <!-- Cursor -->
-  <rect x="415" y="355" width="8" height="14" fill="#22c55e" opacity="0.8">
-    <animate attributeName="opacity" values="0.8;0;0.8" dur="1s" repeatCount="indefinite"/>
-  </rect>
-
-  <!-- Left content -->
-  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
-  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">CITS2002</text>
-
-  <text x="44" y="135" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Systems</text>
-  <text x="44" y="178" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Programming</text>
-  <text x="44" y="221" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Guide</text>
-
-  <text x="44" y="254" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">C Language, OS Concepts  ·  S2 2024</text>
-
-  <g transform="translate(44, 278)">
-    <rect width="60" height="26" rx="13" fill="rgba(34,197,94,0.12)" stroke="rgba(34,197,94,0.3)" stroke-width="1"/>
-    <text x="30" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#4ade80" text-anchor="middle">C Lang</text>
-  </g>
-  <g transform="translate(114, 278)">
-    <rect width="76" height="26" rx="13" fill="rgba(20,184,166,0.12)" stroke="rgba(20,184,166,0.3)" stroke-width="1"/>
-    <text x="38" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#2dd4bf" text-anchor="middle">fork/exec</text>
-  </g>
-  <g transform="translate(200, 278)">
-    <rect width="76" height="26" rx="13" fill="rgba(163,230,53,0.1)" stroke="rgba(163,230,53,0.25)" stroke-width="1"/>
-    <text x="38" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#a3e635" text-anchor="middle">malloc</text>
-  </g>
-
-  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
-    <text x="44" y="344">✦  Pointers &amp; Memory Management</text>
-    <text x="44" y="364">✦  Process Control (fork/exec/wait)</text>
-    <text x="44" y="384">✦  File I/O &amp; Signals</text>
-  </g>
-
-  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
-  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Systems Programming</text>
+  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">C · MEMORY · OS CONCEPTS</text>
+  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#22c55e" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#042008" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS2002</text>
+  <circle cx="40" cy="200" r="20" fill="rgba(34,197,94,0.04)" stroke="rgba(34,197,94,0.1)" stroke-width="1"/>
 </svg>

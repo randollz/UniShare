@@ -1,101 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f0c29"/>
-      <stop offset="50%" stop-color="#1a1a4e"/>
-      <stop offset="100%" stop-color="#0d2137"/>
+      <stop offset="0%" stop-color="#0a1628"/><stop offset="100%" stop-color="#1a3060"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#3b82f6"/>
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
-
-  <!-- Background -->
-  <rect width="800" height="420" fill="url(#bg)"/>
-
-  <!-- Grid lines -->
-  <g opacity="0.06" stroke="#fff" stroke-width="1">
-    <line x1="0" y1="60" x2="800" y2="60"/>
-    <line x1="0" y1="120" x2="800" y2="120"/>
-    <line x1="0" y1="180" x2="800" y2="180"/>
-    <line x1="0" y1="240" x2="800" y2="240"/>
-    <line x1="0" y1="300" x2="800" y2="300"/>
-    <line x1="0" y1="360" x2="800" y2="360"/>
-    <line x1="100" y1="0" x2="100" y2="420"/>
-    <line x1="200" y1="0" x2="200" y2="420"/>
-    <line x1="300" y1="0" x2="300" y2="420"/>
-    <line x1="400" y1="0" x2="400" y2="420"/>
-    <line x1="500" y1="0" x2="500" y2="420"/>
-    <line x1="600" y1="0" x2="600" y2="420"/>
-    <line x1="700" y1="0" x2="700" y2="420"/>
-  </g>
-
-  <!-- Code editor window (right side) -->
-  <rect x="420" y="40" width="350" height="300" rx="10" fill="rgba(0,0,0,0.5)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
-  <!-- Window bar -->
-  <rect x="420" y="40" width="350" height="32" rx="10" fill="rgba(255,255,255,0.05)"/>
-  <rect x="420" y="62" width="350" height="10" rx="0" fill="rgba(255,255,255,0.05)"/>
-  <circle cx="443" cy="56" r="5" fill="#ef4444" opacity="0.8"/>
-  <circle cx="460" cy="56" r="5" fill="#f59e0b" opacity="0.8"/>
-  <circle cx="477" cy="56" r="5" fill="#22c55e" opacity="0.8"/>
-  <text x="495" y="60" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.3)">routes.py</text>
-
-  <!-- Code lines -->
-  <g font-family="monospace" font-size="11" filter="url(#glow)">
-    <text x="435" y="95"  fill="#c792ea">@app.route</text><text x="507" y="95"  fill="#89ddff">('/feed')</text>
-    <text x="435" y="113" fill="#c792ea">def </text><text x="460" y="113" fill="#82aaff">dashboard</text><text x="517" y="113" fill="#89ddff">():</text>
-    <text x="451" y="131" fill="#a9b8d4">posts </text><text x="487" y="131" fill="#89ddff">= </text><text x="499" y="131" fill="#82aaff">Post.query</text>
-    <text x="467" y="149" fill="#a9b8d4">.order_by</text><text x="523" y="149" fill="#89ddff">(</text>
-    <text x="435" y="167" fill="#a9b8d4">    desc</text><text x="470" y="167" fill="#89ddff">())</text><text x="486" y="167" fill="#a9b8d4">.all</text><text x="509" y="167" fill="#89ddff">()</text>
-    <text x="435" y="185" fill="#c792ea">return </text><text x="476" y="185" fill="#82aaff">render_template</text>
-    <text x="451" y="203" fill="#89ddff">(</text><text x="458" y="203" fill="#c3e88d">'dashboard.html'</text><text x="557" y="203" fill="#89ddff">,</text>
-    <text x="467" y="221" fill="#a9b8d4">posts</text><text x="498" y="221" fill="#89ddff">=</text><text x="505" y="221" fill="#a9b8d4">posts</text><text x="527" y="221" fill="#89ddff">)</text>
-    <text x="435" y="253" fill="#546e7a">## SQLAlchemy ORM</text>
-    <text x="435" y="271" fill="#c792ea">class </text><text x="469" y="271" fill="#82aaff">Post</text><text x="486" y="271" fill="#89ddff">(db.Model):</text>
-    <text x="451" y="289" fill="#a9b8d4">body </text><text x="479" y="289" fill="#89ddff">= </text><text x="491" y="289" fill="#82aaff">db.Column</text><text x="540" y="289" fill="#89ddff">(</text>
-    <text x="467" y="307" fill="#82aaff">db.Text</text><text x="504" y="307" fill="#89ddff">,</text><text x="513" y="307" fill="#a9b8d4">nullable</text><text x="555" y="307" fill="#89ddff">=</text><text x="562" y="307" fill="#f78c6c">False</text><text x="588" y="307" fill="#89ddff">)</text>
-  </g>
-
-  <!-- Left content -->
-  <!-- Unit badge -->
-  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#accent)" opacity="0.9"/>
-  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">CITS3403</text>
-
-  <!-- Main title -->
-  <text x="44" y="130" font-family="Inter, sans-serif" font-size="38" font-weight="900" fill="#fff" letter-spacing="-1">Complete</text>
-  <text x="44" y="175" font-family="Inter, sans-serif" font-size="38" font-weight="900" fill="url(#accent)" letter-spacing="-1">Lecture</text>
-  <text x="44" y="220" font-family="Inter, sans-serif" font-size="38" font-weight="900" fill="#fff" letter-spacing="-1">Summary</text>
-
-  <!-- Subtitle -->
-  <text x="44" y="255" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">Agile Web Development  ·  S1 2025</text>
-
-  <!-- Stats row -->
-  <g transform="translate(44, 285)">
-    <rect width="80" height="26" rx="13" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
-    <text x="40" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#06b6d4" text-anchor="middle">12 Weeks</text>
-  </g>
-  <g transform="translate(134, 285)">
-    <rect width="72" height="26" rx="13" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
-    <text x="36" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#60a5fa" text-anchor="middle">40 Pages</text>
-  </g>
-  <g transform="translate(216, 285)">
-    <rect width="72" height="26" rx="13" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.3)" stroke-width="1"/>
-    <text x="36" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#a78bfa" text-anchor="middle">47 Upvotes</text>
-  </g>
-
-  <!-- Topics list -->
-  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
-    <text x="44" y="345">✦  Flask Routing &amp; ORM</text>
-    <text x="44" y="365">✦  JavaScript &amp; Fetch API</text>
-    <text x="44" y="385">✦  SQL &amp; Security Patterns</text>
-  </g>
-
-  <!-- Bottom accent bar -->
-  <rect x="0" y="408" width="800" height="4" fill="url(#accent)"/>
-  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#050c18" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-126" y="10" transform="rotate(-90)" fill="rgba(255,140,80,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS3403 · WEB DEVELOPMENT</text>
+  <rect x="16" y="0" width="184" height="4" fill="#ff6b35"/>
+  <text x="108" y="100" text-anchor="middle" fill="#ff6b35" font-family="monospace" font-size="44" font-weight="700" opacity="0.92">&lt;/&gt;</text>
+  <line x1="26" y1="122" x2="184" y2="122" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="146" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13.5" font-weight="800" letter-spacing="-0.02em">Web Development</text>
+  <text x="108" y="162" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">FLASK · JS · HTML/CSS</text>
+  <text x="108" y="178" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#ff6b35" opacity="0.88"/>
+  <text x="104" y="243" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS3403</text>
+  <circle cx="160" cy="200" r="22" fill="rgba(255,107,53,0.05)" stroke="rgba(255,107,53,0.12)" stroke-width="1"/>
 </svg>

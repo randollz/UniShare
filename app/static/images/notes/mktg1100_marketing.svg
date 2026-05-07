@@ -1,80 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#4a044e"/>
-      <stop offset="40%" stop-color="#7c1d6f"/>
-      <stop offset="100%" stop-color="#be185d"/>
-    </linearGradient>
-    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#f9a8d4"/>
-      <stop offset="100%" stop-color="#f0abfc"/>
+      <stop offset="0%" stop-color="#200a15"/><stop offset="100%" stop-color="#380f22"/>
     </linearGradient>
   </defs>
-
-  <rect width="800" height="420" fill="url(#bg)"/>
-
-  <!-- Decorative circles -->
-  <circle cx="650" cy="210" r="160" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <circle cx="650" cy="210" r="110" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <circle cx="650" cy="210" r="60" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-
-  <!-- 4Ps quadrant circles -->
-  <!-- Product -->
-  <circle cx="580" cy="145" r="52" fill="rgba(249,168,212,0.15)" stroke="rgba(249,168,212,0.4)" stroke-width="1.5"/>
-  <text x="580" y="140" font-family="Inter, sans-serif" font-size="15" font-weight="800" fill="#f9a8d4" text-anchor="middle">Product</text>
-  <text x="580" y="158" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">Features · Quality</text>
-
-  <!-- Price -->
-  <circle cx="720" cy="145" r="52" fill="rgba(240,171,252,0.15)" stroke="rgba(240,171,252,0.4)" stroke-width="1.5"/>
-  <text x="720" y="140" font-family="Inter, sans-serif" font-size="15" font-weight="800" fill="#f0abfc" text-anchor="middle">Price</text>
-  <text x="720" y="158" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">Value · Margin</text>
-
-  <!-- Place -->
-  <circle cx="580" cy="285" r="52" fill="rgba(196,181,253,0.15)" stroke="rgba(196,181,253,0.4)" stroke-width="1.5"/>
-  <text x="580" y="280" font-family="Inter, sans-serif" font-size="15" font-weight="800" fill="#c4b5fd" text-anchor="middle">Place</text>
-  <text x="580" y="298" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">Channel · Reach</text>
-
-  <!-- Promotion -->
-  <circle cx="720" cy="285" r="52" fill="rgba(253,164,175,0.15)" stroke="rgba(253,164,175,0.4)" stroke-width="1.5"/>
-  <text x="720" y="280" font-family="Inter, sans-serif" font-size="15" font-weight="800" fill="#fda4af" text-anchor="middle">Promotion</text>
-  <text x="720" y="298" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">Ads · PR · Social</text>
-
-  <!-- Center 4Ps label -->
-  <circle cx="650" cy="215" r="28" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-  <text x="650" y="211" font-family="Inter, sans-serif" font-size="13" font-weight="900" fill="#fff" text-anchor="middle">4Ps</text>
-  <text x="650" y="226" font-family="Inter, sans-serif" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle">Framework</text>
-
-  <!-- Connector lines -->
-  <line x1="580" y1="197" x2="622" y2="210" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-  <line x1="720" y1="197" x2="678" y2="210" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-  <line x1="580" y1="233" x2="622" y2="220" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-  <line x1="720" y1="233" x2="678" y2="220" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-
-  <!-- Left content -->
-  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
-  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#4a044e" text-anchor="middle" letter-spacing="1">MKTG1100</text>
-
-  <text x="44" y="135" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Marketing</text>
-  <text x="44" y="178" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Mix Notes</text>
-
-  <text x="44" y="220" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">4Ps Framework  ·  S2 2024</text>
-
-  <g transform="translate(44, 244)">
-    <rect width="70" height="26" rx="13" fill="rgba(249,168,212,0.15)" stroke="rgba(249,168,212,0.35)" stroke-width="1"/>
-    <text x="35" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f9a8d4" text-anchor="middle">AU Brands</text>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#100508" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-122" y="10" transform="rotate(-90)" fill="rgba(236,72,153,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">MKTG1100 · MARKETING FUNDAMENTALS</text>
+  <rect x="16" y="0" width="184" height="4" fill="#ec4899"/>
+  <g transform="translate(108, 82)" opacity="0.88">
+    <line x1="-36" y1="22" x2="36" y2="22" stroke="rgba(236,72,153,0.4)" stroke-width="1.5"/>
+    <rect x="-34" y="2" width="14" height="20" rx="2" fill="rgba(236,72,153,0.25)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="-16" y="-10" width="14" height="32" rx="2" fill="rgba(236,72,153,0.45)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="2" y="-22" width="14" height="44" rx="2" fill="rgba(236,72,153,0.65)" stroke="#ec4899" stroke-width="1"/>
+    <rect x="20" y="-34" width="14" height="56" rx="2" fill="#ec4899" stroke="#ec4899" stroke-width="1"/>
+    <path d="M -28 6 L 28 -30" fill="none" stroke="rgba(236,72,153,0.45)" stroke-width="1.5" stroke-dasharray="3 2"/>
   </g>
-  <g transform="translate(124, 244)">
-    <rect width="76" height="26" rx="13" fill="rgba(240,171,252,0.12)" stroke="rgba(240,171,252,0.3)" stroke-width="1"/>
-    <text x="38" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f0abfc" text-anchor="middle">Case Study</text>
-  </g>
-
-  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
-    <text x="44" y="310">✦  4Ps Framework &amp; Case Studies</text>
-    <text x="44" y="330">✦  Consumer Behaviour Models</text>
-    <text x="44" y="350">✦  Exam Question Bank</text>
-    <text x="44" y="370">✦  Australian Brand Examples</text>
-  </g>
-
-  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
-  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="148" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Marketing Fundamentals</text>
+  <text x="108" y="164" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">STRATEGY · CONSUMER · BRAND</text>
+  <text x="108" y="180" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="60" y="230" width="88" height="18" rx="9" fill="#ec4899" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">MKTG1100</text>
+  <circle cx="44" cy="205" r="20" fill="rgba(236,72,153,0.04)" stroke="rgba(236,72,153,0.1)" stroke-width="1"/>
 </svg>
