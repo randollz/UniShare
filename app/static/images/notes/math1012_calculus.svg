@@ -1,21 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0e0b2e"/><stop offset="100%" stop-color="#1e1760"/>
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="curve" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#f97316"/>
     </linearGradient>
   </defs>
-  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
-  <rect width="16" height="260" fill="#07051a" rx="3 0 0 3"/>
-  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <text x="-100" y="10" transform="rotate(-90)" fill="rgba(245,200,66,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">MATH1012 · CALCULUS</text>
-  <rect x="16" y="0" width="184" height="4" fill="#f5c842"/>
-  <text x="108" y="110" text-anchor="middle" fill="#f5c842" font-family="serif" font-size="68" font-weight="400" opacity="0.88">&#x222B;</text>
-  <text x="132" y="88" fill="rgba(245,200,66,0.4)" font-family="serif" font-size="12" font-style="italic">dx</text>
-  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="14" font-weight="800" letter-spacing="-0.02em">Calculus</text>
-  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">DIFFERENTIATION · INTEGRATION</text>
-  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
-  <rect x="66" y="230" width="76" height="18" rx="9" fill="#f5c842" opacity="0.9"/>
-  <text x="104" y="243" text-anchor="middle" fill="#0e0b2e" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">MATH1012</text>
-  <circle cx="162" cy="198" r="26" fill="rgba(245,200,66,0.04)" stroke="rgba(245,200,66,0.1)" stroke-width="1"/>
+
+  <rect width="800" height="420" fill="url(#bg)"/>
+
+  <!-- Coordinate grid (right side) -->
+  <g opacity="0.12" stroke="#fff" stroke-width="0.8">
+    <line x1="430" y1="40" x2="430" y2="390"/>
+    <line x1="480" y1="40" x2="480" y2="390"/>
+    <line x1="530" y1="40" x2="530" y2="390"/>
+    <line x1="580" y1="40" x2="580" y2="390"/>
+    <line x1="630" y1="40" x2="630" y2="390"/>
+    <line x1="680" y1="40" x2="680" y2="390"/>
+    <line x1="730" y1="40" x2="730" y2="390"/>
+    <line x1="780" y1="40" x2="780" y2="390"/>
+    <line x1="420" y1="80" x2="800" y2="80"/>
+    <line x1="420" y1="130" x2="800" y2="130"/>
+    <line x1="420" y1="180" x2="800" y2="180"/>
+    <line x1="420" y1="230" x2="800" y2="230"/>
+    <line x1="420" y1="280" x2="800" y2="280"/>
+    <line x1="420" y1="330" x2="800" y2="330"/>
+    <line x1="420" y1="380" x2="800" y2="380"/>
+  </g>
+
+  <!-- Axes -->
+  <line x1="430" y1="40" x2="430" y2="390" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+  <line x1="420" y1="215" x2="800" y2="215" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+
+  <!-- f(x) = x² curve -->
+  <path d="M 430 390 Q 500 215 600 80 Q 660 0 790 0" fill="none" stroke="url(#curve)" stroke-width="2.5" opacity="0.8"/>
+
+  <!-- ∫ area shading -->
+  <path d="M 480 265 Q 510 215 540 190 Q 570 175 600 180 L 600 215 L 480 215 Z" fill="rgba(245,158,11,0.12)" stroke="none"/>
+
+  <!-- Derivative tangent line -->
+  <line x1="520" y1="350" x2="640" y2="100" stroke="rgba(249,115,22,0.6)" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+  <!-- Labels on graph -->
+  <text x="770" y="55" font-family="monospace" font-size="14" fill="rgba(245,158,11,0.9)">f(x)</text>
+  <text x="797" y="220" font-family="monospace" font-size="12" fill="rgba(255,255,255,0.5)">x</text>
+
+  <!-- Integration annotation -->
+  <text x="495" y="250" font-family="monospace" font-size="13" fill="rgba(245,158,11,0.7)">∫</text>
+  <text x="505" y="248" font-family="monospace" font-size="10" fill="rgba(245,158,11,0.7)">b</text>
+  <text x="505" y="262" font-family="monospace" font-size="10" fill="rgba(245,158,11,0.7)">a</text>
+  <text x="516" y="254" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.5)">f(x) dx</text>
+
+  <!-- Left content -->
+  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
+  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">MATH1012</text>
+
+  <text x="44" y="135" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Calculus</text>
+  <text x="44" y="178" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Weeks 1–6</text>
+  <text x="44" y="221" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">Notes</text>
+
+  <text x="44" y="254" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">Limits, Derivatives, Integrals  ·  S1 2025</text>
+
+  <g transform="translate(44, 278)">
+    <rect width="74" height="26" rx="13" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.35)" stroke-width="1"/>
+    <text x="37" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#fbbf24" text-anchor="middle">Limits</text>
+  </g>
+  <g transform="translate(128, 278)">
+    <rect width="90" height="26" rx="13" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.3)" stroke-width="1"/>
+    <text x="45" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#fb923c" text-anchor="middle">Derivatives</text>
+  </g>
+  <g transform="translate(228, 278)">
+    <rect width="82" height="26" rx="13" fill="rgba(251,191,36,0.1)" stroke="rgba(251,191,36,0.25)" stroke-width="1"/>
+    <text x="41" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#fcd34d" text-anchor="middle">Integrals</text>
+  </g>
+
+  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
+    <text x="44" y="342">✦  Chain Rule &amp; Product Rule</text>
+    <text x="44" y="362">✦  Integration by Parts</text>
+    <text x="44" y="382">✦  Substitution Method</text>
+  </g>
+
+  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
+  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
 </svg>

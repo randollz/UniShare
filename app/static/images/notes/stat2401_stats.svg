@@ -1,23 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a1f1f"/><stop offset="100%" stop-color="#0f3030"/>
+      <stop offset="0%" stop-color="#052e16"/>
+      <stop offset="50%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#1c4a24"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#166534"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#9d174d"/>
     </linearGradient>
   </defs>
-  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
-  <rect width="16" height="260" fill="#050f0f" rx="3 0 0 3"/>
-  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <text x="-108" y="10" transform="rotate(-90)" fill="rgba(245,158,11,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">STAT2401 · STATISTICS</text>
-  <rect x="16" y="0" width="184" height="4" fill="#f59e0b"/>
-  <text x="108" y="108" text-anchor="middle" fill="#f59e0b" font-family="serif" font-size="62" font-weight="700" opacity="0.88">&#x3C3;</text>
-  <g transform="translate(108, 118)" opacity="0.4">
-    <path d="M -30 8 Q -15 -4 0 -4 Q 15 -4 30 8" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+
+  <rect width="800" height="420" fill="url(#bg)"/>
+
+  <!-- Chart grid lines -->
+  <g stroke="rgba(255,255,255,0.08)" stroke-width="1">
+    <line x1="430" y1="340" x2="790" y2="340"/>
+    <line x1="430" y1="290" x2="790" y2="290"/>
+    <line x1="430" y1="240" x2="790" y2="240"/>
+    <line x1="430" y1="190" x2="790" y2="190"/>
+    <line x1="430" y1="140" x2="790" y2="140"/>
+    <line x1="430" y1="90" x2="790" y2="90"/>
+    <!-- X axis -->
+    <line x1="430" y1="340" x2="790" y2="340" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+    <line x1="430" y1="60" x2="430" y2="340" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
   </g>
-  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="14" font-weight="800" letter-spacing="-0.02em">Statistics</text>
-  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">PROBABILITY · INFERENCE · MODELS</text>
-  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
-  <rect x="66" y="230" width="76" height="18" rx="9" fill="#f59e0b" opacity="0.88"/>
-  <text x="104" y="243" text-anchor="middle" fill="#0a1f1f" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">STAT2401</text>
-  <circle cx="160" cy="200" r="22" fill="rgba(245,158,11,0.04)" stroke="rgba(245,158,11,0.1)" stroke-width="1"/>
+
+  <!-- Bars -->
+  <rect x="450" y="240" width="40" height="100" fill="url(#bar1)" rx="3" opacity="0.9"/>
+  <rect x="510" y="175" width="40" height="165" fill="url(#bar2)" rx="3" opacity="0.9"/>
+  <rect x="570" y="130" width="40" height="210" fill="url(#bar1)" rx="3" opacity="0.9"/>
+  <rect x="630" y="190" width="40" height="150" fill="url(#bar3)" rx="3" opacity="0.9"/>
+  <rect x="690" y="100" width="40" height="240" fill="url(#bar2)" rx="3" opacity="0.9"/>
+
+  <!-- Bar labels -->
+  <g font-family="monospace" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">
+    <text x="470" y="355">Q1</text>
+    <text x="530" y="355">Q2</text>
+    <text x="590" y="355">Q3</text>
+    <text x="650" y="355">Q4</text>
+    <text x="710" y="355">Q5</text>
+  </g>
+
+  <!-- R logo watermark -->
+  <text x="760" y="90" font-family="monospace" font-size="38" font-weight="900" fill="rgba(74,222,128,0.1)" text-anchor="middle">R</text>
+
+  <!-- Scatter dots overlay -->
+  <g fill="rgba(245,158,11,0.7)">
+    <circle cx="455" cy="220" r="4"/>
+    <circle cx="475" cy="200" r="3"/>
+    <circle cx="515" cy="155" r="4"/>
+    <circle cx="538" cy="140" r="3"/>
+    <circle cx="575" cy="115" r="4"/>
+    <circle cx="598" cy="105" r="3"/>
+    <circle cx="635" cy="170" r="4"/>
+    <circle cx="658" cy="160" r="3"/>
+    <circle cx="695" cy="80" r="4"/>
+    <circle cx="718" cy="70" r="3"/>
+  </g>
+  <!-- Trend line -->
+  <line x1="450" y1="220" x2="720" y2="70" stroke="rgba(245,158,11,0.45)" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+  <!-- Left content -->
+  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
+  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">STAT2401</text>
+
+  <text x="44" y="135" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="#fff" letter-spacing="-1">R Code</text>
+  <text x="44" y="178" font-family="Inter, sans-serif" font-size="36" font-weight="900" fill="url(#acc)" letter-spacing="-1">Cheatsheet</text>
+
+  <text x="44" y="220" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">Statistical Computing &amp; R  ·  S2 2024</text>
+
+  <!-- R code snippet -->
+  <rect x="44" y="235" width="340" height="100" rx="6" fill="rgba(0,0,0,0.4)" stroke="rgba(74,222,128,0.2)" stroke-width="1"/>
+  <g font-family="monospace" font-size="12" fill="#4ade80">
+    <text x="58" y="256">ggplot(data, aes(x, y)) +</text>
+    <text x="58" y="274">  geom_bar(stat="identity") +</text>
+    <text x="58" y="292">  geom_smooth(method="lm")</text>
+    <text x="58" y="314" fill="#60a5fa">lm(y ~ x, data=df)</text>
+  </g>
+
+  <g transform="translate(44, 352)">
+    <rect width="76" height="26" rx="13" fill="rgba(74,222,128,0.12)" stroke="rgba(74,222,128,0.3)" stroke-width="1"/>
+    <text x="38" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#4ade80" text-anchor="middle">ggplot2</text>
+  </g>
+  <g transform="translate(130, 352)">
+    <rect width="66" height="26" rx="13" fill="rgba(96,165,250,0.12)" stroke="rgba(96,165,250,0.3)" stroke-width="1"/>
+    <text x="33" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#60a5fa" text-anchor="middle">dplyr</text>
+  </g>
+  <g transform="translate(206, 352)">
+    <rect width="56" height="26" rx="13" fill="rgba(244,114,182,0.12)" stroke="rgba(244,114,182,0.3)" stroke-width="1"/>
+    <text x="28" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#f472b6" text-anchor="middle">lm()</text>
+  </g>
+
+  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
+  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
 </svg>

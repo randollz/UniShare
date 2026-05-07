@@ -1,27 +1,95 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0d2929"/><stop offset="100%" stop-color="#0f4040"/>
+      <stop offset="0%" stop-color="#0f2027"/>
+      <stop offset="50%" stop-color="#203a43"/>
+      <stop offset="100%" stop-color="#2c5364"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
     </linearGradient>
   </defs>
-  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
-  <rect width="16" height="260" fill="#071818" rx="3 0 0 3"/>
-  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <text x="-122" y="10" transform="rotate(-90)" fill="rgba(245,200,66,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS3403 · CHEAT SHEET</text>
-  <rect x="16" y="0" width="184" height="4" fill="#f5c842"/>
-  <g transform="translate(108, 72)" opacity="0.85">
-    <rect x="-28" y="-30" width="56" height="68" rx="4" fill="rgba(245,200,66,0.12)" stroke="rgba(245,200,66,0.3)" stroke-width="1.5"/>
-    <line x1="-18" y1="-14" x2="18" y2="-14" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-18" y1="-4" x2="18" y2="-4" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-18" y1="6" x2="10" y2="6" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-18" y1="16" x2="14" y2="16" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-18" y1="26" x2="8" y2="26" stroke="#f5c842" stroke-width="2" stroke-linecap="round"/>
+
+  <rect width="800" height="420" fill="url(#bg)"/>
+
+  <!-- Cheat sheet paper texture (right) -->
+  <rect x="415" y="28" width="365" height="368" rx="4" fill="rgba(255,255,255,0.96)"/>
+  <!-- Ruled lines -->
+  <g stroke="rgba(147,197,253,0.35)" stroke-width="0.8">
+    <line x1="415" y1="58" x2="780" y2="58"/>
+    <line x1="415" y1="78" x2="780" y2="78"/>
+    <line x1="415" y1="98" x2="780" y2="98"/>
+    <line x1="415" y1="118" x2="780" y2="118"/>
+    <line x1="415" y1="138" x2="780" y2="138"/>
+    <line x1="415" y1="158" x2="780" y2="158"/>
+    <line x1="415" y1="178" x2="780" y2="178"/>
+    <line x1="415" y1="198" x2="780" y2="198"/>
+    <line x1="415" y1="218" x2="780" y2="218"/>
+    <line x1="415" y1="238" x2="780" y2="238"/>
+    <line x1="415" y1="258" x2="780" y2="258"/>
+    <line x1="415" y1="278" x2="780" y2="278"/>
+    <line x1="415" y1="298" x2="780" y2="298"/>
+    <line x1="415" y1="318" x2="780" y2="318"/>
+    <line x1="415" y1="338" x2="780" y2="338"/>
+    <line x1="415" y1="358" x2="780" y2="358"/>
+    <line x1="415" y1="378" x2="780" y2="378"/>
   </g>
-  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Quick Reference</text>
-  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">EXAM CHEAT SHEET</text>
-  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
-  <rect x="52" y="230" width="112" height="18" rx="9" fill="#f5c842" opacity="0.9"/>
-  <text x="108" y="243" text-anchor="middle" fill="#0d2929" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS3403 · WEB DEV</text>
-  <circle cx="168" cy="195" r="24" fill="rgba(245,200,66,0.04)" stroke="rgba(245,200,66,0.1)" stroke-width="1"/>
+  <!-- Margin line -->
+  <line x1="440" y1="28" x2="440" y2="396" stroke="rgba(252,165,165,0.5)" stroke-width="1"/>
+
+  <!-- Cheat sheet content -->
+  <g font-family="monospace" font-size="9.5" fill="#1e293b">
+    <text x="448" y="47" font-weight="700" fill="#0f172a">CITS3403 EXAM CHEATSHEET</text>
+    <text x="448" y="69" font-weight="700" fill="#dc2626">Flask Routes:</text>
+    <text x="448" y="87">@app.route('/path', methods=['GET','POST'])</text>
+    <text x="448" y="105">request.form.get('key')  |  redirect(url_for('fn'))</text>
+    <text x="448" y="123" font-weight="700" fill="#dc2626">SQLAlchemy:</text>
+    <text x="448" y="141">Model.query.filter_by(x=y).first()</text>
+    <text x="448" y="159">db.session.add(obj); db.session.commit()</text>
+    <text x="448" y="177" font-weight="700" fill="#dc2626">SQL Injection → parameterised queries!</text>
+    <text x="448" y="195">cursor.execute("SELECT * WHERE id=?", (id,))</text>
+    <text x="448" y="213" font-weight="700" fill="#dc2626">REST:</text>
+    <text x="448" y="231">GET=read  POST=create  PUT=update  DELETE</text>
+    <text x="448" y="249">Status: 200 OK | 201 Created | 404 | 500</text>
+    <text x="448" y="267" font-weight="700" fill="#dc2626">JS Fetch:</text>
+    <text x="448" y="285">fetch('/api', {method:'POST', body: JSON…})</text>
+    <text x="448" y="303">  .then(r=>r.json()).then(data=>…)</text>
+    <text x="448" y="321" font-weight="700" fill="#dc2626">Testing:</text>
+    <text x="448" y="339">unittest.TestCase / pytest / Selenium</text>
+    <text x="448" y="357">app.test_client() → mock HTTP requests</text>
+    <text x="448" y="375" font-weight="700" fill="#1d4ed8">Remember: CSRF tokens on all forms!</text>
+  </g>
+
+  <!-- Paper fold corner -->
+  <polygon points="780,28 765,28 780,43" fill="rgba(0,0,0,0.08)"/>
+  <polygon points="765,28 780,43 765,43" fill="rgba(0,0,0,0.04)"/>
+
+  <!-- Left content -->
+  <rect x="44" y="52" width="86" height="24" rx="12" fill="url(#acc)" opacity="0.9"/>
+  <text x="87" y="68" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1">CITS3403</text>
+
+  <text x="44" y="135" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="#fff" letter-spacing="-1">Final Exam</text>
+  <text x="44" y="177" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="url(#acc)" letter-spacing="-1">Cheat Sheet</text>
+
+  <text x="44" y="218" font-family="Inter, sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">S1 2025  ·  Allowed in exam</text>
+
+  <!-- "EXAM ALLOWED" stamp -->
+  <rect x="44" y="238" width="150" height="40" rx="4" fill="none" stroke="rgba(245,158,11,0.6)" stroke-width="2"/>
+  <text x="119" y="254" font-family="Inter, sans-serif" font-size="10" font-weight="900" fill="rgba(245,158,11,0.7)" text-anchor="middle" letter-spacing="2">EXAM REFERENCE</text>
+  <text x="119" y="270" font-family="Inter, sans-serif" font-size="9" fill="rgba(245,158,11,0.5)" text-anchor="middle">1 page A4 allowed</text>
+
+  <g transform="translate(44, 298)">
+    <rect width="84" height="26" rx="13" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.35)" stroke-width="1"/>
+    <text x="42" y="17" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#fbbf24" text-anchor="middle">38 Upvotes</text>
+  </g>
+
+  <g font-family="Inter, sans-serif" font-size="13" fill="rgba(255,255,255,0.6)">
+    <text x="44" y="358">✦  REST &amp; HTTP Patterns</text>
+    <text x="44" y="378">✦  SQL Injection &amp; CSRF</text>
+    <text x="44" y="398">✦  Testing Strategies</text>
+  </g>
+
+  <rect x="0" y="408" width="800" height="4" fill="url(#acc)"/>
+  <rect x="0" y="412" width="800" height="8" fill="rgba(0,0,0,0.3)"/>
 </svg>
