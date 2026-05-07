@@ -58,10 +58,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
 }
 .results-meta strong { color: var(--dark); font-weight: 600; }
 
-.listings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.listings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; min-width: 0; width: 100%; }
 .listing-card {
   background: var(--white); border: 1px solid var(--border);
-  border-radius: var(--r); overflow: hidden;
+  border-radius: var(--r); overflow: hidden; min-width: 0;
   transition: box-shadow var(--t), transform var(--t); display: flex; flex-direction: column;
 }
 .listing-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.09); transform: translateY(-2px); }
@@ -236,11 +236,29 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
   <div class="listings-grid">
     {% for l in listings %}
     {% set idx = loop.index0 % 8 %}
+    {% set _covers = {
+      'CITS3403': 'images/textbooks/cits3403.svg',
+      'CITS2200': 'images/textbooks/cits2200.svg',
+      'CITS2002': 'images/textbooks/cits2002.svg',
+      'CITS3003': 'images/textbooks/cits3003.svg',
+      'CITS3200': 'images/textbooks/cits3200.svg',
+      'MATH1012': 'images/textbooks/math1012.svg',
+      'MATH2402': 'images/textbooks/math2402.svg',
+      'STAT2401': 'images/textbooks/stat2401.svg',
+      'BIOC2002': 'images/textbooks/bioc2002.svg',
+      'MKTG1100': 'images/textbooks/mktg1100.svg',
+    } %}
+    {% set _cover = _covers.get(l.unit_code, '') %}
     <div class="listing-card">
       <div class="lc-image" style="background: {{ colors[idx] }};">
         <div class="lc-image-inner">
+          {% if _cover %}
+          <img src="{{ url_for('static', filename=_cover) }}" alt="{{ l.title }}"
+               style="height:90%;width:auto;max-width:55%;box-shadow:0 8px 24px rgba(0,0,0,0.5);border-radius:3px;flex-shrink:0;" loading="lazy"/>
+          {% else %}
           <i class="fa-solid fa-book"></i>
           {{ l.title[:20] }}…
+          {% endif %}
         </div>
         <div class="lc-badges">
           <span class="lc-unit">{{ l.unit_code }}</span>

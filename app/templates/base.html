@@ -85,16 +85,6 @@
           </div>
         </div>
       </div>
-      <div class="sb-xp-card">
-        <div class="sb-xp-top">
-          <span class="sb-xp-label">{{ current_user.rank }}</span>
-          <span class="sb-xp-pts">{{ current_user.xp }} XP</span>
-        </div>
-        <div class="sb-xp-track">
-          <div class="sb-xp-fill" style="width: {{ [current_user.xp % 1000 / 10, 100] | min | int }}%;"></div>
-        </div>
-        <div class="sb-xp-sub">Keep sharing to level up</div>
-      </div>
       {% endif %}
       <div class="sb-nav-card">
         <a href="{{ url_for('dashboard') }}"

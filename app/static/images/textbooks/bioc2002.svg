@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071410"/><stop offset="100%" stop-color="#0f2218"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#030a08" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-106" y="10" transform="rotate(-90)" fill="rgba(132,204,22,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">BIOC2002 · BIOCHEMISTRY</text>
+  <rect x="16" y="0" width="184" height="4" fill="#84cc16"/>
+  <g transform="translate(108, 78)" opacity="0.88">
+    <path d="M -12 -36 Q -24 -24 -12 -12 Q 0 0 -12 12 Q -24 24 -12 36" fill="none" stroke="#84cc16" stroke-width="2"/>
+    <path d="M 12 -36 Q 24 -24 12 -12 Q 0 0 12 12 Q 24 24 12 36" fill="none" stroke="rgba(132,204,22,0.5)" stroke-width="2"/>
+    <line x1="-12" y1="-30" x2="12" y2="-30" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="-18" x2="18" y2="-18" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
+    <line x1="-12" y1="-6" x2="12" y2="-6" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="6" x2="18" y2="6" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
+    <line x1="-12" y1="18" x2="12" y2="18" stroke="#84cc16" stroke-width="1.5" opacity="0.7"/>
+    <line x1="-18" y1="30" x2="18" y2="30" stroke="#84cc16" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Biochemistry</text>
+  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">DNA · PROTEINS · METABOLISM</text>
+  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#84cc16" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#071410" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">BIOC2002</text>
+</svg>

@@ -63,7 +63,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   transition: box-shadow var(--t), border-color var(--t);
 }
 .session-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); }
-.sc-accent { height: 4px; }
+.sc-banner { height: 88px; overflow: hidden; }
+.sc-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sc-body { padding: 16px 18px 14px; }
 .sc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
 .sc-meta { display: flex; align-items: center; gap: 10px; }
@@ -197,7 +198,16 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     {% for s in sessions %}
     {% set idx = loop.index0 % 8 %}
     <div class="session-card">
-      <div class="sc-accent" style="background: {{ accent_colors[idx] }};"></div>
+      {% set _uc = s.unit_code[:4].upper() if s.unit_code else '' %}
+      {% set _bmap = {'CITS': 'images/banners/banner_cs.svg', 'MATH': 'images/banners/banner_math.svg', 'STAT': 'images/banners/banner_stats.svg'} %}
+      {% set _banner = _bmap.get(_uc, '') %}
+      {% if _banner %}
+      <div class="sc-banner">
+        <img src="{{ url_for('static', filename=_banner) }}" alt="" loading="lazy"/>
+      </div>
+      {% else %}
+      <div style="height:4px;background:{{ accent_colors[idx] }};"></div>
+      {% endif %}
       <div class="sc-body">
         <div class="sc-header">
           <div class="sc-meta">

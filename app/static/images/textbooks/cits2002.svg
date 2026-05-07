@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="200" height="260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#040d08"/><stop offset="100%" stop-color="#091a10"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" fill="url(#bg)" rx="3"/>
+  <rect width="16" height="260" fill="#020806" rx="3 0 0 3"/>
+  <line x1="16" y1="0" x2="16" y2="260" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <text x="-130" y="10" transform="rotate(-90)" fill="rgba(34,197,94,0.6)" font-family="sans-serif" font-size="6" font-weight="700" letter-spacing="0.06em">CITS2002 · SYSTEMS PROGRAMMING</text>
+  <rect x="16" y="0" width="184" height="4" fill="#22c55e"/>
+  <g transform="translate(108, 78)">
+    <rect x="-38" y="-36" width="76" height="52" rx="6" fill="rgba(0,0,0,0.6)" stroke="rgba(34,197,94,0.5)" stroke-width="1.5"/>
+    <circle cx="-24" cy="-26" r="3.5" fill="#ff5f57" opacity="0.8"/>
+    <circle cx="-13" cy="-26" r="3.5" fill="#febc2e" opacity="0.8"/>
+    <circle cx="-2" cy="-26" r="3.5" fill="#28c840" opacity="0.8"/>
+    <text x="-30" y="-6" fill="#22c55e" font-family="monospace" font-size="13" font-weight="700">&gt;_</text>
+    <rect x="-14" y="-14" width="30" height="2" rx="1" fill="rgba(34,197,94,0.5)"/>
+    <rect x="-30" y="-2" width="20" height="2" rx="1" fill="rgba(34,197,94,0.3)"/>
+    <rect x="-30" y="6" width="36" height="2" rx="1" fill="rgba(34,197,94,0.2)"/>
+  </g>
+  <line x1="26" y1="128" x2="184" y2="128" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="108" y="150" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="-0.02em">Systems Programming</text>
+  <text x="108" y="166" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="7.5" letter-spacing="0.05em">C · MEMORY · OS CONCEPTS</text>
+  <text x="108" y="182" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="sans-serif" font-size="7">University Edition</text>
+  <rect x="66" y="230" width="76" height="18" rx="9" fill="#22c55e" opacity="0.85"/>
+  <text x="104" y="243" text-anchor="middle" fill="#042008" font-family="sans-serif" font-size="9" font-weight="800" letter-spacing="0.06em">CITS2002</text>
+</svg>

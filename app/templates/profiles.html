@@ -1,46 +1,381 @@
 {% extends 'base.html' %}
 {% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} — UniShare{% endblock %}
+
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
+
+.main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* Hero card */
+.profile-hero-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+.profile-banner {
+  height: 80px;
+  background: linear-gradient(135deg, #010e38 0%, #011e60 50%, #0a1a50 100%);
+  position: relative;
+}
+.profile-banner::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 20px,
+    rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px
+  );
+}
+.profile-hero-body {
+  padding: 0 22px 20px;
+  display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+  margin-top: -28px;
+}
+.profile-av-lg {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--gold); color: #fff;
+  font-size: 1.1rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid var(--white); flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+.profile-info { flex: 1; min-width: 0; padding-top: 36px; }
+.profile-name { font-size: 1.2rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; }
+.profile-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+.profile-bio { font-size: 0.82rem; color: var(--mid); margin-top: 8px; line-height: 1.55; max-width: 500px; }
+.profile-pills { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+.rank-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700;
+  background: var(--gold-pale); color: var(--gold); border: 1px solid var(--gold-border);
+}
+.xp-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600;
+  background: #f0f1f5; color: var(--mid);
+}
+.rating-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600;
+  background: #fffbeb; color: #92400e; border: 1px solid rgba(245,200,66,0.2);
+}
+
+/* Stats row */
+.profile-stats-row {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px 20px;
+  display: flex; gap: 0; align-items: stretch;
+}
+.stat-item {
+  flex: 1; text-align: center; padding: 4px 12px;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num { font-size: 1.4rem; font-weight: 800; color: var(--dark); letter-spacing: -0.04em; }
+.stat-lbl { font-size: 0.68rem; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Section header */
+.section-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--muted); padding: 0 2px;
+}
+
+/* Listing cards */
+.listings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-width: 0; width: 100%; }
+@media (max-width: 700px) { .listings-grid { grid-template-columns: 1fr; } }
+
+.p-listing-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; min-width: 0;
+  display: flex; flex-direction: column;
+  transition: box-shadow var(--t), transform var(--t);
+}
+.p-listing-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+.plc-img {
+  height: 80px; display: flex; align-items: center; justify-content: center; position: relative;
+}
+.plc-badges {
+  position: absolute; top: 8px; left: 8px; display: flex; gap: 5px;
+}
+.plc-unit {
+  padding: 2px 7px; border-radius: 4px; font-size: 0.64rem; font-weight: 800;
+  background: rgba(0,0,0,0.5); color: #fff; backdrop-filter: blur(4px);
+}
+.plc-cond {
+  padding: 2px 7px; border-radius: 4px; font-size: 0.64rem; font-weight="700" font-weight: 700;
+}
+.cond-new      { background: rgba(16,185,129,0.9); color: #fff; }
+.cond-likenew  { background: rgba(59,130,246,0.9); color: #fff; }
+.cond-good     { background: rgba(245,158,11,0.9); color: #fff; }
+.cond-fair     { background: rgba(107,114,128,0.9); color: #fff; }
+.cond-acceptable { background: rgba(107,114,128,0.9); color: #fff; }
+
+.plc-body { padding: 12px 14px; flex: 1; }
+.plc-title { font-size: 0.85rem; font-weight: 700; color: var(--dark); line-height: 1.3; margin-bottom: 6px; }
+.plc-footer { display: flex; align-items: center; justify-content: space-between; }
+.plc-price { font-size: 1rem; font-weight: 800; color: var(--dark); }
+.plc-link {
+  padding: 4px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 600;
+  background: var(--dark); color: #fff; text-decoration: none; transition: background var(--t);
+}
+.plc-link:hover { background: var(--dark2); }
+
+/* Notes list */
+.notes-list { display: flex; flex-direction: column; gap: 8px; }
+.p-note-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px; min-width: 0;
+  transition: box-shadow var(--t);
+}
+.p-note-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.p-note-thumb {
+  width: 48px; height: 60px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: rgba(255,255,255,0.5); overflow: hidden; position: relative;
+}
+.p-note-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.p-note-info { flex: 1; min-width: 0; }
+.p-note-unit { font-size: 0.65rem; font-weight: 800; background: var(--dark); color: #fff; padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+.p-note-title { font-size: 0.88rem; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+.p-note-meta { font-size: 0.72rem; color: var(--muted); }
+.p-note-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.p-note-vote { font-size: 0.78rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.p-note-view {
+  padding: 5px 12px; border-radius: 6px; font-size: 0.74rem; font-weight: 600;
+  border: 1.5px solid var(--border); color: var(--mid); text-decoration: none;
+  transition: all var(--t);
+}
+.p-note-view:hover { border-color: var(--dark); color: var(--dark); background: #f3f4f8; }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 36px 20px; background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--r); color: var(--muted);
+}
+.empty-state i { font-size: 1.6rem; opacity: 0.3; display: block; margin-bottom: 8px; }
+.empty-state p { font-size: 0.82rem; }
+
+/* Right panel */
+.right { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 12px; }
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.rcard-footer a { color: var(--muted); }
+.rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+.stat-block { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-cell { background: #f3f4f8; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 3px; }
+.stat-cell-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.04em; }
+.stat-cell-lbl { font-size: 0.69rem; color: var(--muted); line-height: 1.3; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-inner">
-    <div class="profile-hero">
-        <div class="profile-av large" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
-            {{ profile_user.first_name[0] }}{{ profile_user.last_name[0] }}
-        </div>
-        <div>
-            <h1>{{ profile_user.first_name }} {{ profile_user.last_name }}</h1>
-            <div style="display:flex;gap:12px;align-items:center;margin-top:6px;">
-                <span class="rank-badge rb-{{ profile_user.rank|lower|replace(' ','-') }}">{{ profile_user.rank }}</span>
-                <span style="color:var(--muted);font-size:.85rem;">{{ profile_user.xp }} XP</span>
-                {% if avg_rating %}<span style="color:var(--muted);font-size:.85rem;">⭐ {{ "%.1f"|format(avg_rating) }} ({{ profile_user.rating_count }} ratings)</span>{% endif %}
-            </div>
-            {% if profile_user.bio %}<p style="margin-top:12px;color:var(--mid);max-width:480px">{{ profile_user.bio }}</p>{% endif %}
-        </div>
-    </div>
+{% set _tbcovers = {
+  'CITS3403': 'images/textbooks/cits3403.svg',
+  'CITS2200': 'images/textbooks/cits2200.svg',
+  'CITS2002': 'images/textbooks/cits2002.svg',
+  'CITS3003': 'images/textbooks/cits3003.svg',
+  'CITS3200': 'images/textbooks/cits3200.svg',
+  'MATH1012': 'images/textbooks/math1012.svg',
+  'MATH2402': 'images/textbooks/math2402.svg',
+  'STAT2401': 'images/textbooks/stat2401.svg',
+  'BIOC2002': 'images/textbooks/bioc2002.svg',
+  'MKTG1100': 'images/textbooks/mktg1100.svg',
+} %}
+{% set _ntcolors = [
+  'linear-gradient(135deg,#1e3a5f,#2563eb)',
+  'linear-gradient(135deg,#1e1b4b,#7c3aed)',
+  'linear-gradient(135deg,#134e4a,#0d9488)',
+  'linear-gradient(135deg,#500724,#be185d)',
+  'linear-gradient(135deg,#1c1917,#b45309)',
+  'linear-gradient(135deg,#052e16,#16a34a)'
+] %}
+{% set _lcolors = [
+  'linear-gradient(135deg,#0f172a,#1e3a5f)',
+  'linear-gradient(135deg,#1e1b4b,#2563eb)',
+  'linear-gradient(135deg,#1e1b4b,#7c3aed)',
+  'linear-gradient(135deg,#134e4a,#0d9488)',
+  'linear-gradient(135deg,#500724,#be185d)',
+  'linear-gradient(135deg,#1c1917,#b45309)',
+  'linear-gradient(135deg,#0c1445,#3b6ef5)',
+  'linear-gradient(135deg,#052e16,#16a34a)'
+] %}
 
-    <h2 style="margin:32px 0 16px">Active Listings</h2>
-    {% if listings %}
-    <div class="card-grid">
-        {% for l in listings %}
-        <div class="listing-card">
-            <div class="listing-card-top"><span class="unit-pill">{{ l.unit_code }}</span></div>
-            <h3 class="listing-title">{{ l.title }}</h3>
-            <div class="listing-footer"><span class="listing-price">${{ "%.2f"|format(l.price) }}</span></div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}<p style="color:var(--muted)">No active listings.</p>{% endif %}
+<div class="main">
 
-    <h2 style="margin:32px 0 16px">Shared Notes</h2>
-    {% if notes %}
-    <div class="card-grid">
-        {% for n in notes %}
-        <div class="listing-card">
-            <div class="listing-card-top"><span class="unit-pill">{{ n.unit_code }}</span></div>
-            <h3 class="listing-title">{{ n.title }}</h3>
-            <div class="listing-footer"><span style="color:var(--muted);font-size:.82rem">▲ {{ n.upvotes }}</span></div>
+  <!-- Hero -->
+  <div class="profile-hero-card">
+    <div class="profile-banner"></div>
+    <div class="profile-hero-body">
+      <div class="profile-av-lg">
+        {{ profile_user.first_name[0] }}{{ profile_user.last_name[0] }}
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">{{ profile_user.first_name }} {{ profile_user.last_name }}</div>
+        <div class="profile-sub">University of Western Australia</div>
+        {% if profile_user.bio %}
+        <div class="profile-bio">{{ profile_user.bio }}</div>
+        {% endif %}
+        <div class="profile-pills">
+          <span class="rank-pill"><i class="fa-solid fa-star" style="font-size:.65rem;"></i> {{ profile_user.rank }}</span>
+          <span class="xp-pill">{{ profile_user.xp }} XP</span>
+          {% if avg_rating %}
+          <span class="rating-pill"><i class="fa-solid fa-star" style="font-size:.65rem;color:#f59e0b;"></i> {{ "%.1f"|format(avg_rating) }} ({{ profile_user.rating_count }} ratings)</span>
+          {% endif %}
         </div>
-        {% endfor %}
+      </div>
     </div>
-    {% else %}<p style="color:var(--muted)">No notes shared yet.</p>{% endif %}
+  </div>
+
+  <!-- Stats row -->
+  <div class="profile-stats-row">
+    <div class="stat-item">
+      <div class="stat-num">{{ listings|length }}</div>
+      <div class="stat-lbl">Listings</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">{{ notes|length }}</div>
+      <div class="stat-lbl">Notes shared</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">{{ notes|sum(attribute='upvotes') if notes else 0 }}</div>
+      <div class="stat-lbl">Upvotes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">{{ profile_user.xp }}</div>
+      <div class="stat-lbl">Total XP</div>
+    </div>
+  </div>
+
+  <!-- Listings -->
+  <div class="section-label">Active Listings ({{ listings|length }})</div>
+  {% if listings %}
+  <div class="listings-grid">
+    {% for l in listings %}
+    {% set idx = loop.index0 % 8 %}
+    {% set _cover = _tbcovers.get(l.unit_code, '') %}
+    <div class="p-listing-card">
+      <div class="plc-img" style="background: {{ _lcolors[idx] }};">
+        {% if _cover %}
+        <img src="{{ url_for('static', filename=_cover) }}" alt="{{ l.title }}"
+             style="height:90%;width:auto;max-width:50%;box-shadow:0 6px 18px rgba(0,0,0,0.5);border-radius:2px;" loading="lazy"/>
+        {% else %}
+        <i class="fa-solid fa-book" style="font-size:1.4rem;color:rgba(255,255,255,0.4);"></i>
+        {% endif %}
+        <div class="plc-badges">
+          <span class="plc-unit">{{ l.unit_code }}</span>
+          <span class="plc-cond cond-{{ l.condition|lower|replace(' ','') }}">{{ l.condition }}</span>
+        </div>
+      </div>
+      <div class="plc-body">
+        <div class="plc-title">{{ l.title }}</div>
+        <div class="plc-footer">
+          <span class="plc-price">${{ "%.0f"|format(l.price) }}</span>
+          <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="plc-link">
+            <i class="fa-solid fa-eye" style="font-size:.7rem;margin-right:4px;"></i>View
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="fa-solid fa-tag"></i>
+    <p>No active listings yet.</p>
+  </div>
+  {% endif %}
+
+  <!-- Notes -->
+  <div class="section-label" style="margin-top:4px;">Shared Notes ({{ notes|length }})</div>
+  {% if notes %}
+  <div class="notes-list">
+    {% for n in notes %}
+    {% set nidx = loop.index0 % 6 %}
+    <div class="p-note-card">
+      <div class="p-note-thumb" style="background: {{ _ntcolors[nidx] }};">
+        {% if n.cover_image %}
+        <img src="{{ url_for('static', filename=n.cover_image) }}" alt="{{ n.title }}"/>
+        {% else %}
+        <i class="fa-solid fa-file-lines"></i>
+        {% endif %}
+      </div>
+      <div class="p-note-info">
+        <span class="p-note-unit">{{ n.unit_code }}</span>
+        <div class="p-note-title">{{ n.title }}</div>
+        <div class="p-note-meta">
+          {% if n.semester %}{{ n.semester }} · {% endif %}
+          {{ n.upvotes }} upvote{{ 's' if n.upvotes != 1 }}
+        </div>
+      </div>
+      <div class="p-note-actions">
+        <a href="{{ url_for('view_note', note_id=n.id) }}" class="p-note-view">
+          <i class="fa-solid fa-eye" style="font-size:.7rem;margin-right:4px;"></i>View
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="fa-solid fa-file-lines"></i>
+    <p>No notes shared yet.</p>
+  </div>
+  {% endif %}
+
 </div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Profile stats</div>
+    <div class="stat-block">
+      <div class="stat-cell">
+        <div class="stat-cell-num">{{ profile_user.xp }}</div>
+        <div class="stat-cell-lbl">XP earned</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-num">{{ listings|length }}</div>
+        <div class="stat-cell-lbl">Listings</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-num">{{ notes|length }}</div>
+        <div class="stat-cell-lbl">Notes</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-num">{{ notes|sum(attribute='upvotes') if notes else 0 }}</div>
+        <div class="stat-cell-lbl">Upvotes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rcard" style="background:var(--dark);">
+    <div class="rcard-title" style="color:rgba(255,255,255,0.4);">Rank</div>
+    <div style="font-size:1.5rem;font-weight:800;color:var(--gold);letter-spacing:-0.04em;margin-bottom:4px;">
+      {{ profile_user.rank }}
+    </div>
+    <div style="font-size:0.76rem;color:rgba(255,255,255,0.4);line-height:1.5;">
+      Keep sharing notes and posting listings to climb the ranks.
+    </div>
+  </div>
+
+  {% if current_user and current_user.id != profile_user.id %}
+  <a href="{{ url_for('messages') }}" class="rcard" style="display:block;text-decoration:none;transition:box-shadow var(--t);">
+    <div class="rcard-title">Send a Message</div>
+    <div style="font-size:0.82rem;color:var(--mid);margin-bottom:12px;">Reach out about a listing or study group.</div>
+    <div style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;background:var(--dark);color:#fff;font-size:0.8rem;font-weight:700;width:fit-content;">
+      <i class="fa-solid fa-envelope"></i> Message
+    </div>
+  </a>
+  {% endif %}
+
+  <div class="rcard" style="padding:12px 14px;">
+    <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br/>
+      &copy; 2025 UniShare · UWA students
+    </div>
+  </div>
+</aside>
 {% endblock %}
