@@ -463,8 +463,8 @@ body.app-page {
 .sb-nav-card { background: #011a55; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--r); padding: 8px; display: flex; flex-direction: column; gap: 1px; }
 .sb-link {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 8px;
-  font-size: 0.84rem; font-weight: 500; color: rgba(255,255,255,0.6);
+  padding: 7px 10px; border-radius: 8px;
+  font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.6);
   transition: all var(--t) var(--ease); cursor: pointer;
   text-decoration: none;
 }
