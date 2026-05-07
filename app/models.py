@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     rsvps         = db.relationship('SessionRSVP', back_populates='user',    lazy='dynamic')
     bounties      = db.relationship('Bounty',      back_populates='poster',  lazy='dynamic')
     saved_listings = db.relationship('SavedListing', back_populates='user',  lazy='dynamic')
+    saved_notes    = db.relationship('SavedNote',    back_populates='user',  lazy='dynamic')
     ratings_given    = db.relationship('Rating', foreign_keys='Rating.rater_id', back_populates='rater', lazy='dynamic')
     ratings_received = db.relationship('Rating', foreign_keys='Rating.rated_id', back_populates='rated', lazy='dynamic')
     sent_messages    = db.relationship('Message', foreign_keys='Message.sender_id',   back_populates='sender',   lazy='dynamic')
@@ -71,16 +72,27 @@ class Listing(db.Model):
 class Note(db.Model):
     __tablename__ = 'notes'
 
-    id          = db.Column(db.Integer,    primary_key=True)
-    author_id   = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
-    title       = db.Column(db.String(150), nullable=False)
-    unit_code   = db.Column(db.String(16),  nullable=False)
-    semester    = db.Column(db.String(50),  default='')
-    description = db.Column(db.Text,       default='')
-    upvotes     = db.Column(db.Integer,    default=0)
-    created_at  = db.Column(db.DateTime,   server_default=db.func.now())
+    id           = db.Column(db.Integer,    primary_key=True)
+    author_id    = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
+    title        = db.Column(db.String(150), nullable=False)
+    unit_code    = db.Column(db.String(16),  nullable=False)
+    semester     = db.Column(db.String(50),  default='')
+    description  = db.Column(db.Text,       default='')
+    upvotes      = db.Column(db.Integer,    default=0)
+    created_at   = db.Column(db.DateTime,   server_default=db.func.now())
 
-    author = db.relationship('User', back_populates='notes')
+    # Enriched content (seed-data only in V1; user HTML requires sanitization before enabling)
+    content_html = db.Column(db.Text,        nullable=True)
+
+    # File attachment
+    file_path    = db.Column(db.String(256), nullable=True)  # relative path under static/uploads/notes/
+    file_name    = db.Column(db.String(256), nullable=True)  # original filename shown to user
+
+    # Cover image (SVG/PNG relative path under static/)
+    cover_image  = db.Column(db.String(256), nullable=True)
+
+    author   = db.relationship('User',      back_populates='notes')
+    saved_by = db.relationship('SavedNote', back_populates='note', lazy='dynamic')
 
     def __repr__(self):
         return f'<Note {self.title}>'
@@ -152,6 +164,20 @@ class SavedListing(db.Model):
 
     def __repr__(self):
         return f'<SavedListing user={self.user_id} listing={self.listing_id}>'
+
+
+class SavedNote(db.Model):
+    __tablename__ = 'saved_notes'
+
+    user_id  = db.Column(db.Integer, db.ForeignKey('users.id'),  primary_key=True)
+    note_id  = db.Column(db.Integer, db.ForeignKey('notes.id'),  primary_key=True)
+    saved_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    user = db.relationship('User', back_populates='saved_notes')
+    note = db.relationship('Note', back_populates='saved_by')
+
+    def __repr__(self):
+        return f'<SavedNote user={self.user_id} note={self.note_id}>'
 
 
 class Rating(db.Model):

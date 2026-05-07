@@ -422,7 +422,17 @@ body.app-page {
 }
 
 /* ── Left sidebar ────────────────────────────────────────────── */
-.sidebar { position: sticky; top: 84px; display: flex; flex-direction: column; gap: 10px; }
+.sidebar {
+  position: sticky; top: 84px;
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
 
 .sb-card { background: #012f87; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--r); overflow: hidden; }
 .sb-profile-banner { height: 58px; background: linear-gradient(135deg,#010e38 0%,#011e60 100%); border-bottom: 1px solid rgba(255,255,255,0.1); }

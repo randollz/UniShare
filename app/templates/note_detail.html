@@ -3,62 +3,203 @@
 
 {% block head %}
 <style>
-.detail-wrap { padding: 0; }
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
+
+.detail-wrap { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
 .detail-back {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
-  color: var(--mid); text-decoration: none; margin-bottom: 20px; transition: color var(--t);
+  color: var(--mid); text-decoration: none; transition: color var(--t);
 }
 .detail-back:hover { color: var(--dark); }
-.detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-.detail-accent { height: 6px; background: linear-gradient(90deg, #16a34a, #22c55e); }
+
+/* ── Main card ──────────────────────────────── */
+.detail-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+
+/* Cover image */
+.detail-cover {
+  width: 100%; height: 260px; object-fit: cover; display: block;
+}
+.detail-cover-placeholder {
+  width: 100%; height: 8px;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+/* Hero section */
 .detail-hero {
-  width: 100%; padding: 32px 32px 24px; box-sizing: border-box;
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-  background: linear-gradient(135deg, #14532d, #166534); color: #fff;
+  padding: 28px 32px 20px; display: flex;
+  align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;
 }
 .detail-hero-left { flex: 1; min-width: 0; }
-.detail-hero-pill {
-  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px;
-  background: rgba(255,255,255,0.18); color: #fff;
-  font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; margin-bottom: 10px;
+.detail-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.detail-pill {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px;
+  border-radius: 99px; font-family: 'Inter', sans-serif;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
 }
-.detail-hero-title {
+.detail-pill-unit { background: var(--dark); color: #fff; }
+.detail-pill-sem  { background: #f3f4f8; color: var(--mid); }
+.detail-pill-file { background: #eff6ff; color: #3b82f6; }
+
+.detail-title {
   font-family: 'Inter', sans-serif; font-size: 1.55rem; font-weight: 800;
-  letter-spacing: -0.025em; line-height: 1.25; color: #fff;
+  letter-spacing: -0.025em; line-height: 1.25; color: var(--dark); margin-bottom: 8px;
 }
-.detail-hero-right { flex-shrink: 0; text-align: right; min-width: 80px; }
-.detail-hero-upvotes { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: #bbf7d0; }
-.detail-hero-upvotes-lbl { font-family: 'Inter', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
-.detail-body { padding: 28px 32px; }
-.detail-section { margin-bottom: 22px; }
-.detail-section-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-.detail-description { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark); line-height: 1.65; white-space: pre-wrap; }
-.detail-description-empty { color: var(--muted); font-style: italic; }
+.detail-description {
+  font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--muted);
+  line-height: 1.65; white-space: pre-wrap;
+}
+
+.detail-hero-right { flex-shrink: 0; text-align: center; }
+.detail-upvote-num { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em; color: var(--dark); line-height: 1; }
+.detail-upvote-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 2px; }
+
+/* ── Author row ──────────────────────────────── */
 .detail-author {
   display: flex; align-items: center; gap: 12px;
-  padding: 16px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 22px;
+  padding: 16px 32px; border-top: 1px solid var(--border);
 }
 .detail-author-av {
-  width: 42px; height: 42px; border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, #14532d, #16a34a);
-  color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.detail-author-name { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--dark); }
-.detail-author-meta { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid var(--border); }
+.detail-author-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); }
+.detail-author-meta { font-size: 0.74rem; color: var(--muted); margin-top: 1px; }
+
+/* ── Content preview ──────────────────────────── */
+.preview-section {
+  border-top: 1px solid var(--border);
+  padding: 0;
+}
+.preview-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 32px; cursor: pointer; user-select: none;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--dark);
+  background: #fafafa; transition: background var(--t);
+  border: none; width: 100%; text-align: left;
+}
+.preview-toggle:hover { background: #f3f4f8; }
+.preview-toggle-arrow {
+  transition: transform 0.25s ease;
+  color: var(--muted); font-size: 0.75rem;
+}
+.preview-toggle.open .preview-toggle-arrow { transform: rotate(180deg); }
+
+.preview-body {
+  display: none; max-height: 520px; overflow-y: auto;
+  padding: 28px 32px;
+  background: #fff;
+  background-image: repeating-linear-gradient(
+    transparent, transparent 29px, rgba(147,197,253,0.25) 29px, rgba(147,197,253,0.25) 30px
+  );
+  background-size: 100% 30px;
+  line-height: 30px;
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+.preview-body.open { display: block; }
+
+/* Fade-out at bottom */
+.preview-body::after {
+  content: ''; position: sticky; bottom: 0; left: 0; right: 0;
+  height: 60px; display: block;
+  background: linear-gradient(to bottom, transparent, #fff);
+  pointer-events: none;
+}
+
+/* Notebook typography */
+.preview-body h3 {
+  font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 800;
+  color: #1e3a5f; margin: 20px 0 6px; letter-spacing: -0.01em; line-height: 30px;
+}
+.preview-body p {
+  font-size: 0.85rem; color: var(--dark); margin: 0 0 6px; line-height: 30px;
+}
+.preview-body ul, .preview-body ol {
+  margin: 0 0 6px 18px; padding: 0; line-height: 30px;
+}
+.preview-body li {
+  font-size: 0.84rem; color: var(--dark); margin-bottom: 0; line-height: 30px;
+}
+.preview-body code {
+  font-family: 'Menlo', 'Consolas', monospace; font-size: 0.78rem;
+  background: #eef2ff; color: #4338ca; padding: 1px 5px; border-radius: 4px;
+}
+.preview-body pre {
+  background: #0f172a; border-radius: 8px; padding: 14px 16px; margin: 8px 0 10px;
+  overflow-x: auto; line-height: 1.6;
+}
+.preview-body pre code {
+  background: none; color: #a5f3fc; padding: 0; font-size: 0.8rem; border-radius: 0;
+}
+.preview-body strong { font-weight: 700; color: var(--dark); }
+
+/* ── Action bar ──────────────────────────────── */
+.detail-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 20px 32px; border-top: 1px solid var(--border);
+  background: #fafafa;
+}
 .btn-action {
-  display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 9px;
-  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
-  cursor: pointer; transition: all var(--t) var(--ease); border: none; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px;
+  border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 0.83rem; font-weight: 700;
+  cursor: pointer; transition: all var(--t); border: none; text-decoration: none;
 }
 .btn-upvote { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; }
 .btn-upvote:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(22,163,74,0.3); }
 .btn-download { background: var(--dark); color: #fff; }
 .btn-download:hover { background: var(--dark2); transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
+.btn-save {
+  background: transparent; color: var(--mid); border: 1.5px solid var(--border);
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.btn-save:hover { border-color: #f59e0b; color: #f59e0b; }
+.btn-save.saved { color: #f59e0b; border-color: #f59e0b; background: #fffbeb; }
+.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--border); }
 .btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
+
+/* ── Right panel ──────────────────────────────── */
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.stat-block { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-cell { background: #f3f4f8; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 3px; }
+.stat-num { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -0.04em; }
+.stat-lbl { font-size: 0.69rem; color: var(--muted); line-height: 1.3; }
+.mkt-cta { background: var(--dark); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.mkt-cta h3 { font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+.mkt-cta p { font-size: 0.76rem; color: rgba(255,255,255,0.5); line-height: 1.55; }
+.btn-mkt {
+  display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px;
+  background: var(--gold); color: #fff; font-family: 'Inter', sans-serif; font-size: 0.8rem;
+  font-weight: 700; text-decoration: none; transition: all var(--t);
+}
+.btn-mkt:hover { background: #b07d06; transform: translateY(-1px); }
+.rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; }
+.rcard-footer a { color: var(--muted); }
+.rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+
+/* Related notes */
+.related-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  text-decoration: none; transition: opacity var(--t);
+}
+.related-item:last-child { border-bottom: none; }
+.related-item:hover { opacity: 0.75; }
+.related-thumb {
+  width: 42px; height: 42px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(135deg, #14532d, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: rgba(255,255,255,0.7);
+}
+.related-title { font-size: 0.8rem; font-weight: 700; color: var(--dark); line-height: 1.3; margin-bottom: 2px; }
+.related-meta  { font-size: 0.71rem; color: var(--muted); }
 </style>
 {% endblock %}
 
@@ -70,62 +211,189 @@
   </a>
 
   <div class="detail-card">
-    <div class="detail-accent"></div>
 
+    <!-- Cover image or accent strip -->
+    {% if note.cover_image %}
+    <img src="{{ url_for('static', filename=note.cover_image) }}"
+         alt="{{ note.title }}" class="detail-cover" />
+    {% else %}
+    <div class="detail-cover-placeholder"></div>
+    {% endif %}
+
+    <!-- Hero -->
     <div class="detail-hero">
       <div class="detail-hero-left">
-        <span class="detail-hero-pill">
-          <i class="fa-solid fa-file-lines"></i>
-          {{ note.unit_code }}{% if note.semester %} · {{ note.semester }}{% endif %}
-        </span>
-        <h1 class="detail-hero-title">{{ note.title }}</h1>
+        <div class="detail-pills">
+          <span class="detail-pill detail-pill-unit">{{ note.unit_code }}</span>
+          {% if note.semester %}
+          <span class="detail-pill detail-pill-sem">{{ note.semester }}</span>
+          {% endif %}
+          {% if note.file_path %}
+          {% set ext = note.file_name.rsplit('.', 1)[-1].upper() if note.file_name else 'FILE' %}
+          <span class="detail-pill detail-pill-file">
+            <i class="fa-solid fa-paperclip" style="font-size:0.65rem;"></i> {{ ext }}
+          </span>
+          {% endif %}
+        </div>
+        <h1 class="detail-title">{{ note.title }}</h1>
+        {% if note.description %}
+        <p class="detail-description">{{ note.description }}</p>
+        {% endif %}
       </div>
       <div class="detail-hero-right">
-        <div class="detail-hero-upvotes">{{ note.upvotes }}</div>
-        <div class="detail-hero-upvotes-lbl">Upvotes</div>
+        <div class="detail-upvote-num">{{ note.upvotes }}</div>
+        <div class="detail-upvote-lbl">Upvotes</div>
       </div>
     </div>
 
-    <div class="detail-body">
-
-      <div class="detail-section">
-        <div class="detail-section-label">Description</div>
-        {% if note.description %}
-        <div class="detail-description">{{ note.description }}</div>
-        {% else %}
-        <div class="detail-description detail-description-empty">No description provided.</div>
-        {% endif %}
+    <!-- Author -->
+    <div class="detail-author">
+      <div class="detail-author-av">
+        {{ note.author.first_name[0] }}{{ note.author.last_name[0] }}
       </div>
-
-      <div class="detail-section">
-        <div class="detail-section-label">Author</div>
-        <div class="detail-author">
-          <div class="detail-author-av">
-            {{ note.author.first_name[0] }}{{ note.author.last_name[0] }}
-          </div>
-          <div>
-            <div class="detail-author-name">{{ note.author.first_name }} {{ note.author.last_name }}</div>
-            <div class="detail-author-meta">Shared notes on UniShare</div>
-          </div>
+      <div>
+        <div class="detail-author-name">{{ note.author.first_name }} {{ note.author.last_name }}</div>
+        <div class="detail-author-meta">
+          Shared on UniShare
+          {% if note.created_at %} · {{ note.created_at.strftime('%d %b %Y') }}{% endif %}
         </div>
       </div>
-
-      <div class="detail-actions">
-        {% if current_user %}
-        <form method="POST" action="{{ url_for('upvote_note', note_id=note.id) }}" style="display:inline;">
-          <button type="submit" class="btn-action btn-upvote">
-            <i class="fa-solid fa-arrow-up"></i> Upvote
-          </button>
-        </form>
-        {% endif %}
-        <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-action btn-download">
-          <i class="fa-solid fa-download"></i> Download
-        </a>
-        <a href="{{ url_for('notes') }}" class="btn-action btn-ghost">Back to all notes</a>
-      </div>
-
     </div>
+
+    <!-- Content preview (only if content_html is populated) -->
+    {% if note.content_html %}
+    <div class="preview-section">
+      <button class="preview-toggle" id="preview-btn" onclick="togglePreview()">
+        <span><i class="fa-solid fa-eye" style="margin-right:7px;color:var(--gold);"></i>Preview Notes</span>
+        <i class="fa-solid fa-chevron-down preview-toggle-arrow" id="preview-arrow"></i>
+      </button>
+      <div class="preview-body" id="preview-body">
+        {{ note.content_html | safe }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="detail-actions">
+      {% if current_user and current_user.is_authenticated %}
+      <form method="POST" action="{{ url_for('upvote_note', note_id=note.id) }}" style="display:inline;">
+        <button type="submit" class="btn-action btn-upvote">
+          <i class="fa-solid fa-arrow-up"></i> Upvote
+        </button>
+      </form>
+      {% endif %}
+
+      <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-action btn-download">
+        <i class="fa-solid fa-download"></i>
+        Download{% if note.file_path %} ({{ note.file_name.rsplit('.', 1)[-1].upper() if note.file_name else 'File' }}){% endif %}
+      </a>
+
+      {% if current_user and current_user.is_authenticated %}
+      <button id="save-btn" class="btn-action btn-save {% if is_saved %}saved{% endif %}"
+              onclick="toggleSave({{ note.id }})">
+        <i id="save-icon" class="fa-{% if is_saved %}solid{% else %}regular{% endif %} fa-bookmark"></i>
+        <span id="save-label">{% if is_saved %}Saved{% else %}Save to Library{% endif %}</span>
+      </button>
+      {% endif %}
+
+      <a href="{{ url_for('notes') }}" class="btn-action btn-ghost">All notes</a>
+    </div>
+
   </div>
 
 </div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Note stats</div>
+    <div class="stat-block">
+      <div class="stat-cell">
+        <div class="stat-num">{{ note.upvotes }}</div>
+        <div class="stat-lbl">Upvotes</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">{{ note.saved_by.count() }}</div>
+        <div class="stat-lbl">Saves</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related notes from same unit -->
+  {% set related = [] %}
+  {% for n in note.author.notes if n.id != note.id %}
+    {% if related|length < 3 %}
+      {% set _ = related.append(n) %}
+    {% endif %}
+  {% endfor %}
+  {% if related %}
+  <div class="rcard">
+    <div class="rcard-title">More from {{ note.author.first_name }}</div>
+    {% for r in related %}
+    <a href="{{ url_for('view_note', note_id=r.id) }}" class="related-item">
+      <div class="related-thumb">
+        {% if r.cover_image %}
+        <img src="{{ url_for('static', filename=r.cover_image) }}"
+             style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt=""/>
+        {% else %}
+        <i class="fa-solid fa-file-lines"></i>
+        {% endif %}
+      </div>
+      <div>
+        <div class="related-title">{{ r.title }}</div>
+        <div class="related-meta">{{ r.unit_code }} · {{ r.upvotes }} upvotes</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="mkt-cta">
+    <h3>Share your notes</h3>
+    <p>Help students like you and earn XP by uploading your summaries and study sheets.</p>
+    <a href="{{ url_for('create_note') }}" class="btn-mkt">
+      <i class="fa-solid fa-plus"></i> Upload Notes
+    </a>
+  </div>
+
+  <div class="rcard" style="padding:12px 14px;">
+    <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br />
+      &copy; 2025 UniShare · UWA students
+    </div>
+  </div>
+</aside>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePreview() {
+  const body = document.getElementById('preview-body');
+  const btn  = document.getElementById('preview-btn');
+  const arrow = document.getElementById('preview-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+function toggleSave(noteId) {
+  fetch('/save_note/' + noteId, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      const btn   = document.getElementById('save-btn');
+      const icon  = document.getElementById('save-icon');
+      const label = document.getElementById('save-label');
+      if (data.saved) {
+        btn.classList.add('saved');
+        icon.className = 'fa-solid fa-bookmark';
+        label.textContent = 'Saved';
+      } else {
+        btn.classList.remove('saved');
+        icon.className = 'fa-regular fa-bookmark';
+        label.textContent = 'Save to Library';
+      }
+    });
+}
+</script>
 {% endblock %}

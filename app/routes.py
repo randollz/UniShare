@@ -2,14 +2,14 @@ import os
 import uuid
 
 from flask import (render_template, request, redirect,
-                   url_for, session, flash, jsonify, Response)
+                   url_for, session, flash, jsonify, Response, send_from_directory, current_app)
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import (User, Listing, Note, StudySession, SessionRSVP,
-                        Bounty, SavedListing, Rating, Message, Post, PostLike, PostComment)
+                        Bounty, SavedListing, SavedNote, Rating, Message, Post, PostLike, PostComment)
 from app import controllers
 from validators import LISTING_CONDITIONS
 
@@ -293,7 +293,28 @@ def register_routes(app):
     def create_note():
         if request.method == 'POST':
             try:
-                controllers.create_note(current_user.id, request.form)
+                note = controllers.create_note(current_user.id, request.form)
+                attachment = request.files.get('attachment')
+                if attachment and attachment.filename:
+                    allowed_mimes = {'application/pdf', 'application/msword',
+                                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                     'image/jpeg', 'image/png'}
+                    mime = attachment.mimetype
+                    if mime not in allowed_mimes:
+                        flash('Unsupported file type. Please upload PDF, DOCX, JPG or PNG.', 'error')
+                        return render_template('create_note.html', errors={}, form=request.form)
+                    attachment.seek(0, 2)
+                    if attachment.tell() > 10 * 1024 * 1024:
+                        flash('File is too large (max 10 MB).', 'error')
+                        return render_template('create_note.html', errors={}, form=request.form)
+                    attachment.seek(0)
+                    upload_dir = os.path.join(current_app.static_folder, 'uploads', 'notes')
+                    os.makedirs(upload_dir, exist_ok=True)
+                    fname = f"{uuid.uuid4().hex}_{secure_filename(attachment.filename)}"
+                    attachment.save(os.path.join(upload_dir, fname))
+                    note.file_path = f"uploads/notes/{fname}"
+                    note.file_name = attachment.filename
+                    db.session.commit()
                 flash('Notes shared!', 'success')
                 return redirect(url_for('notes'))
             except ValueError as e:
@@ -311,11 +332,21 @@ def register_routes(app):
     @app.route('/notes/<int:note_id>')
     def view_note(note_id):
         note = Note.query.get_or_404(note_id)
-        return render_template('note_detail.html', note=note)
+        is_saved = False
+        if current_user and current_user.is_authenticated:
+            is_saved = SavedNote.query.filter_by(
+                user_id=current_user.id, note_id=note_id).first() is not None
+        return render_template('note_detail.html', note=note, is_saved=is_saved)
 
     @app.route('/notes/<int:note_id>/download')
     def download_note(note_id):
         note = Note.query.get_or_404(note_id)
+        if note.file_path:
+            directory = os.path.join(current_app.static_folder, 'uploads', 'notes')
+            filename = os.path.basename(note.file_path)
+            return send_from_directory(directory, filename,
+                                       as_attachment=True,
+                                       download_name=note.file_name or filename)
         content = (
             f"{note.title}\n\n"
             f"Unit: {note.unit_code}\n"
@@ -770,6 +801,130 @@ def register_routes(app):
         db.session.commit()
         flash('Post deleted.', 'success')
         return redirect(url_for('dashboard'))
+
+    # ── Activity ─────────────────────────────────────────────────
+
+    @app.route('/activity')
+    @login_required
+    def activity():
+        import datetime as dt
+        uid = current_user.id
+
+        events = []
+
+        for p in Post.query.filter_by(author_id=uid).order_by(Post.created_at.desc()).limit(30):
+            events.append({
+                'type': 'post', 'time': p.created_at,
+                'label': 'You shared a post',
+                'excerpt': p.body[:120] + ('…' if len(p.body) > 120 else ''),
+                'link': url_for('dashboard'),
+                'badge': p.post_type,
+            })
+
+        for c in PostComment.query.filter_by(author_id=uid).order_by(PostComment.created_at.desc()).limit(30):
+            post = Post.query.get(c.post_id)
+            author_name = f'{post.author.first_name} {post.author.last_name}' if post else 'someone'
+            events.append({
+                'type': 'comment', 'time': c.created_at,
+                'label': f'You commented on {author_name}\'s post',
+                'excerpt': c.body[:120] + ('…' if len(c.body) > 120 else ''),
+                'link': url_for('dashboard'),
+                'badge': None,
+            })
+
+        for lk in PostLike.query.filter_by(user_id=uid).order_by(PostLike.created_at.desc()).limit(30):
+            post = Post.query.get(lk.post_id)
+            if post:
+                author_name = f'{post.author.first_name} {post.author.last_name}'
+                events.append({
+                    'type': 'like', 'time': lk.created_at,
+                    'label': f'You liked {author_name}\'s post',
+                    'excerpt': post.body[:80] + ('…' if len(post.body) > 80 else ''),
+                    'link': url_for('dashboard'),
+                    'badge': None,
+                })
+
+        for rsvp in SessionRSVP.query.filter_by(user_id=uid).all():
+            sess = StudySession.query.get(rsvp.session_id)
+            if sess:
+                events.append({
+                    'type': 'rsvp', 'time': sess.created_at,
+                    'label': f'You joined "{sess.title}"',
+                    'excerpt': f'{sess.unit_code} · {sess.location}',
+                    'link': url_for('study_sessions'),
+                    'badge': None,
+                })
+
+        events.sort(key=lambda e: e['time'] or dt.datetime.min, reverse=True)
+        events = events[:60]
+
+        now = dt.datetime.now(dt.timezone.utc)
+        for e in events:
+            t = e['time']
+            if t is None:
+                e['time_str'] = 'some time ago'
+                continue
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=dt.timezone.utc)
+            diff = now - t
+            secs = int(diff.total_seconds())
+            if secs < 60:
+                e['time_str'] = 'just now'
+            elif secs < 3600:
+                e['time_str'] = f'{secs // 60}m ago'
+            elif secs < 86400:
+                e['time_str'] = f'{secs // 3600}h ago'
+            else:
+                e['time_str'] = f'{secs // 86400}d ago'
+
+        return render_template('activity.html', events=events)
+
+    # ── Library ──────────────────────────────────────────────────
+
+    @app.route('/library')
+    @login_required
+    def library():
+        saved = (SavedNote.query
+                 .filter_by(user_id=current_user.id)
+                 .order_by(SavedNote.saved_at.desc())
+                 .all())
+        saved_notes = [sn.note for sn in saved]
+        saved_ids   = {sn.note_id for sn in saved}
+        my_notes    = Note.query.filter_by(author_id=current_user.id).order_by(Note.created_at.desc()).all()
+        return render_template('library.html', saved_notes=saved_notes,
+                               my_notes=my_notes, saved_ids=saved_ids)
+
+    @app.route('/save_note/<int:note_id>', methods=['POST'])
+    @login_required
+    def save_note(note_id):
+        note = Note.query.get_or_404(note_id)
+        existing = SavedNote.query.filter_by(user_id=current_user.id, note_id=note_id).first()
+        if existing:
+            db.session.delete(existing)
+            db.session.commit()
+            return jsonify({'saved': False})
+        sn = SavedNote(user_id=current_user.id, note_id=note_id)
+        db.session.add(sn)
+        db.session.commit()
+        return jsonify({'saved': True})
+
+    # ── My Listings ───────────────────────────────────────────────
+
+    @app.route('/my-listings')
+    @login_required
+    def my_listings_page():
+        my_listings = (Listing.query
+                       .filter_by(seller_id=current_user.id)
+                       .order_by(Listing.created_at.desc())
+                       .all())
+        saved = (SavedListing.query
+                 .filter_by(user_id=current_user.id)
+                 .order_by(SavedListing.listing_id.desc())
+                 .all())
+        saved_listings = [sl.listing for sl in saved]
+        return render_template('my_listings.html',
+                               my_listings=my_listings,
+                               saved_listings=saved_listings)
 
     # ── Stub pages ──────────────────────────────────────────────
 

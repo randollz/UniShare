@@ -1,19 +1,274 @@
 {% extends 'base.html' %}
 {% block title %}Share Notes — UniShare{% endblock %}
+
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
+
+.main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.page-head {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 22px;
+}
+.page-head h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); margin-bottom: 3px; }
+.page-head p  { font-size: 0.83rem; color: var(--muted); }
+
+/* Form card */
+.form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+}
+.form-section {
+  padding: 22px 24px; border-bottom: 1px solid var(--border);
+}
+.form-section:last-child { border-bottom: none; }
+.form-section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--dark);
+}
+.field label .hint { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.field input[type=text], .field textarea, .field select {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--dark);
+  outline: none; transition: border-color var(--t);
+}
+.field input[type=text]:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--gold);
+}
+.field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* File drop zone */
+.file-zone {
+  border: 2px dashed var(--border); border-radius: 10px;
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: all var(--t); background: #fafafa; position: relative;
+}
+.file-zone:hover, .file-zone.dragover {
+  border-color: var(--gold); background: #fffbeb;
+}
+.file-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.file-zone-icon { font-size: 1.8rem; color: var(--muted); margin-bottom: 8px; }
+.file-zone-label {
+  font-size: 0.85rem; font-weight: 600; color: var(--dark);
+  display: block; margin-bottom: 4px;
+}
+.file-zone-sub { font-size: 0.76rem; color: var(--muted); }
+.file-zone-selected {
+  display: none; align-items: center; gap: 10px; justify-content: center;
+  margin-top: 10px;
+}
+.file-zone-selected .file-chip {
+  display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+  background: #eff6ff; border-radius: 99px; font-size: 0.78rem; font-weight: 600; color: #3b82f6;
+}
+
+/* Actions bar */
+.form-actions {
+  padding: 18px 24px; display: flex; gap: 10px; align-items: center;
+  background: #fafafa; border-top: 1px solid var(--border);
+}
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px;
+  border-radius: 9px; background: var(--dark); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+  border: none; cursor: pointer; transition: all var(--t);
+}
+.btn-submit:hover { background: var(--dark2); transform: translateY(-1px); }
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px;
+  border-radius: 9px; background: transparent; color: var(--mid);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer; text-decoration: none;
+  transition: all var(--t);
+}
+.btn-cancel:hover { border-color: var(--dark); color: var(--dark); }
+
+/* XP tip */
+.xp-tip {
+  background: linear-gradient(135deg, #14532d, #166534);
+  border-radius: var(--r); padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.xp-tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+.xp-tip h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.xp-tip p  { font-size: 0.76rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+/* Right panel */
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.tip-list { display: flex; flex-direction: column; gap: 10px; }
+.tip-item { display: flex; align-items: flex-start; gap: 8px; }
+.tip-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+.tip-text { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.tip-text strong { color: var(--dark); }
+.rcard-footer { font-size: 0.68rem; color: var(--muted); line-height: 1.7; }
+.rcard-footer a { color: var(--muted); }
+.rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-inner" style="max-width:560px">
-    <h1 style="margin-bottom:28px">Share notes</h1>
-    <form method="POST" class="form-card">
-        <div class="field"><label>Title <span class="required">*</span></label><input type="text" name="title" required placeholder="e.g. CITS3403 Week 5 Summary" /></div>
-        <div class="field-row">
-            <div class="field"><label>Unit code <span class="required">*</span></label><input type="text" name="unit_code" required placeholder="CITS3403" style="text-transform:uppercase" /></div>
-            <div class="field"><label>Semester</label><input type="text" name="semester" placeholder="S1 2025" /></div>
+<div class="main">
+  <div class="page-head">
+    <h1><i class="fa-solid fa-file-lines" style="color:var(--gold);margin-right:8px;"></i>Share Notes</h1>
+    <p>Upload your study notes and help fellow students — earn XP for every save and download.</p>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <div class="form-card">
+
+      <!-- Basic info -->
+      <div class="form-section">
+        <div class="form-section-label">Note details</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="field">
+            <label>Title <span style="color:#ef4444;">*</span></label>
+            <input type="text" name="title" required
+                   placeholder="e.g. CITS3403 Week 5 — Flask & SQLAlchemy"
+                   value="{{ form.get('title', '') }}" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Unit code <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="unit_code" required placeholder="CITS3403"
+                     style="text-transform:uppercase;"
+                     value="{{ form.get('unit_code', '') }}" />
+            </div>
+            <div class="field">
+              <label>Semester <span class="hint">(optional)</span></label>
+              <input type="text" name="semester" placeholder="S1 2025"
+                     value="{{ form.get('semester', '') }}" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Description <span class="hint">(what's covered?)</span></label>
+            <textarea name="description"
+                      placeholder="Brief overview of what these notes cover — helps others find them.">{{ form.get('description', '') }}</textarea>
+          </div>
         </div>
-        <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="What's covered in these notes?"></textarea></div>
-        <div style="display:flex;gap:10px;margin-top:8px">
-            <button type="submit" class="btn btn-dark">Share notes</button>
-            <a href="{{ url_for('notes') }}" class="btn btn-ghost">Cancel</a>
+      </div>
+
+      <!-- File attachment -->
+      <div class="form-section">
+        <div class="form-section-label">Attach a file <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:0.76rem;">(optional — PDF, DOCX, JPG, PNG · max 10 MB)</span></div>
+        <div class="file-zone" id="file-zone">
+          <input type="file" name="attachment" id="file-input"
+                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                 onchange="handleFile(this)" />
+          <div class="file-zone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <span class="file-zone-label">Drag &amp; drop or click to browse</span>
+          <span class="file-zone-sub">PDF, DOCX, JPG, PNG — max 10 MB</span>
+          <div class="file-zone-selected" id="file-selected">
+            <div class="file-chip">
+              <i class="fa-solid fa-file"></i>
+              <span id="file-name-label">No file selected</span>
+            </div>
+            <button type="button" onclick="clearFile(event)"
+                    style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.75rem;font-family:Inter,sans-serif;font-weight:600;">
+              ✕ Remove
+            </button>
+          </div>
         </div>
-    </form>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-share-nodes"></i> Share Notes
+        </button>
+        <a href="{{ url_for('notes') }}" class="btn-cancel">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+
+  <div class="xp-tip">
+    <div class="xp-tip-icon">🏆</div>
+    <div>
+      <h4>Earn XP for sharing</h4>
+      <p>You earn XP every time another student saves or downloads your notes. The more useful your notes, the faster you climb the leaderboard.</p>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Tips for great notes</div>
+    <div class="tip-list">
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fa-solid fa-heading"></i></div>
+        <div class="tip-text"><strong>Clear title</strong> — include the unit code, week or topic so it's easy to search.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-align-left"></i></div>
+        <div class="tip-text"><strong>Good description</strong> — list the topics covered so students know if it's relevant.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="tip-text"><strong>Attach a file</strong> — PDFs and DOCX get more downloads than text-only notes.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fa-solid fa-trophy"></i></div>
+        <div class="tip-text"><strong>Stay active</strong> — responding to bounties that request your unit earns bonus XP.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rcard" style="padding:12px 14px;">
+    <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br />
+      &copy; 2025 UniShare · UWA students
+    </div>
+  </div>
+</aside>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function handleFile(input) {
+  const zone     = document.getElementById('file-zone');
+  const selected = document.getElementById('file-selected');
+  const nameEl   = document.getElementById('file-name-label');
+  if (input.files && input.files[0]) {
+    nameEl.textContent = input.files[0].name;
+    selected.style.display = 'flex';
+    zone.style.borderColor = 'var(--gold)';
+  }
+}
+
+function clearFile(e) {
+  e.stopPropagation();
+  const input    = document.getElementById('file-input');
+  const zone     = document.getElementById('file-zone');
+  const selected = document.getElementById('file-selected');
+  input.value = '';
+  selected.style.display = 'none';
+  zone.style.borderColor = 'var(--border)';
+}
+
+// Drag-and-drop visual feedback
+const zone = document.getElementById('file-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  zone.classList.remove('dragover');
+  const input = document.getElementById('file-input');
+  input.files = e.dataTransfer.files;
+  handleFile(input);
+});
+</script>
 {% endblock %}

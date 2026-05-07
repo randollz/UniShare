@@ -70,47 +70,445 @@ LISTINGS = [
 ]
 
 NOTES = [
-    # (author_idx, title, unit_code, semester, description, upvotes)
+    # (author_idx, title, unit_code, semester, description, upvotes, cover_image, content_html)
     (0, "CITS3403 Complete Lecture Summary S1",  "CITS3403", "S1 2025",
      "All 12 weeks condensed into 40 pages. Covers Flask, JS, SQL, testing. "
      "Structured by week with key diagrams reproduced in text.",
-     47),
+     47,
+     "images/notes/cits3403_web_dev.svg",
+     """<h3>Week 1–3: Web Foundations &amp; Flask Routing</h3>
+<p>HTTP is a stateless request-response protocol. Every Flask route maps a URL pattern to a Python function via the <code>@app.route()</code> decorator.</p>
+<pre><code>@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = User.query.filter_by(email=request.form['email']).first()
+        if user and user.check_password(request.form['password']):
+            login_user(user)
+            return redirect(url_for('dashboard'))</code></pre>
+
+<h3>SQLAlchemy ORM</h3>
+<p>Define models as Python classes that inherit from <code>db.Model</code>. Relationships use <code>db.relationship()</code> with <code>back_populates</code> for bidirectional linking.</p>
+<ul>
+  <li><code>db.session.add(obj)</code> — stage object for insert</li>
+  <li><code>db.session.commit()</code> — write pending changes to disk</li>
+  <li><code>Model.query.filter_by(x=y).first()</code> — fetch first matching row</li>
+  <li><code>Model.query.get_or_404(id)</code> — fetch by PK or raise 404</li>
+</ul>
+
+<h3>Week 4–6: JavaScript &amp; the Fetch API</h3>
+<p>The Fetch API replaces <code>XMLHttpRequest</code>. Always return JSON from AJAX endpoints and handle errors in the <code>.catch()</code> chain.</p>
+<pre><code>fetch('/api/like/' + postId, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' }
+})
+.then(r => r.json())
+.then(data => {
+  if (data.liked) btn.classList.add('active');
+  countEl.textContent = data.count;
+})
+.catch(err => console.error(err));</code></pre>
+
+<h3>Week 7–9: Security Essentials</h3>
+<ul>
+  <li><strong>SQL injection</strong> — always use the ORM or parameterised queries; never string-concat user input into SQL</li>
+  <li><strong>XSS</strong> — escape user-provided HTML before rendering; Jinja2 auto-escapes by default</li>
+  <li><strong>CSRF</strong> — add a hidden token to all state-changing POST forms and validate server-side</li>
+  <li><strong>Passwords</strong> — never store plaintext; use <code>werkzeug.security.generate_password_hash</code></li>
+  <li><strong>Session cookies</strong> — set <code>HttpOnly</code> and <code>Secure</code> flags in production</li>
+</ul>
+
+<h3>Week 10–12: Testing Strategy</h3>
+<p>Flask exposes a <code>test_client()</code> for integration tests that simulate HTTP requests without running a server.</p>
+<ul>
+  <li>Use <code>unittest.TestCase</code> as the base class</li>
+  <li><code>pytest</code> fixtures handle setup/teardown cleanly</li>
+  <li>Aim for ≥ 80% line coverage — measure with <code>coverage.py</code></li>
+  <li>Test both happy paths and edge cases (missing fields, auth failures)</li>
+</ul>"""),
+
     (0, "CITS3403 Final Exam Cheat Sheet",       "CITS3403", "S1 2025",
      "One-page A4 summary allowed in exam. Key patterns and gotchas from past papers. "
      "Covers REST, SQL injection, testing strategies.",
-     38),
+     38,
+     "images/notes/cits3403_cheatsheet.svg",
+     """<h3>HTTP &amp; REST Quick Reference</h3>
+<ul>
+  <li><code>GET</code> — read resource, idempotent, no body</li>
+  <li><code>POST</code> — create, body with payload, not idempotent</li>
+  <li><code>PUT</code> — full replace of resource</li>
+  <li><code>PATCH</code> — partial update</li>
+  <li><code>DELETE</code> — remove resource</li>
+</ul>
+<p><strong>Status codes:</strong> <code>200 OK</code> · <code>201 Created</code> · <code>302 Redirect</code> · <code>400 Bad Request</code> · <code>401 Unauthorised</code> · <code>403 Forbidden</code> · <code>404 Not Found</code> · <code>500 Server Error</code></p>
+
+<h3>Flask One-liners</h3>
+<pre><code>url_for('view_name', param=val)   # always use, never hardcode paths
+redirect(url_for('dashboard'))    # redirect after POST
+flash('Saved!', 'success')        # flash message
+render_template('page.html', data=data)</code></pre>
+
+<h3>SQLAlchemy One-liners</h3>
+<pre><code>User.query.get_or_404(uid)
+Note.query.filter(Note.unit_code == 'CITS3403').all()
+db.session.delete(obj); db.session.commit()</code></pre>
+
+<h3>Security Gotchas (Exam Favourite)</h3>
+<ul>
+  <li>Raw SQL: always parameterise — <code>db.execute("SELECT * WHERE id=:id", {"id": id})</code></li>
+  <li>CSRF token must be validated on every state-changing POST</li>
+  <li><code>Markup(user_html)</code> is dangerous — only use with sanitised content</li>
+  <li>Password comparison must be constant-time — use <code>check_password_hash()</code></li>
+  <li>Never expose stack traces in production (<code>DEBUG = False</code>)</li>
+</ul>
+
+<h3>Testing Checklist</h3>
+<ul>
+  <li>Test every route for both authenticated and unauthenticated access</li>
+  <li>Test form validation — missing fields, oversized inputs</li>
+  <li>Assert redirect chains complete correctly</li>
+  <li>Cover error handlers (404, 500) explicitly</li>
+</ul>"""),
+
     (1, "CITS2200 Algorithm Analysis Notes",     "CITS2200", "S1 2025",
      "Big-O, sorting algorithms, graph traversals with worked examples. "
      "Includes Dijkstra, Bellman-Ford, and dynamic programming patterns.",
-     29),
+     29,
+     "images/notes/cits2200_algorithms.svg",
+     """<h3>Time Complexity — Big-O Notation</h3>
+<p>Big-O describes the upper bound on an algorithm's growth rate as input size <em>n</em> grows. We drop constants and lower-order terms.</p>
+<ul>
+  <li><code>O(1)</code> — Constant: array index access, hash table lookup</li>
+  <li><code>O(log n)</code> — Logarithmic: binary search, balanced BST operations</li>
+  <li><code>O(n)</code> — Linear: single-pass scan, linear search</li>
+  <li><code>O(n log n)</code> — Merge sort, heap sort, quicksort (average)</li>
+  <li><code>O(n²)</code> — Bubble sort, insertion sort, selection sort</li>
+  <li><code>O(2ⁿ)</code> — Exponential: naive recursive Fibonacci, subset enumeration</li>
+</ul>
+
+<h3>Graph Traversals</h3>
+<p><strong>BFS</strong> uses a queue (FIFO) and guarantees shortest path in unweighted graphs. <strong>DFS</strong> uses a stack (or recursion) and is suited for topological sort and cycle detection.</p>
+<pre><code>from collections import deque
+def bfs(graph, start):
+    visited, queue = set(), deque([start])
+    while queue:
+        v = queue.popleft()
+        if v not in visited:
+            visited.add(v)
+            queue.extend(graph[v] - visited)</code></pre>
+
+<h3>Dijkstra's Shortest Path</h3>
+<p>Greedy algorithm for non-negative weighted graphs. Uses a min-priority queue.</p>
+<ul>
+  <li>Time: <code>O((V + E) log V)</code> with binary heap</li>
+  <li>Cannot handle negative edge weights — use Bellman-Ford instead</li>
+  <li>Bellman-Ford: <code>O(VE)</code>, detects negative cycles</li>
+</ul>
+
+<h3>Dynamic Programming Patterns</h3>
+<p>DP solves problems by breaking them into overlapping subproblems and storing results (memoisation / tabulation).</p>
+<ul>
+  <li><strong>Fibonacci</strong> — classic top-down memoisation example</li>
+  <li><strong>Longest Common Subsequence</strong> — 2D table, <code>O(mn)</code></li>
+  <li><strong>0/1 Knapsack</strong> — capacity × items table</li>
+  <li><strong>Coin Change</strong> — bottom-up DP, minimum coins</li>
+</ul>"""),
+
     (1, "CITS2002 Systems Programming Guide",    "CITS2002", "S2 2024",
      "C pointers, memory management, process management with diagrams. "
      "File I/O section particularly thorough — covers fork/exec/wait.",
-     24),
+     24,
+     "images/notes/cits2002_systems.svg",
+     """<h3>Pointers &amp; Memory in C</h3>
+<p>A pointer stores the <em>address</em> of another variable. Dereferencing reads the value at that address.</p>
+<pre><code>int x = 42;
+int *ptr = &amp;x;       // ptr holds address of x
+printf("%d", *ptr);  // prints 42 — dereference
+*ptr = 100;          // modifies x through ptr</code></pre>
+<p><strong>Common pointer errors:</strong> dangling pointers (freed memory), buffer overflows, forgetting to check <code>malloc</code> return value.</p>
+
+<h3>Dynamic Memory Allocation</h3>
+<ul>
+  <li><code>malloc(n)</code> — allocate <em>n</em> bytes, uninitialised</li>
+  <li><code>calloc(n, size)</code> — allocate and zero-initialise</li>
+  <li><code>realloc(ptr, new_size)</code> — resize allocation</li>
+  <li><code>free(ptr)</code> — release memory; always pair with malloc</li>
+</ul>
+<pre><code>int *arr = malloc(sizeof(int) * n);
+if (!arr) { perror("malloc"); exit(EXIT_FAILURE); }
+// ... use arr ...
+free(arr);</code></pre>
+
+<h3>Process Management</h3>
+<p><code>fork()</code> creates a copy of the calling process. The return value tells you which side you're on.</p>
+<pre><code>pid_t pid = fork();
+if (pid == 0) {
+    // child process — pid == 0
+    execvp(argv[0], argv);  // replace image
+} else if (pid > 0) {
+    // parent — pid is child's PID
+    waitpid(pid, &status, 0);
+} else {
+    perror("fork failed");
+}</code></pre>
+
+<h3>File I/O &amp; Signals</h3>
+<ul>
+  <li><code>open() / read() / write() / close()</code> — POSIX syscalls, work with file descriptors</li>
+  <li><code>fopen() / fread() / fwrite() / fclose()</code> — C standard library, buffered I/O</li>
+  <li><code>signal(SIGINT, handler)</code> — register a signal handler</li>
+  <li><code>pipe(fd[2])</code> — create a unidirectional IPC channel between processes</li>
+</ul>"""),
+
     (2, "MATH1012 Calculus Week 1–6 Notes",      "MATH1012", "S1 2025",
      "Limits, derivatives, integrals — clear explanations with worked examples. "
      "Integration by parts and substitution covered in detail.",
-     19),
+     19,
+     "images/notes/math1012_calculus.svg",
+     """<h3>Limits</h3>
+<p>The limit <code>lim(x→a) f(x) = L</code> means f(x) approaches L as x approaches a, regardless of f(a).</p>
+<ul>
+  <li><strong>L'Hôpital's Rule</strong>: if f/g → 0/0 or ∞/∞, then lim f/g = lim f'/g'</li>
+  <li><strong>Squeeze Theorem</strong>: if g(x) ≤ f(x) ≤ h(x) and lim g = lim h = L, then lim f = L</li>
+  <li>Continuity requires: f(a) defined, limit exists, and lim(x→a) f(x) = f(a)</li>
+</ul>
+
+<h3>Differentiation Rules</h3>
+<ul>
+  <li><strong>Power Rule</strong>: d/dx [xⁿ] = nxⁿ⁻¹</li>
+  <li><strong>Product Rule</strong>: d/dx [uv] = u'v + uv'</li>
+  <li><strong>Quotient Rule</strong>: d/dx [u/v] = (u'v − uv') / v²</li>
+  <li><strong>Chain Rule</strong>: d/dx [f(g(x))] = f'(g(x)) · g'(x)</li>
+</ul>
+<p><em>Worked example — Chain Rule:</em> d/dx [sin(x²)] = cos(x²) · 2x</p>
+
+<h3>Integration Techniques</h3>
+<p>The fundamental theorem: ∫ₐᵇ f(x) dx = F(b) − F(a), where F is any antiderivative of f.</p>
+<ul>
+  <li><strong>u-substitution</strong>: let u = g(x), du = g'(x)dx → transforms integrand</li>
+  <li><strong>Integration by parts</strong>: ∫ u dv = uv − ∫ v du (use LIATE for choosing u)</li>
+  <li><strong>Partial fractions</strong>: decompose rational functions before integrating</li>
+</ul>
+<pre><code>LIATE priority for u in integration by parts:
+  L — Logarithmic   (ln x)
+  I — Inverse trig  (arctan x)
+  A — Algebraic     (x², x+1)
+  T — Trigonometric (sin x, cos x)
+  E — Exponential   (eˣ)</code></pre>"""),
+
     (2, "MATH2402 Linear Algebra Summary",       "MATH2402", "S1 2025",
      "Eigenvalues, vector spaces, matrix decompositions. "
      "All key theorems stated with proofs where they appeared in lectures.",
-     15),
+     15,
+     "images/notes/math2402_linear_algebra.svg",
+     """<h3>Vector Spaces &amp; Subspaces</h3>
+<p>A vector space V over ℝ must satisfy 8 axioms (closure under addition and scalar multiplication, associativity, commutativity, etc.).</p>
+<ul>
+  <li><strong>Null space</strong> of A: {x ∈ ℝⁿ : Ax = 0} — always a subspace</li>
+  <li><strong>Column space</strong> of A: span of A's columns — equals the image of the transformation</li>
+  <li><strong>Rank-Nullity Theorem</strong>: rank(A) + nullity(A) = n (number of columns)</li>
+</ul>
+
+<h3>Eigenvalues &amp; Eigenvectors</h3>
+<p>λ is an eigenvalue of A if Av = λv for some non-zero vector v. Find eigenvalues by solving det(A − λI) = 0.</p>
+<pre><code>Steps to find eigenvalues:
+1. Form A − λI
+2. Set det(A − λI) = 0  (characteristic polynomial)
+3. Solve for λ
+4. For each λ, solve (A − λI)v = 0 for eigenvectors</code></pre>
+
+<h3>Key Matrix Decompositions</h3>
+<ul>
+  <li><strong>LU decomposition</strong>: A = LU where L is lower triangular, U is upper — Gaussian elimination</li>
+  <li><strong>Diagonalisation</strong>: A = PDP⁻¹ where D is diagonal (eigenvalues) and P has eigenvectors as columns</li>
+  <li><strong>SVD</strong>: A = UΣVᵀ — always exists; Σ contains singular values; used in PCA</li>
+  <li><strong>QR decomposition</strong>: A = QR where Q is orthogonal, R is upper triangular</li>
+</ul>
+
+<h3>Important Theorems</h3>
+<ul>
+  <li><strong>Spectral Theorem</strong>: every real symmetric matrix is orthogonally diagonalisable</li>
+  <li><strong>Invertible Matrix Theorem</strong>: 15+ equivalent conditions for a matrix being invertible</li>
+  <li><strong>Cayley-Hamilton</strong>: every matrix satisfies its own characteristic equation</li>
+</ul>"""),
+
     (3, "STAT2401 R Code Cheatsheet",            "STAT2401", "S2 2024",
      "All the R snippets you need for the practicals in one file. "
      "Covers ggplot2, dplyr, lm, and hypothesis testing functions.",
-     33),
+     33,
+     "images/notes/stat2401_stats.svg",
+     """<h3>Data Wrangling with dplyr</h3>
+<pre><code>library(dplyr)
+
+df %&gt;%
+  filter(score &gt; 50) %&gt;%           # row filter
+  select(name, score, grade) %&gt;%   # column select
+  mutate(pass = score &gt;= 50) %&gt;%   # new column
+  arrange(desc(score)) %&gt;%         # sort
+  group_by(grade) %&gt;%              # grouping
+  summarise(mean_score = mean(score), n = n())</code></pre>
+
+<h3>Visualisation with ggplot2</h3>
+<pre><code>library(ggplot2)
+
+# Scatter plot with regression line
+ggplot(data, aes(x = hours_studied, y = score)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, colour = "steelblue") +
+  labs(title = "Study Hours vs Score", x = "Hours", y = "Score") +
+  theme_minimal()
+
+# Bar chart
+ggplot(data, aes(x = grade, fill = grade)) +
+  geom_bar() + scale_fill_brewer(palette = "Set2")</code></pre>
+
+<h3>Linear Regression</h3>
+<pre><code>model &lt;- lm(score ~ hours + sleep, data = df)
+summary(model)       # coefficients, R², p-values
+confint(model)       # 95% confidence intervals
+predict(model, newdata = data.frame(hours=8, sleep=7))</code></pre>
+
+<h3>Hypothesis Testing</h3>
+<ul>
+  <li><code>t.test(x, y, paired=FALSE)</code> — two-sample t-test</li>
+  <li><code>chisq.test(table)</code> — chi-squared test of independence</li>
+  <li><code>shapiro.test(x)</code> — normality test (p &gt; 0.05 → normal)</li>
+  <li><code>aov(y ~ x, data=df)</code> — one-way ANOVA</li>
+</ul>
+<p><strong>Decision rule</strong>: if p-value &lt; α (usually 0.05), reject H₀.</p>"""),
+
     (4, "CITS3003 Graphics OpenGL Notes",        "CITS3003", "S1 2025",
      "Week-by-week notes covering shaders, transformations, lighting. "
      "Includes working GLSL fragment and vertex shader examples.",
-     11),
+     11,
+     "images/notes/cits3003_graphics.svg",
+     """<h3>The OpenGL Pipeline</h3>
+<p>Data flows through the GPU pipeline: CPU → Vertex Shader → Rasterisation → Fragment Shader → Framebuffer.</p>
+<ul>
+  <li><strong>Vertex shader</strong>: runs once per vertex; transforms positions to clip space</li>
+  <li><strong>Rasterisation</strong>: interpolates attributes across the triangle's fragments</li>
+  <li><strong>Fragment shader</strong>: runs once per pixel; outputs final colour</li>
+</ul>
+
+<h3>3D Transformations</h3>
+<p>All transformations are 4×4 homogeneous matrices. The Model-View-Projection (MVP) pipeline:</p>
+<pre><code>gl_Position = uProjection * uView * uModel * aPosition;
+// M: object → world space
+// V: world  → camera space
+// P: camera → clip space (perspective divide gives NDC)</code></pre>
+<ul>
+  <li><strong>Translation</strong>: 4th column of matrix</li>
+  <li><strong>Rotation</strong>: 3×3 rotation sub-matrix using trigonometry</li>
+  <li><strong>Scale</strong>: diagonal elements of the 3×3 block</li>
+</ul>
+
+<h3>GLSL Shader Examples</h3>
+<pre><code>// Vertex shader
+attribute vec4 aPosition;
+attribute vec3 aNormal;
+uniform mat4 uMVP;
+varying vec3 vNormal;
+
+void main() {
+  gl_Position = uMVP * aPosition;
+  vNormal = aNormal;
+}
+
+// Fragment shader — Phong diffuse
+varying vec3 vNormal;
+uniform vec3 uLightDir;
+void main() {
+  float diff = max(dot(normalize(vNormal), uLightDir), 0.0);
+  gl_FragColor = vec4(vec3(diff), 1.0);
+}</code></pre>
+
+<h3>Phong Lighting Model</h3>
+<ul>
+  <li><strong>Ambient</strong>: constant background light — <code>Iₐ · kₐ</code></li>
+  <li><strong>Diffuse</strong>: Lambert's law — <code>Iᵈ · kᵈ · max(N·L, 0)</code></li>
+  <li><strong>Specular</strong>: shiny highlight — <code>Iₛ · kₛ · max(R·V, 0)ⁿ</code></li>
+</ul>"""),
+
     (5, "BIOC2002 Protein Synthesis Summary",    "BIOC2002", "S1 2025",
      "Transcription → translation, with annotated diagrams. "
      "Post-translational modifications and protein folding overview.",
-     8),
+     8,
+     "images/notes/bioc2002_biochem.svg",
+     """<h3>Central Dogma: DNA → RNA → Protein</h3>
+<p>Genetic information flows in one direction: DNA is transcribed into mRNA, which is then translated into protein by ribosomes.</p>
+<ul>
+  <li><strong>Transcription</strong> (nucleus): RNA polymerase reads template strand 3'→5', synthesises mRNA 5'→3'</li>
+  <li><strong>mRNA processing</strong>: 5' cap added, 3' poly-A tail added, introns spliced out by spliceosome</li>
+  <li><strong>Translation</strong> (ribosome): mRNA codons read 5'→3'; tRNA anticodons deliver amino acids; peptide bond forms</li>
+</ul>
+
+<h3>Transcription in Detail</h3>
+<ul>
+  <li><strong>Initiation</strong>: RNA pol binds promoter (TATA box at -30); transcription factors recruited</li>
+  <li><strong>Elongation</strong>: RNA pol unwinds DNA ~10 bp at a time; adds ribonucleotides (A, U, G, C)</li>
+  <li><strong>Termination</strong>: poly-A signal (AAUAAA) triggers cleavage and polyadenylation</li>
+</ul>
+
+<h3>Translation &amp; the Genetic Code</h3>
+<pre><code>Start codon: AUG (Met) — always the initiation codon
+Stop codons: UAA, UAG, UGA — release factors trigger termination
+
+Reading frame example:
+  mRNA: 5'—AUG·GCU·UAC·GAA·UAA—3'
+  AA:      Met·Ala·Tyr·Glu·[stop]</code></pre>
+
+<h3>Post-Translational Modifications (PTMs)</h3>
+<ul>
+  <li><strong>Phosphorylation</strong>: Ser/Thr/Tyr — kinases add, phosphatases remove; key in signalling</li>
+  <li><strong>Glycosylation</strong>: sugar groups added in ER/Golgi; cell surface recognition</li>
+  <li><strong>Ubiquitination</strong>: tags proteins for proteasomal degradation</li>
+  <li><strong>Protein folding</strong>: chaperones (HSP70/HSP90) prevent misfolding; hydrophobic collapse drives native fold</li>
+</ul>"""),
+
     (6, "MKTG1100 Marketing Mix Notes",          "MKTG1100", "S2 2024",
      "4Ps framework, case studies, and common exam questions. "
      "Real-world examples from Australian brands used throughout.",
-     6),
+     6,
+     "images/notes/mktg1100_marketing.svg",
+     """<h3>The 4Ps Marketing Mix</h3>
+<p>The marketing mix describes how a company controls the four levers of its offering to reach target customers profitably.</p>
+
+<h3>Product</h3>
+<ul>
+  <li><strong>Core product</strong>: the fundamental benefit (e.g., a phone gives communication)</li>
+  <li><strong>Actual product</strong>: features, branding, quality, packaging</li>
+  <li><strong>Augmented product</strong>: warranty, after-sales service, delivery</li>
+  <li><strong>Product lifecycle</strong>: Introduction → Growth → Maturity → Decline</li>
+</ul>
+
+<h3>Price</h3>
+<ul>
+  <li><strong>Cost-plus</strong>: cost + markup percentage</li>
+  <li><strong>Value-based</strong>: what the customer perceives it to be worth</li>
+  <li><strong>Penetration</strong>: low price to gain market share quickly (e.g., Spotify free tier)</li>
+  <li><strong>Skimming</strong>: high initial price, lower as competition enters (e.g., new iPhone)</li>
+</ul>
+
+<h3>Place (Distribution)</h3>
+<ul>
+  <li><strong>Direct</strong>: manufacturer → consumer (e.g., Apple Stores)</li>
+  <li><strong>Indirect</strong>: via intermediaries — wholesalers, retailers</li>
+  <li><strong>Omnichannel</strong>: seamless experience across physical and digital — Woolworths, JB Hi-Fi</li>
+</ul>
+
+<h3>Promotion</h3>
+<ul>
+  <li><strong>Advertising</strong>: paid, non-personal — TV, digital, social</li>
+  <li><strong>Sales promotion</strong>: short-term incentives — coupons, BOGOF, loyalty points</li>
+  <li><strong>Public relations</strong>: earned media, reputation management</li>
+  <li><strong>Personal selling</strong>: direct interaction — insurance, B2B contracts</li>
+</ul>
+
+<h3>Australian Brand Case Studies</h3>
+<ul>
+  <li><strong>Bunnings</strong>: everyday low pricing + wide range + destination stores (Place + Price)</li>
+  <li><strong>Vegemite</strong>: brand heritage as core differentiation (Product branding)</li>
+  <li><strong>Menulog</strong>: heavy social/TV advertising + convenience positioning (Promotion + Place)</li>
+</ul>"""),
 ]
 
 SESSIONS = [
@@ -395,10 +793,11 @@ def seed_core():
     print(f"  ✓ {len(listing_objs)} listings")
 
     # ── Notes
-    for author_i, title, unit, sem, desc, upvotes in NOTES:
+    for author_i, title, unit, sem, desc, upvotes, cover_img, content_html in NOTES:
         db.session.add(Note(author_id=user_objs[author_i].id,
                             title=title, unit_code=unit,
-                            semester=sem, description=desc, upvotes=upvotes))
+                            semester=sem, description=desc, upvotes=upvotes,
+                            cover_image=cover_img, content_html=content_html))
     db.session.flush()
     print(f"  ✓ {len(NOTES)} notes")
 
