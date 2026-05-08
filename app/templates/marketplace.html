@@ -267,12 +267,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
         {% if current_user %}
           {% if l.id in saved_ids %}
           <form method="POST" action="{{ url_for('unsave_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lc-save lc-save-active" title="Saved (click to unsave)">
               <i class="fa-solid fa-bookmark"></i>
             </button>
           </form>
           {% else %}
           <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lc-save" title="Save">
               <i class="fa-regular fa-bookmark"></i>
             </button>
@@ -309,6 +311,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
           {% if current_user and current_user.id == l.seller_id %}
           <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}"
                 onsubmit="return confirm('Remove this listing?')" style="margin-left:auto;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
             <button type="submit" class="lc-delete">Delete</button>
           </form>
           {% else %}

@@ -277,6 +277,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <div class="detail-actions">
       {% if current_user and current_user.is_authenticated %}
       <form method="POST" action="{{ url_for('upvote_note', note_id=note.id) }}" style="display:inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <button type="submit" class="btn-action btn-upvote">
           <i class="fa-solid fa-arrow-up"></i> Upvote
         </button>
@@ -378,7 +379,10 @@ function togglePreview() {
 }
 
 function toggleSave(noteId) {
-  fetch('/save_note/' + noteId, { method: 'POST' })
+  fetch('/save_note/' + noteId, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': window.CSRF_TOKEN },
+  })
     .then(r => r.json())
     .then(data => {
       const btn   = document.getElementById('save-btn');

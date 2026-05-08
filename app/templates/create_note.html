@@ -126,6 +126,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   </div>
 
   <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="form-card">
 
       <!-- Basic info -->

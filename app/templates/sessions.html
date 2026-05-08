@@ -279,12 +279,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
           {% if current_user and current_user.id != s.host_id %}
             {% if s.id in joined_ids %}
             <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit" class="sc-btn sc-btn-ghost">
                 <i class="fa-solid fa-xmark"></i> Cancel RSVP
               </button>
             </form>
             {% else %}
             <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit" class="sc-btn sc-btn-join">
                 <i class="fa-solid fa-arrow-right"></i> Join session
               </button>

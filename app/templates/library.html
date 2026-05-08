@@ -237,7 +237,10 @@ function switchTab(name, btn) {
 }
 
 function unsaveNote(noteId, btn) {
-  fetch('/save_note/' + noteId, { method: 'POST', headers: { 'X-CSRFToken': '' } })
+  fetch('/save_note/' + noteId, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': window.CSRF_TOKEN },
+  })
     .then(r => r.json())
     .then(data => {
       if (!data.saved) {

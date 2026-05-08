@@ -112,6 +112,7 @@
       <div class="detail-actions">
         {% if current_user and current_user.id != bounty.poster_id %}
         <form method="POST" action="{{ url_for('claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="btn-action btn-claim">
             <i class="fa-solid fa-hand-holding-dollar"></i> Claim this bounty
           </button>

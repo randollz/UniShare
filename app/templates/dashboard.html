@@ -211,6 +211,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="compose" id="compose-box">
     <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form"
           enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
       <div class="compose-row">
         <div class="compose-av">{{ current_user.first_name[0] }}</div>
         <textarea id="compose-body" name="body"
@@ -302,6 +304,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="my-listing-price">${{ '%.2f'|format(l.price) }}</span>
         <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:0.75rem;" onclick="return confirm('Delete this listing?')">
             <i class="fa-solid fa-trash"></i>
           </button>
@@ -395,6 +398,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
           {% if post.author_id == current_user.id %}
             <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
                   style="margin-left:auto;" onsubmit="return confirm('Delete this post?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
               <button type="submit" class="post-action" style="color:var(--muted);font-size:0.78rem;">
                 <i class="fa-solid fa-trash"></i> Delete
               </button>
@@ -577,7 +582,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     try {
       const res  = await fetch(`/feed/${postId}/comment`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': window.CSRF_TOKEN,
+        },
         body: JSON.stringify({ body }),
       });
       if (!res.ok) return;
@@ -620,7 +628,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     btn.addEventListener('click', async () => {
       const postId = btn.dataset.postId;
       try {
-        const res  = await fetch(`/feed/${postId}/like`, { method: 'POST' });
+        const res  = await fetch(`/feed/${postId}/like`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': window.CSRF_TOKEN },
+        });
         const data = await res.json();
         const icon  = btn.querySelector('i');
         const count = btn.querySelector('.like-count');
