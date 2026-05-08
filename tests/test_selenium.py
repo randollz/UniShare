@@ -191,3 +191,96 @@ class TestSmoke:
         wait_for(browser, "input[name=\"email\"]")
         wait_for(browser, "input[name=\"password\"]")
         assert "Sign in" in browser.page_source or "Log in" in browser.page_source
+
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Functional flow tests (commit 2)
+# ─────────────────────────────────────────────────────────────────────────
+
+class TestAuthFlows:
+    def test_register_new_user_redirects_to_dashboard(self, browser, live_server):
+        """Sign-up form on /login creates an account and lands on /dashboard."""
+        browser.get(f"{live_server}/login")
+
+        # Switch to the Create-account tab (custom JS toggle on this page)
+        browser.execute_script(
+            "document.querySelectorAll(\".auth-tab\")[1].click();"
+        )
+
+        # Wait for the signup view to become visible (signup form has first_name)
+        wait_for(browser, "#signup-view input[name=\"first_name\"]")
+
+        # Fill in the registration form (signup-view scope so we don't pick up
+        # the hidden login form)
+        signup = browser.find_element(By.CSS_SELECTOR, "#signup-view")
+        signup.find_element(By.CSS_SELECTOR, "input[name=\"first_name\"]").send_keys("Alice")
+        signup.find_element(By.CSS_SELECTOR, "input[name=\"last_name\"]").send_keys("E2E")
+        signup.find_element(By.CSS_SELECTOR, "input[name=\"email\"]").send_keys("alice_e2e@test.com")
+        signup.find_element(By.CSS_SELECTOR, "input[name=\"password\"]").send_keys("testpass1")
+        signup.find_element(By.CSS_SELECTOR, "button[type=\"submit\"]").click()
+
+        WebDriverWait(browser, 10).until(EC.url_contains("/dashboard"))
+        assert "/dashboard" in browser.current_url
+
+    def test_login_then_logout(self, browser, live_server):
+        """Login as the seed user and log out — final URL should leave dashboard."""
+        login_user(browser, live_server)
+        assert "/dashboard" in browser.current_url
+
+        # Hit the logout endpoint directly (link is in the sidebar; this is
+        # more robust against layout changes)
+        browser.get(f"{live_server}/logout")
+        WebDriverWait(browser, 10).until(
+            lambda d: "/dashboard" not in d.current_url
+        )
+        assert "/dashboard" not in browser.current_url
+
+
+class TestContentCreation:
+    def test_create_listing_appears_in_marketplace(self, browser, live_server):
+        """Create a listing through /create_listing and verify it shows in marketplace."""
+        login_user(browser, live_server)
+
+        unique_title = f"Selenium Textbook {int(time.time())}"
+        browser.get(f"{live_server}/create_listing")
+
+        wait_for(browser, "input[name=\"title\"]").send_keys(unique_title)
+        browser.find_element(By.CSS_SELECTOR, "input[name=\"unit_code\"]").send_keys("CITS3403")
+        browser.find_element(By.CSS_SELECTOR, "input[name=\"price\"]").send_keys("19.99")
+        browser.find_element(By.CSS_SELECTOR, "textarea[name=\"description\"]").send_keys(
+            "End-to-end test listing"
+        )
+        browser.find_element(By.CSS_SELECTOR, "button[type=\"submit\"]").click()
+
+        # After submit, should land on marketplace (or wherever the route redirects)
+        WebDriverWait(browser, 10).until(
+            lambda d: "/create_listing" not in d.current_url
+        )
+
+        # Visit the marketplace and confirm our title shows up
+        browser.get(f"{live_server}/marketplace")
+        wait_for(browser, ".lc-title")
+        assert unique_title in browser.page_source
+
+    def test_create_post_appears_in_feed(self, browser, live_server):
+        """Submit a post via the dashboard compose form — it should show in the feed."""
+        login_user(browser, live_server)
+
+        unique_body = f"Selenium e2e post {int(time.time())}"
+        browser.get(f"{live_server}/dashboard")
+
+        # Some templates render the textarea inside an inline compose box
+        textarea = wait_for(browser, "textarea[name=\"body\"]")
+        textarea.send_keys(unique_body)
+
+        # Submit the compose form
+        browser.execute_script(
+            "document.getElementById(\"compose-form\").submit();"
+        )
+
+        # Wait for navigation back to dashboard / feed
+        WebDriverWait(browser, 10).until(
+            lambda d: unique_body in d.page_source
+        )
+        assert unique_body in browser.page_source
