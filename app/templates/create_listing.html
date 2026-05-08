@@ -5,35 +5,35 @@
     <h1 style="margin-bottom:28px">Post a listing</h1>
     <form method="POST" class="form-card">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="field">
-            <label>Title <span class="required">*</span></label>
-            <input type="text" name="title" required placeholder="e.g. Agile Web Development, 5th Ed." />
+        <div class="mb-3">
+            <label for="listing-title" class="form-label">Title <span class="required">*</span></label>
+            <input type="text" id="listing-title" name="title" class="form-control" required placeholder="e.g. Agile Web Development, 5th Ed." />
         </div>
-        <div class="field">
-            <label>Unit code <span class="required">*</span></label>
-            <input type="text" name="unit_code" required placeholder="CITS3403" style="text-transform:uppercase" />
+        <div class="mb-3">
+            <label for="listing-unit" class="form-label">Unit code <span class="required">*</span></label>
+            <input type="text" id="listing-unit" name="unit_code" class="form-control" required placeholder="CITS3403" style="text-transform:uppercase" />
         </div>
-        <div class="field-row">
-            <div class="field">
-                <label>Price ($) <span class="required">*</span></label>
-                <input type="number" name="price" min="0" step="0.01" required placeholder="25.00" />
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="listing-price" class="form-label">Price ($) <span class="required">*</span></label>
+                <input type="number" id="listing-price" name="price" class="form-control" min="0" step="0.01" required placeholder="25.00" />
             </div>
-            <div class="field">
-                <label>Condition</label>
-                <select name="condition">
+            <div class="col-md-6">
+                <label for="listing-condition" class="form-label">Condition</label>
+                <select id="listing-condition" name="condition" class="form-select">
                     {% for c in ['New','Like new','Good','Acceptable'] %}
                     <option value="{{ c }}">{{ c }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
-        <div class="field">
-            <label>Description</label>
-            <textarea name="description" rows="3" placeholder="Any notes about the book…"></textarea>
+        <div class="mb-3">
+            <label for="listing-desc" class="form-label">Description</label>
+            <textarea id="listing-desc" name="description" class="form-control" rows="3" placeholder="Any notes about the book…"></textarea>
         </div>
-        <div style="display:flex;gap:10px;margin-top:8px">
+        <div class="d-flex gap-2 mt-3">
             <button type="submit" class="btn btn-dark">Post listing</button>
-            <a href="{{ url_for('marketplace') }}" class="btn btn-ghost">Cancel</a>
+            <a href="{{ url_for('marketplace') }}" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>
