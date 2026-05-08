@@ -4,6 +4,7 @@
 <div class="page-inner" style="max-width:560px">
     <h1 style="margin-bottom:28px">Create a study session</h1>
     <form method="POST" class="form-card">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <div class="field"><label>Title <span class="required">*</span></label><input type="text" name="title" required placeholder="e.g. CITS3403 Exam Prep" /></div>
         <div class="field-row">
             <div class="field"><label>Unit code <span class="required">*</span></label><input type="text" name="unit_code" required placeholder="CITS3403" style="text-transform:uppercase" /></div>

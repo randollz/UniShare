@@ -11,7 +11,7 @@ load_dotenv()
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from app.config import Config
-from app.extensions import db, migrate, login_manager
+from app.extensions import db, migrate, login_manager, csrf
 
 
 def create_app(config_class=Config):
@@ -22,6 +22,7 @@ def create_app(config_class=Config):
     db.init_app(application)
     migrate.init_app(application, db)
     login_manager.init_app(application)
+    csrf.init_app(application)
 
     # Register models so Alembic can detect them
     from app import models  # noqa: F401

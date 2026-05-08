@@ -173,6 +173,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       <div class="bc-footer">
         {% if current_user and current_user.id != b.poster_id %}
         <form method="POST" action="{{ url_for('claim_bounty', bounty_id=b.id) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="bc-btn-offer">
             <i class="fa-solid fa-hand-holding-dollar"></i> Claim Bounty
           </button>

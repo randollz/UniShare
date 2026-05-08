@@ -173,6 +173,7 @@
         </div>
         <div class="auth-divider"><span>or sign in with email</span></div>
         <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="action" value="login" />
           <div class="field">
             <label>UWA email</label>
@@ -198,6 +199,7 @@
         </div>
         <div class="auth-divider"><span>or create an account</span></div>
         <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="action" value="register" />
           <div class="field-row">
             <div class="field">

@@ -280,6 +280,7 @@
   <div class="compose-card">
     <h2>Share something</h2>
     <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <textarea class="compose-textarea" name="body" id="compose-body"
                 placeholder="What's on your mind? Share a note, event, or update…"
                 maxlength="2000" required></textarea>
@@ -345,6 +346,8 @@
             <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
                   style="margin-left:auto;"
                   onsubmit="return confirm('Delete this post?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
               <button type="submit" class="delete-btn">Delete</button>
             </form>
           {% endif %}
@@ -436,7 +439,10 @@
     btn.addEventListener('click', async () => {
       const postId = btn.dataset.postId;
       try {
-        const res  = await fetch(`/feed/${postId}/like`, { method: 'POST' });
+        const res  = await fetch(`/feed/${postId}/like`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': window.CSRF_TOKEN },
+        });
         const data = await res.json();
         const icon  = btn.querySelector('.like-icon');
         const count = btn.querySelector('.like-count');

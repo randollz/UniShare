@@ -317,7 +317,10 @@ body.app-page .page-wrap { align-items: stretch; }
     try {
       const res = await fetch(SEND_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': window.CSRF_TOKEN,
+        },
         body: JSON.stringify({ body })
       });
       if (res.ok) { const msg = await res.json(); appendMessage(msg); scrollBottom(); }

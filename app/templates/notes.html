@@ -220,6 +220,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
         <div class="lib-actions">
           {% if current_user %}
           <form method="POST" action="{{ url_for('upvote_note', note_id=n.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lib-btn"><i class="fa-solid fa-arrow-up"></i> Upvote</button>
           </form>
           {% endif %}
