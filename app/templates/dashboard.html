@@ -303,9 +303,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="my-listing-price">${{ '%.2f'|format(l.price) }}</span>
-        <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}" style="display:inline;"
+              class="js-confirm-delete" data-confirm-message="Delete this listing? This cannot be undone.">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <button type="submit" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:0.75rem;" onclick="return confirm('Delete this listing?')">
+          <button type="submit" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:0.75rem;">
             <i class="fa-solid fa-trash"></i>
           </button>
         </form>
@@ -397,7 +398,8 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
           </button>
           {% if post.author_id == current_user.id %}
             <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
-                  style="margin-left:auto;" onsubmit="return confirm('Delete this post?');">
+                  style="margin-left:auto;"
+                  class="js-confirm-delete" data-confirm-message="Delete this post? This cannot be undone.">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
               <button type="submit" class="post-action" style="color:var(--muted);font-size:0.78rem;">

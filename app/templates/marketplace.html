@@ -233,8 +233,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
   </div>
 
   {% if listings %}
-  <div class="listings-grid">
+  <div class="row row-cols-1 row-cols-md-2 g-3 listings-grid-bs">
     {% for l in listings %}
+    <div class="col">
     {% set idx = loop.index0 % 8 %}
     {% set _covers = {
       'CITS3403': 'images/textbooks/cits3403.svg',
@@ -310,9 +311,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
           </div>
           {% if current_user and current_user.id == l.seller_id %}
           <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}"
-                onsubmit="return confirm('Remove this listing?')" style="margin-left:auto;">
+                class="js-confirm-delete" data-confirm-message="Remove this listing? This cannot be undone."
+                style="margin-left:auto;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-
             <button type="submit" class="lc-delete">Delete</button>
           </form>
           {% else %}
@@ -320,6 +321,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
           {% endif %}
         </div>
       </div>
+    </div>
     </div>
     {% endfor %}
   </div>

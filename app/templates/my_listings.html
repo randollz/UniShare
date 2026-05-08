@@ -134,8 +134,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="section-label">Your listings ({{ my_listings|length }})</div>
 
   {% if my_listings %}
-  <div class="listings-grid">
+  <div class="row row-cols-1 row-cols-md-2 g-3 listings-grid-bs">
     {% for l in my_listings %}
+    <div class="col">
     <div class="listing-card" id="listing-{{ l.id }}">
       <div class="lc-top">
         <span class="lc-unit">{{ l.unit_code }}</span>
@@ -156,7 +157,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
           <i class="fa-solid fa-eye"></i> View
         </a>
         <form action="{{ url_for('delete_listing', listing_id=l.id) }}" method="post" style="display:inline;"
-              onsubmit="return confirm('Delete this listing?')">
+              class="js-confirm-delete" data-confirm-message="Delete this listing? This cannot be undone.">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
           <button type="submit" class="btn-del">
@@ -164,6 +165,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
           </button>
         </form>
       </div>
+    </div>
     </div>
     {% endfor %}
   </div>
