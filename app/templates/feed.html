@@ -345,7 +345,7 @@
           {% if post.author_id == current_user.id %}
             <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
                   style="margin-left:auto;"
-                  onsubmit="return confirm('Delete this post?');">
+                  class="js-confirm-delete" data-confirm-message="Delete this post? This cannot be undone.">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
               <button type="submit" class="delete-btn">Delete</button>

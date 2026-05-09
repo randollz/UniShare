@@ -134,27 +134,27 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
         <div class="form-section-label">Note details</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div class="field">
-            <label>Title <span style="color:#ef4444;">*</span></label>
-            <input type="text" name="title" required
+            <label for="note-title" class="form-label">Title <span style="color:#ef4444;">*</span></label>
+            <input type="text" name="title" id="note-title" class="form-control" required
                    placeholder="e.g. CITS3403 Week 5 — Flask & SQLAlchemy"
                    value="{{ form.get('title', '') }}" />
           </div>
           <div class="field-row">
             <div class="field">
-              <label>Unit code <span style="color:#ef4444;">*</span></label>
-              <input type="text" name="unit_code" required placeholder="CITS3403"
+              <label for="note-unit" class="form-label">Unit code <span style="color:#ef4444;">*</span></label>
+              <input type="text" name="unit_code" id="note-unit" class="form-control" required placeholder="CITS3403"
                      style="text-transform:uppercase;"
                      value="{{ form.get('unit_code', '') }}" />
             </div>
             <div class="field">
-              <label>Semester <span class="hint">(optional)</span></label>
-              <input type="text" name="semester" placeholder="S1 2025"
+              <label for="note-semester" class="form-label">Semester <span class="hint">(optional)</span></label>
+              <input type="text" name="semester" id="note-semester" class="form-control" placeholder="S1 2025"
                      value="{{ form.get('semester', '') }}" />
             </div>
           </div>
           <div class="field">
-            <label>Description <span class="hint">(what's covered?)</span></label>
-            <textarea name="description"
+            <label for="note-desc" class="form-label">Description <span class="hint">(what's covered?)</span></label>
+            <textarea name="description" id="note-desc" class="form-control"
                       placeholder="Brief overview of what these notes cover — helps others find them.">{{ form.get('description', '') }}</textarea>
           </div>
         </div>
@@ -185,10 +185,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 
       <!-- Actions -->
       <div class="form-actions">
-        <button type="submit" class="btn-submit">
+        <button type="submit" class="btn btn-dark btn-submit">
           <i class="fa-solid fa-share-nodes"></i> Share Notes
         </button>
-        <a href="{{ url_for('notes') }}" class="btn-cancel">Cancel</a>
+        <a href="{{ url_for('notes') }}" class="btn btn-outline-secondary btn-cancel">Cancel</a>
       </div>
 
     </div>
