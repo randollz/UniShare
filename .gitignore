@@ -17,10 +17,19 @@ env/
 .DS_Store
 Thumbs.db
 
-# SQLite database (each developer runs flask db upgrade to create their own)
+# Environment variables (use .env.example as a template)
+.env
+.env.local
+.env.*.local
+
+# SQLite databases (each developer runs flask db upgrade to create their own)
 unishare.db
 app.db
+selenium_test.db
 *.db-journal
+
+# Flask instance folder
+instance/
 
 # Pytest
 .pytest_cache/
