@@ -129,7 +129,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <p>List your textbooks and study materials — connect with students who need them.</p>
   </div>
 
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="form-card">
 
@@ -157,6 +157,20 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
                       placeholder="Any notes about the book — edition, highlights, missing pages, included accessories…">{{ form.get('description', '') }}</textarea>
             <span class="char-counter">0 / 2000</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Photos -->
+      <div class="form-section">
+        <div class="form-section-label">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(optional · up to 5 · JPEG or PNG)</span></div>
+        <div>
+          <label id="listing-drop-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:90px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;padding:18px;transition:border-color var(--t);">
+            <i class="fa-regular fa-images" style="font-size:1.5rem;color:var(--mid);"></i>
+            <span style="font-size:0.82rem;font-weight:600;color:var(--mid);">Click to add photos</span>
+            <span style="font-size:0.72rem;color:var(--muted);">JPEG or PNG · max 10 MB each · up to 5 images</span>
+            <input type="file" name="images[]" id="listing-file-input" multiple accept="image/jpeg,image/png" style="display:none;" />
+          </label>
+          <div id="listing-preview-strip" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
         </div>
       </div>
 
@@ -257,5 +271,58 @@ if (preSelected) {
   const r = document.querySelector(`input[name="condition"][value="${preSelected}"]`);
   if (r) r.checked = true;
 }
+
+// Multi-image preview
+(function () {
+  const dropArea  = document.getElementById('listing-drop-area');
+  const fileInput = document.getElementById('listing-file-input');
+  const strip     = document.getElementById('listing-preview-strip');
+  const MAX = 5;
+  let files = [];
+
+  function renderStrip() {
+    strip.innerHTML = '';
+    files.forEach((f, i) => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:80px;height:80px;';
+      const img = document.createElement('img');
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);';
+      const reader = new FileReader();
+      reader.onload = e => { img.src = e.target.result; };
+      reader.readAsDataURL(f);
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.innerHTML = '&times;';
+      rm.style.cssText = 'position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+      rm.addEventListener('click', () => { files.splice(i, 1); syncInput(); renderStrip(); });
+      wrap.appendChild(img); wrap.appendChild(rm); strip.appendChild(wrap);
+    });
+  }
+
+  function syncInput() {
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+  }
+
+  fileInput.addEventListener('change', () => {
+    for (const f of fileInput.files) {
+      if (files.length >= MAX) break;
+      files.push(f);
+    }
+    syncInput(); renderStrip();
+  });
+
+  dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = 'var(--gold)'; });
+  dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = 'var(--border)'; });
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault(); dropArea.style.borderColor = 'var(--border)';
+    for (const f of e.dataTransfer.files) {
+      if (files.length >= MAX) break;
+      if (['image/jpeg','image/png'].includes(f.type)) files.push(f);
+    }
+    syncInput(); renderStrip();
+  });
+})();
 </script>
 {% endblock %}

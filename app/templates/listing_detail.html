@@ -19,6 +19,7 @@
   background: linear-gradient(135deg,#1e3a5f,#3b6ef5);
 }
 .detail-hero i { font-size: 3rem; color: rgba(255,255,255,0.5); }
+.detail-hero-img { width: 100%; aspect-ratio: 16 / 7; object-fit: cover; display: block; }
 .detail-body { padding: 28px 32px; }
 .detail-badges { display: flex; gap: 8px; margin-bottom: 14px; }
 .detail-unit { padding: 4px 12px; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; background: var(--dark); color: #fff; }
@@ -26,7 +27,7 @@
 .detail-title { font-family: 'Inter', sans-serif; font-size: 1.65rem; font-weight: 800; color: var(--dark); letter-spacing: -0.025em; margin-bottom: 8px; line-height: 1.2; }
 .detail-price { font-family: 'Inter', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--dark); margin-bottom: 22px; }
 .detail-section { margin-bottom: 22px; }
-.detail-section-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.detail-section-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px; }
 .detail-description { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark); line-height: 1.65; white-space: pre-wrap; }
 .detail-description-empty { color: var(--muted); font-style: italic; }
 .detail-seller {
@@ -51,6 +52,43 @@
 .btn-primary:hover { background: var(--dark2); transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
 .btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
+
+/* Image gallery */
+.img-gallery { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+.img-main { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
+.img-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.img-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: border-color var(--t); }
+.img-thumb.active { border-color: var(--dark); }
+
+/* Comment thread */
+.comment-thread { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 20px; }
+.comment-thread-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
+.comment-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+.comment-item { display: flex; gap: 10px; }
+.comment-av {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--dark); color: #fff; font-size: 0.72rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.comment-bubble { flex: 1; min-width: 0; }
+.comment-meta { font-size: 0.75rem; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+.comment-meta .comment-time { font-weight: 400; color: var(--muted); margin-left: 6px; }
+.comment-body { font-size: 0.85rem; color: var(--dark); line-height: 1.55; }
+.comment-del { background: none; border: none; font-size: 0.72rem; color: var(--muted); cursor: pointer; padding: 0 4px; margin-left: 4px; }
+.comment-del:hover { color: #dc2626; }
+.comment-compose { display: flex; gap: 8px; align-items: flex-start; }
+.comment-compose textarea {
+  flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--dark);
+  resize: none; outline: none; transition: border-color var(--t); min-height: 60px; line-height: 1.5;
+}
+.comment-compose textarea:focus { border-color: var(--gold); }
+.comment-compose button {
+  padding: 9px 16px; background: var(--dark); color: #fff; border: none; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: background var(--t);
+}
+.comment-compose button:hover { background: var(--dark2); }
 </style>
 {% endblock %}
 
@@ -62,12 +100,31 @@
   </a>
 
   <div class="detail-card">
-    <div class="detail-hero">
-      <i class="fa-solid fa-book"></i>
-      <span>{{ listing.unit_code }}</span>
-    </div>
+    {% if listing.images %}
+      <img class="detail-hero-img" id="gallery-main"
+           src="{{ url_for('static', filename=listing.images[0].file_path) }}"
+           alt="{{ listing.title }}" />
+    {% else %}
+      <div class="detail-hero">
+        <i class="fa-solid fa-book"></i>
+        <span>{{ listing.unit_code }}</span>
+      </div>
+    {% endif %}
 
     <div class="detail-body">
+      {% if listing.images|length > 1 %}
+      <div class="img-gallery">
+        <div class="img-thumbs">
+          {% for img in listing.images %}
+          <img class="img-thumb {% if loop.first %}active{% endif %}"
+               src="{{ url_for('static', filename=img.file_path) }}"
+               alt="Photo {{ loop.index }}"
+               data-src="{{ url_for('static', filename=img.file_path) }}" />
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <div class="detail-badges">
         <span class="detail-unit">{{ listing.unit_code }}</span>
         <span class="detail-cond">{{ listing.condition }}</span>
@@ -104,8 +161,104 @@
         </a>
         <a href="{{ url_for('marketplace') }}" class="btn-action btn-ghost">Back to marketplace</a>
       </div>
+
+      <!-- Comment thread -->
+      <div class="comment-thread">
+        <div class="comment-thread-label">Questions &amp; Comments</div>
+        <div class="comment-list" id="listing-comments">
+          {% for c in listing.comments %}
+          <div class="comment-item" id="lc-{{ c.id }}">
+            <div class="comment-av">{{ c.author.first_name[0] }}{{ c.author.last_name[0] }}</div>
+            <div class="comment-bubble">
+              <div class="comment-meta">
+                {{ c.author.first_name }} {{ c.author.last_name }}
+                <span class="comment-time">{{ c.created_at.strftime('%b %d') }}</span>
+                {% if c.author_id == current_user.id %}
+                <button class="comment-del" data-url="{{ url_for('delete_listing_comment', comment_id=c.id) }}"
+                        data-target="lc-{{ c.id }}">Delete</button>
+                {% endif %}
+              </div>
+              <div class="comment-body">{{ c.body }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="comment-compose">
+          <textarea id="listing-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
+          <button type="button" id="listing-comment-btn"
+                  data-url="{{ url_for('listing_comment', listing_id=listing.id) }}">Reply</button>
+        </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Thumbnail gallery
+(function () {
+  const main = document.getElementById('gallery-main');
+  if (!main) return;
+  document.querySelectorAll('.img-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      main.src = thumb.dataset.src;
+      document.querySelectorAll('.img-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+  });
+})();
+
+// Comments
+(function () {
+  const list  = document.getElementById('listing-comments');
+  const input = document.getElementById('listing-comment-input');
+  const btn   = document.getElementById('listing-comment-btn');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    const body = (input.value || '').trim();
+    if (!body) return;
+    btn.disabled = true;
+    try {
+      const res  = await fetch(btn.dataset.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN },
+        body: JSON.stringify({ body }),
+      });
+      const data = await res.json();
+      if (data.error) { btn.disabled = false; return; }
+      const item = document.createElement('div');
+      item.className = 'comment-item'; item.id = `lc-${data.id}`;
+      item.innerHTML = `
+        <div class="comment-av">${data.initials}</div>
+        <div class="comment-bubble">
+          <div class="comment-meta">${data.author} <span class="comment-time">just now</span>
+            <button class="comment-del"
+                    data-url="/listing-comments/${data.id}/delete"
+                    data-target="lc-${data.id}">Delete</button>
+          </div>
+          <div class="comment-body">${data.body.replace(/</g,'&lt;')}</div>
+        </div>`;
+      list.appendChild(item);
+      input.value = '';
+      bindDelete(item.querySelector('.comment-del'));
+    } finally { btn.disabled = false; }
+  });
+
+  function bindDelete(el) {
+    if (!el) return;
+    el.addEventListener('click', async () => {
+      const res = await fetch(el.dataset.url, {
+        method: 'POST', headers: { 'X-CSRFToken': window.CSRF_TOKEN },
+      });
+      if ((await res.json()).ok) document.getElementById(el.dataset.target)?.remove();
+    });
+  }
+  document.querySelectorAll('.comment-del').forEach(bindDelete);
+})();
+</script>
 {% endblock %}

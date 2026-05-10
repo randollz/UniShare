@@ -222,11 +222,27 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
                   style="resize:none;height:42px;padding:10px 16px;border-radius:12px;line-height:1.4;overflow:hidden;"></textarea>
       </div>
 
-      <!-- Image attachment panel (placeholder — upload coming soon) -->
+      <!-- Image attachment panel -->
       <div class="compose-attachment" id="photo-panel">
-        <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:0.78rem;">
-          <i class="fa-regular fa-image" style="font-size:1.1rem;"></i>
-          <span>Photo uploads coming soon — stay tuned!</span>
+        <label id="photo-drop-area" style="display:flex;flex-direction:column;align-items:center;gap:8px;
+               padding:18px;border:1.5px dashed rgba(0,0,0,0.18);border-radius:10px;cursor:pointer;
+               text-align:center;transition:border-color 0.2s;">
+          <i class="fa-regular fa-image" style="font-size:1.6rem;color:var(--mid);"></i>
+          <span style="font-size:0.8rem;color:var(--mid);font-weight:600;">Click to choose a photo</span>
+          <span style="font-size:0.71rem;color:var(--muted);">JPEG or PNG · max 10 MB</span>
+          <input type="file" name="attachment" id="photo-file-input"
+                 accept="image/jpeg,image/png" style="display:none;" />
+        </label>
+        <!-- Preview shown after selection -->
+        <div id="photo-preview" style="display:none;margin-top:10px;position:relative;">
+          <img id="photo-preview-img" src="" alt="Preview"
+               style="max-width:100%;max-height:240px;border-radius:8px;object-fit:cover;" />
+          <button type="button" id="photo-remove-btn"
+                  style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;
+                         border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:0.8rem;
+                         cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
       </div>
 
@@ -497,13 +513,18 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   });
 })();
 
-// Photo / Link attachment toggles
+// Photo / Link attachment toggles + image preview
 (function () {
-  const photoBtn   = document.getElementById('photo-btn');
-  const linkBtn    = document.getElementById('link-btn');
-  const photoPanel = document.getElementById('photo-panel');
-  const linkPanel  = document.getElementById('link-panel');
-  const linkInput  = document.getElementById('link-input');
+  const photoBtn     = document.getElementById('photo-btn');
+  const linkBtn      = document.getElementById('link-btn');
+  const photoPanel   = document.getElementById('photo-panel');
+  const linkPanel    = document.getElementById('link-panel');
+  const linkInput    = document.getElementById('link-input');
+  const fileInput    = document.getElementById('photo-file-input');
+  const dropArea     = document.getElementById('photo-drop-area');
+  const preview      = document.getElementById('photo-preview');
+  const previewImg   = document.getElementById('photo-preview-img');
+  const removeBtn    = document.getElementById('photo-remove-btn');
   if (!photoBtn) return;
 
   function hideAll() {
@@ -532,6 +553,45 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       if (linkInput) { linkInput.value = ''; linkInput.focus(); }
     }
   });
+
+  // Image preview
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        dropArea.style.display = 'none';
+        preview.style.display  = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      previewImg.src  = '';
+      preview.style.display  = 'none';
+      dropArea.style.display = 'flex';
+    });
+  }
+
+  // Drag-and-drop onto the drop area
+  if (dropArea) {
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = 'var(--gold)'; });
+    dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = ''; });
+    dropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      dropArea.style.borderColor = '';
+      const dt = e.dataTransfer;
+      if (dt && dt.files.length) {
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
 })();
 
 // Comments — toggle + AJAX submit

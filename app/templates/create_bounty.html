@@ -118,7 +118,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <p>Ask for help with assignments, study sessions, or anything academic — offer a reward to attract responses.</p>
   </div>
 
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="form-card">
 
@@ -159,6 +159,25 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
                    value="{{ form.get('reward', '') }}" />
           </div>
           <span class="field-hint">Set $0 for free help</span>
+        </div>
+      </div>
+
+      <!-- Cover image -->
+      <div class="form-section">
+        <div class="form-section-label">Cover image <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(optional)</span></div>
+        <label id="bounty-drop-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:90px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;padding:18px;transition:border-color var(--t);">
+          <i class="fa-regular fa-image" style="font-size:1.5rem;color:var(--mid);"></i>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--mid);">Click to add a cover photo</span>
+          <span style="font-size:0.72rem;color:var(--muted);">JPEG or PNG · max 10 MB</span>
+          <input type="file" name="image" id="bounty-file-input" accept="image/jpeg,image/png" style="display:none;" />
+        </label>
+        <div id="bounty-preview" style="display:none;margin-top:10px;position:relative;max-width:240px;">
+          <img id="bounty-preview-img" src="" alt="Preview"
+               style="width:100%;border-radius:8px;object-fit:cover;border:1.5px solid var(--border);" />
+          <button type="button" id="bounty-remove-btn"
+                  style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
       </div>
 
@@ -225,5 +244,37 @@ ta.addEventListener('input', () => {
   counter.textContent = `${ta.value.length} / 2000`;
   counter.style.color = ta.value.length > 1800 ? '#ef4444' : 'var(--muted)';
 });
+
+// Cover image preview
+(function () {
+  const dropArea   = document.getElementById('bounty-drop-area');
+  const fileInput  = document.getElementById('bounty-file-input');
+  const preview    = document.getElementById('bounty-preview');
+  const previewImg = document.getElementById('bounty-preview-img');
+  const removeBtn  = document.getElementById('bounty-remove-btn');
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = e => { previewImg.src = e.target.result; preview.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) showPreview(fileInput.files[0]);
+  });
+  removeBtn.addEventListener('click', () => {
+    fileInput.value = ''; preview.style.display = 'none'; previewImg.src = '';
+  });
+  dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = 'var(--gold)'; });
+  dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = 'var(--border)'; });
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault(); dropArea.style.borderColor = 'var(--border)';
+    const f = e.dataTransfer.files[0];
+    if (f && ['image/jpeg','image/png'].includes(f.type)) {
+      const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+      showPreview(f);
+    }
+  });
+})();
 </script>
 {% endblock %}
