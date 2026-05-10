@@ -342,6 +342,9 @@ body.app-page {
   color: #0d0f1f;
 }
 
+/* Override global dark-theme paragraph color for the light app shell */
+body.app-page p { color: var(--mid); }
+
 /* ── Top nav bar ─────────────────────────────────────────────── */
 .topbar {
   position: fixed;
