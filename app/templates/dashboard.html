@@ -297,15 +297,6 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   </div>
 
   <!-- Flash messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div style="padding:11px 16px;border-radius:8px;font-size:0.83rem;font-weight:600;
-                  {% if category=='error' %}background:#fef2f2;color:#dc2626;border:1px solid #fecaca;
-                  {% else %}background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;{% endif %}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endwith %}
 
   <!-- My listings -->
   {% if my_listings %}

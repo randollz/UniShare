@@ -228,15 +228,6 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
 <main class="main">
 
   {# Flash messages #}
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class="flash-list">
-        {% for cat, msg in messages %}
-          <li class="flash flash-{{ cat }}">{{ msg }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
 
   <section class="page-head">
     <div>

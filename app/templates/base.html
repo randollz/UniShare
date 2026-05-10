@@ -67,6 +67,34 @@
     </div>
   </header>
 
+  <!-- Global flash messages (Issue #48) — fixed-position toast stack;
+       avoids layout shift and works regardless of page-wrap grid. -->
+  {% with _flashes = get_flashed_messages(with_categories=true) %}
+  {% if _flashes %}
+  <div class="flash-toast-stack" role="region" aria-label="Notifications"
+       style="position:fixed; top:88px; left:50%; transform:translateX(-50%);
+              z-index:1080; width:min(640px, 92vw); display:flex;
+              flex-direction:column; gap:8px;">
+    {% for category, message in _flashes %}
+    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show shadow-sm" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  <script>
+    // Auto-dismiss flash alerts after 5 s.
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        document.querySelectorAll('.flash-toast-stack .alert').forEach(function (el) {
+          bootstrap.Alert.getOrCreateInstance(el).close();
+        });
+      }, 5000);
+    });
+  </script>
+  {% endif %}
+  {% endwith %}
+
   <!-- ══ PAGE LAYOUT ══════════════════════════════════════════ -->
   <div class="page-wrap">
 
