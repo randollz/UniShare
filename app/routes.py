@@ -602,17 +602,30 @@ def register_routes(app):
                 flash(str(e), 'error')
         return render_template('create_bounty.html', errors={}, form=request.form)
 
-    @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
+    @app.route('/bounties/<int:bounty_id>/claim', methods=['POST'])
     @login_required
     def claim_bounty(bounty_id):
         bounty = Bounty.query.get_or_404(bounty_id)
         if bounty.poster_id == current_user.id:
             flash("You can't claim your own bounty.", 'error')
+        elif bounty.status != 'open':
+            flash('This bounty is no longer open.', 'error')
         else:
-            db.session.delete(bounty)
+            bounty.status = 'claimed'
+            bounty.claimer_id = current_user.id
             db.session.commit()
             flash('Bounty claimed!', 'success')
-        return redirect(url_for('bounties'))
+        return redirect(url_for('view_bounty', bounty_id=bounty_id))
+
+    @app.route('/bounties/<int:bounty_id>/delete', methods=['POST'])
+    @login_required
+    def delete_bounty(bounty_id):
+        bounty = Bounty.query.filter_by(id=bounty_id, poster_id=current_user.id).first()
+        if bounty and bounty.status == 'open':
+            db.session.delete(bounty)
+            db.session.commit()
+            flash('Bounty deleted.', 'success')
+        return redirect(url_for('my_listings_page'))
 
     @app.route('/bounties/<int:bounty_id>')
     def view_bounty(bounty_id):
@@ -922,9 +935,19 @@ def register_routes(app):
                  .order_by(SavedListing.listing_id.desc())
                  .all())
         saved_listings = [sl.listing for sl in saved]
+        my_sessions = (StudySession.query
+                       .filter_by(host_id=current_user.id)
+                       .order_by(StudySession.session_date.desc())
+                       .all())
+        my_bounties = (Bounty.query
+                       .filter_by(poster_id=current_user.id)
+                       .order_by(Bounty.created_at.desc())
+                       .all())
         return render_template('my_listings.html',
                                my_listings=my_listings,
-                               saved_listings=saved_listings)
+                               saved_listings=saved_listings,
+                               my_sessions=my_sessions,
+                               my_bounties=my_bounties)
 
     # ── Stub pages ──────────────────────────────────────────────
 

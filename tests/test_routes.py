@@ -406,10 +406,12 @@ class TestBountyActions:
             bid = b.id
         # Log in as a different user to claim
         _register_and_login(client, app, email='claimer_b@example.com')
-        rv = client.post(f'/claim_bounty/{bid}', follow_redirects=True)
+        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
         assert rv.status_code == 200
         with app.app_context():
-            assert Bounty.query.get(bid) is None  # Bounty consumed on claim
+            bounty = Bounty.query.get(bid)
+            assert bounty is not None          # bounty stays, not deleted
+            assert bounty.status == 'claimed'  # marked as claimed
 
     def test_cannot_claim_own_bounty(self, client, app):
         uid = _register_and_login(client, app, email='self_claimer@example.com')
@@ -419,7 +421,7 @@ class TestBountyActions:
             _db.session.add(b)
             _db.session.commit()
             bid = b.id
-        rv = client.post(f'/claim_bounty/{bid}', follow_redirects=True)
+        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
         assert rv.status_code == 200
         with app.app_context():
             assert Bounty.query.get(bid) is not None  # Should NOT be deleted

@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
     notes         = db.relationship('Note',        back_populates='author',  lazy='dynamic')
     hosted_sessions = db.relationship('StudySession', back_populates='host', lazy='dynamic')
     rsvps         = db.relationship('SessionRSVP', back_populates='user',    lazy='dynamic')
-    bounties      = db.relationship('Bounty',      back_populates='poster',  lazy='dynamic')
+    bounties      = db.relationship('Bounty',      foreign_keys='Bounty.poster_id', back_populates='poster',  lazy='dynamic')
     saved_listings = db.relationship('SavedListing', back_populates='user',  lazy='dynamic')
     saved_notes    = db.relationship('SavedNote',    back_populates='user',  lazy='dynamic')
     ratings_given    = db.relationship('Rating', foreign_keys='Rating.rater_id', back_populates='rater', lazy='dynamic')
@@ -141,13 +141,16 @@ class Bounty(db.Model):
 
     id          = db.Column(db.Integer,    primary_key=True)
     poster_id   = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
+    claimer_id  = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=True)
     title       = db.Column(db.String(150), nullable=False)
     unit_code   = db.Column(db.String(16),  default='')
     reward      = db.Column(db.Float,      default=0)
     description = db.Column(db.Text,       default='')
+    status      = db.Column(db.String(16),  default='open')   # open | claimed | closed
     created_at  = db.Column(db.DateTime,   server_default=db.func.now())
 
-    poster = db.relationship('User', back_populates='bounties')
+    poster  = db.relationship('User', foreign_keys=[poster_id],  back_populates='bounties')
+    claimer = db.relationship('User', foreign_keys=[claimer_id])
 
     def __repr__(self):
         return f'<Bounty {self.title}>'
