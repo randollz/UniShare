@@ -9,7 +9,8 @@ from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import (User, Listing, Note, StudySession, SessionRSVP,
-                        Bounty, SavedListing, SavedNote, Rating, Message, Post, PostLike, PostComment)
+                        Bounty, SavedListing, SavedNote, Rating, Message, Post, PostLike, PostComment,
+                        ListingImage, ListingComment, BountyComment, SessionComment)
 from app import controllers
 from validators import LISTING_CONDITIONS
 
@@ -218,7 +219,30 @@ def register_routes(app):
     def create_listing():
         if request.method == 'POST':
             try:
-                controllers.create_listing(current_user.id, request.form)
+                listing = controllers.create_listing(current_user.id, request.form)
+                images = request.files.getlist('images[]')
+                upload_dir = os.path.join(current_app.static_folder, 'uploads', 'listings')
+                os.makedirs(upload_dir, exist_ok=True)
+                order = 0
+                for img in images[:5]:
+                    if not img or not img.filename:
+                        continue
+                    if img.mimetype not in {'image/jpeg', 'image/png'}:
+                        continue
+                    data = img.read()
+                    if len(data) > 10 * 1024 * 1024:
+                        continue
+                    fname = f"{uuid.uuid4().hex}_{secure_filename(img.filename)}"
+                    with open(os.path.join(upload_dir, fname), 'wb') as f:
+                        f.write(data)
+                    db.session.add(ListingImage(
+                        listing_id=listing.id,
+                        file_path=f"uploads/listings/{fname}",
+                        file_name=img.filename,
+                        display_order=order,
+                    ))
+                    order += 1
+                db.session.commit()
                 flash('Listing posted!', 'success')
                 return redirect(url_for('marketplace'))
             except ValueError as e:
@@ -389,7 +413,20 @@ def register_routes(app):
     def create_session():
         if request.method == 'POST':
             try:
-                controllers.create_study_session(current_user.id, request.form)
+                study_session = controllers.create_study_session(current_user.id, request.form)
+                img = request.files.get('image')
+                if img and img.filename:
+                    if img.mimetype in {'image/jpeg', 'image/png'}:
+                        data = img.read()
+                        if len(data) <= 10 * 1024 * 1024:
+                            upload_dir = os.path.join(current_app.static_folder, 'uploads', 'sessions')
+                            os.makedirs(upload_dir, exist_ok=True)
+                            fname = f"{uuid.uuid4().hex}_{secure_filename(img.filename)}"
+                            with open(os.path.join(upload_dir, fname), 'wb') as f:
+                                f.write(data)
+                            study_session.image_path = f"uploads/sessions/{fname}"
+                            study_session.image_name = img.filename
+                            db.session.commit()
                 flash('Study session posted!', 'success')
                 return redirect(url_for('study_sessions'))
             except ValueError as e:
@@ -422,6 +459,17 @@ def register_routes(app):
         controllers.cancel_rsvp(session_id, current_user.id)
         flash('RSVP cancelled.', 'info')
         return redirect(url_for('study_sessions'))
+
+    @app.route('/sessions/<int:session_id>')
+    @login_required
+    def view_session(session_id):
+        study_session = StudySession.query.get_or_404(session_id)
+        is_host = study_session.host_id == current_user.id
+        is_rsvped = SessionRSVP.query.get((session_id, current_user.id)) is not None
+        return render_template('session_detail.html',
+                               session=study_session,
+                               is_host=is_host,
+                               is_rsvped=is_rsvped)
 
     # ── Ratings ─────────────────────────────────────────────────
 
@@ -595,24 +643,50 @@ def register_routes(app):
     def create_bounty():
         if request.method == 'POST':
             try:
-                controllers.create_bounty(current_user.id, request.form)
+                bounty = controllers.create_bounty(current_user.id, request.form)
+                img = request.files.get('image')
+                if img and img.filename:
+                    if img.mimetype in {'image/jpeg', 'image/png'}:
+                        data = img.read()
+                        if len(data) <= 10 * 1024 * 1024:
+                            upload_dir = os.path.join(current_app.static_folder, 'uploads', 'bounties')
+                            os.makedirs(upload_dir, exist_ok=True)
+                            fname = f"{uuid.uuid4().hex}_{secure_filename(img.filename)}"
+                            with open(os.path.join(upload_dir, fname), 'wb') as f:
+                                f.write(data)
+                            bounty.image_path = f"uploads/bounties/{fname}"
+                            bounty.image_name = img.filename
+                            db.session.commit()
                 flash('Bounty posted!', 'success')
                 return redirect(url_for('bounties'))
             except ValueError as e:
                 flash(str(e), 'error')
         return render_template('create_bounty.html', errors={}, form=request.form)
 
-    @app.route('/claim_bounty/<int:bounty_id>', methods=['POST'])
+    @app.route('/bounties/<int:bounty_id>/claim', methods=['POST'])
     @login_required
     def claim_bounty(bounty_id):
         bounty = Bounty.query.get_or_404(bounty_id)
         if bounty.poster_id == current_user.id:
             flash("You can't claim your own bounty.", 'error')
+        elif bounty.status != 'open':
+            flash('This bounty is no longer open.', 'error')
         else:
-            db.session.delete(bounty)
+            bounty.status = 'claimed'
+            bounty.claimer_id = current_user.id
             db.session.commit()
             flash('Bounty claimed!', 'success')
-        return redirect(url_for('bounties'))
+        return redirect(url_for('view_bounty', bounty_id=bounty_id))
+
+    @app.route('/bounties/<int:bounty_id>/delete', methods=['POST'])
+    @login_required
+    def delete_bounty(bounty_id):
+        bounty = Bounty.query.filter_by(id=bounty_id, poster_id=current_user.id).first()
+        if bounty and bounty.status == 'open':
+            db.session.delete(bounty)
+            db.session.commit()
+            flash('Bounty deleted.', 'success')
+        return redirect(url_for('my_listings_page'))
 
     @app.route('/bounties/<int:bounty_id>')
     def view_bounty(bounty_id):
@@ -802,6 +876,105 @@ def register_routes(app):
         flash('Post deleted.', 'success')
         return redirect(url_for('dashboard'))
 
+    # ── Listing comments ─────────────────────────────────────────
+
+    @app.route('/listings/<int:listing_id>/comment', methods=['POST'])
+    @login_required
+    def listing_comment(listing_id):
+        listing = Listing.query.get_or_404(listing_id)
+        body = (request.json or {}).get('body', '').strip()
+        if not body or len(body) > 500:
+            return jsonify({'error': 'invalid'}), 400
+        comment = ListingComment(listing_id=listing_id, author_id=current_user.id, body=body)
+        db.session.add(comment)
+        listing.comments_count += 1
+        db.session.commit()
+        return jsonify({
+            'id':       comment.id,
+            'body':     comment.body,
+            'author':   f'{current_user.first_name} {current_user.last_name}',
+            'initials': f'{current_user.first_name[0]}{current_user.last_name[0]}',
+            'time':     'just now',
+            'count':    listing.comments_count,
+        })
+
+    @app.route('/listing-comments/<int:comment_id>/delete', methods=['POST'])
+    @login_required
+    def delete_listing_comment(comment_id):
+        comment = ListingComment.query.get_or_404(comment_id)
+        if comment.author_id != current_user.id:
+            return jsonify({'error': 'forbidden'}), 403
+        comment.listing.comments_count = max(0, comment.listing.comments_count - 1)
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'ok': True})
+
+    # ── Bounty comments ──────────────────────────────────────────
+
+    @app.route('/bounties/<int:bounty_id>/comment', methods=['POST'])
+    @login_required
+    def bounty_comment(bounty_id):
+        bounty = Bounty.query.get_or_404(bounty_id)
+        body = (request.json or {}).get('body', '').strip()
+        if not body or len(body) > 500:
+            return jsonify({'error': 'invalid'}), 400
+        comment = BountyComment(bounty_id=bounty_id, author_id=current_user.id, body=body)
+        db.session.add(comment)
+        bounty.comments_count += 1
+        db.session.commit()
+        return jsonify({
+            'id':       comment.id,
+            'body':     comment.body,
+            'author':   f'{current_user.first_name} {current_user.last_name}',
+            'initials': f'{current_user.first_name[0]}{current_user.last_name[0]}',
+            'time':     'just now',
+            'count':    bounty.comments_count,
+        })
+
+    @app.route('/bounty-comments/<int:comment_id>/delete', methods=['POST'])
+    @login_required
+    def delete_bounty_comment(comment_id):
+        comment = BountyComment.query.get_or_404(comment_id)
+        if comment.author_id != current_user.id:
+            return jsonify({'error': 'forbidden'}), 403
+        comment.bounty.comments_count = max(0, comment.bounty.comments_count - 1)
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'ok': True})
+
+    # ── Session comments ─────────────────────────────────────────
+
+    @app.route('/sessions/<int:session_id>/comment', methods=['POST'])
+    @login_required
+    def session_comment(session_id):
+        study_session = StudySession.query.get_or_404(session_id)
+        body = (request.json or {}).get('body', '').strip()
+        if not body or len(body) > 500:
+            return jsonify({'error': 'invalid'}), 400
+        comment = SessionComment(session_id=session_id, author_id=current_user.id, body=body)
+        db.session.add(comment)
+        study_session.comments_count += 1
+        db.session.commit()
+        return jsonify({
+            'id':       comment.id,
+            'body':     comment.body,
+            'author':   f'{current_user.first_name} {current_user.last_name}',
+            'initials': f'{current_user.first_name[0]}{current_user.last_name[0]}',
+            'time':     'just now',
+            'count':    study_session.comments_count,
+        })
+
+    @app.route('/session-comments/<int:comment_id>/delete', methods=['POST'])
+    @login_required
+    def delete_session_comment(comment_id):
+        comment = SessionComment.query.get_or_404(comment_id)
+        if comment.author_id != current_user.id:
+            return jsonify({'error': 'forbidden'}), 403
+        comment.session.comments_count = max(0, comment.session.comments_count - 1)
+        db.session.delete(comment)
+        db.session.commit()
+        return jsonify({'ok': True})
+
     # ── Activity ─────────────────────────────────────────────────
 
     @app.route('/activity')
@@ -922,9 +1095,19 @@ def register_routes(app):
                  .order_by(SavedListing.listing_id.desc())
                  .all())
         saved_listings = [sl.listing for sl in saved]
+        my_sessions = (StudySession.query
+                       .filter_by(host_id=current_user.id)
+                       .order_by(StudySession.session_date.desc())
+                       .all())
+        my_bounties = (Bounty.query
+                       .filter_by(poster_id=current_user.id)
+                       .order_by(Bounty.created_at.desc())
+                       .all())
         return render_template('my_listings.html',
                                my_listings=my_listings,
-                               saved_listings=saved_listings)
+                               saved_listings=saved_listings,
+                               my_sessions=my_sessions,
+                               my_bounties=my_bounties)
 
     # ── Stub pages ──────────────────────────────────────────────
 

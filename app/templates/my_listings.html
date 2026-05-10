@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}My Listings — UniShare{% endblock %}
+{% block title %}My Hub — UniShare{% endblock %}
 
 {% block head %}
 <style>
@@ -15,6 +15,34 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 .page-head-left h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); margin-bottom: 3px; }
 .page-head-left p  { font-size: 0.83rem; color: var(--muted); }
 
+/* CSS-only tabs */
+.tab-radios { display: none; }
+.tab-bar {
+  display: flex; gap: 4px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 6px;
+}
+.tab-label {
+  flex: 1; text-align: center;
+  padding: 8px 14px; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; transition: all var(--t);
+  user-select: none;
+}
+.tab-label:hover { color: var(--dark); background: #f3f4f8; }
+
+#tab-listings:checked ~ .tab-bar .tab-label[for="tab-listings"],
+#tab-sessions:checked ~ .tab-bar .tab-label[for="tab-sessions"],
+#tab-bounties:checked ~ .tab-bar .tab-label[for="tab-bounties"] {
+  background: var(--dark); color: #fff;
+}
+
+.tab-panel { display: none; }
+#tab-listings:checked ~ .tab-panel-listings,
+#tab-sessions:checked ~ .tab-panel-sessions,
+#tab-bounties:checked ~ .tab-panel-bounties { display: block; }
+
+/* Section label */
 .section-label {
   font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em;
   text-transform: uppercase; color: var(--muted); padding: 0 2px;
@@ -38,9 +66,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   background: #f3f4f8; color: var(--mid); padding: 2px 8px;
   border-radius: 99px; text-transform: uppercase; flex-shrink: 0;
 }
-.lc-price {
-  font-size: 1rem; font-weight: 800; color: var(--dark); white-space: nowrap;
-}
+.lc-price { font-size: 1rem; font-weight: 800; color: var(--dark); white-space: nowrap; }
 .lc-title { font-size: 0.92rem; font-weight: 700; color: var(--dark); line-height: 1.3; }
 .lc-meta  { font-size: 0.76rem; color: var(--muted); }
 
@@ -53,6 +79,12 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 .condition-pill.Good       { background: #fef9c3; color: #854d0e; }
 .condition-pill.Fair       { background: #ffedd5; color: #9a3412; }
 .condition-pill.Poor       { background: #fee2e2; color: #991b1b; }
+
+.rating-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.67rem; font-weight: 700; color: var(--muted);
+}
+.rating-badge i { color: #f59e0b; }
 
 .lc-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
 .btn-view {
@@ -73,6 +105,62 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 }
 .btn-del:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
 
+/* Session cards */
+.session-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 8px;
+  transition: box-shadow var(--t);
+}
+.session-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.sc-title { font-size: 0.95rem; font-weight: 700; color: var(--dark); }
+.sc-meta  { font-size: 0.76rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; }
+.sc-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.sc-attendees {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 99px; background: #f0fdf4;
+  font-size: 0.72rem; font-weight: 700; color: #166534;
+}
+
+/* RSVP roster */
+details.roster { margin-top: 4px; }
+details.roster summary {
+  font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; list-style: none; display: inline-flex;
+  align-items: center; gap: 6px; padding: 4px 0;
+}
+details.roster summary::-webkit-details-marker { display: none; }
+details.roster summary::before { content: '▶'; font-size: 0.55rem; transition: transform 0.15s; }
+details.roster[open] summary::before { transform: rotate(90deg); }
+.roster-list {
+  margin-top: 8px; display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px; background: #f8f8f8; border-radius: 8px;
+}
+.roster-item { font-size: 0.78rem; color: var(--dark); display: flex; align-items: center; gap: 6px; }
+.roster-av {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--dark);
+  color: #fff; font-size: 0.55rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* Bounty cards */
+.bounty-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 8px;
+  transition: box-shadow var(--t);
+}
+.bounty-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.bc-title { font-size: 0.95rem; font-weight: 700; color: var(--dark); }
+.bc-meta  { font-size: 0.76rem; color: var(--muted); }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 0.67rem; font-weight: 700;
+}
+.status-open    { background: #dcfce7; color: #166534; }
+.status-claimed { background: #dbeafe; color: #1d4ed8; }
+.status-closed  { background: #f3f4f8; color: var(--muted); }
+
 /* Saved section */
 .saved-card {
   background: var(--white); border: 1px solid var(--border);
@@ -86,6 +174,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 .saved-card-meta  { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
 .saved-card-price { font-size: 1rem; font-weight: 800; color: var(--dark); white-space: nowrap; }
 
+/* Empty state */
 .empty-state {
   text-align: center; padding: 50px 20px;
   background: var(--white); border: 1px solid var(--border);
@@ -119,97 +208,233 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 {% endblock %}
 
 {% block content %}
+
 <div class="main">
+  <!-- Hidden radio inputs must be inside .main so ~ sibling selectors reach tab-bar and panels -->
+  <input type="radio" name="hub-tab" id="tab-listings" class="tab-radios" checked>
+  <input type="radio" name="hub-tab" id="tab-sessions" class="tab-radios">
+  <input type="radio" name="hub-tab" id="tab-bounties" class="tab-radios">
   <div class="page-head">
     <div class="page-head-left">
-      <h1><i class="fa-solid fa-store" style="color:var(--gold);margin-right:8px;"></i>My Listings</h1>
-      <p>Manage your textbook listings and saved items.</p>
+      <h1><i class="fa-solid fa-layer-group" style="color:var(--gold);margin-right:8px;"></i>My Hub</h1>
+      <p>Manage your listings, sessions, and bounties.</p>
     </div>
-    <a href="{{ url_for('create_listing') }}" class="btn-view">
-      <i class="fa-solid fa-plus"></i> New Listing
-    </a>
   </div>
 
-  <!-- Active listings -->
-  <div class="section-label">Your listings ({{ my_listings|length }})</div>
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <label class="tab-label" for="tab-listings">
+      <i class="fa-solid fa-tag"></i> Listings
+      <span style="font-size:0.7rem;margin-left:4px;opacity:0.6;">({{ my_listings|length }})</span>
+    </label>
+    <label class="tab-label" for="tab-sessions">
+      <i class="fa-solid fa-users"></i> Sessions
+      <span style="font-size:0.7rem;margin-left:4px;opacity:0.6;">({{ my_sessions|length }})</span>
+    </label>
+    <label class="tab-label" for="tab-bounties">
+      <i class="fa-solid fa-bolt"></i> Bounties
+      <span style="font-size:0.7rem;margin-left:4px;opacity:0.6;">({{ my_bounties|length }})</span>
+    </label>
+  </div>
 
-  {% if my_listings %}
-  <div class="row row-cols-1 row-cols-md-2 g-3 listings-grid-bs">
-    {% for l in my_listings %}
-    <div class="col">
-    <div class="listing-card" id="listing-{{ l.id }}">
-      <div class="lc-top">
-        <span class="lc-unit">{{ l.unit_code }}</span>
-        <span class="lc-price">${{ '%.2f' % l.price }}</span>
+  <!-- Tab 1: My Listings -->
+  <div class="tab-panel tab-panel-listings">
+    {% if my_listings %}
+    <div class="listings-grid">
+      {% for l in my_listings %}
+      <div class="listing-card">
+        <div class="lc-top">
+          <span class="lc-unit">{{ l.unit_code }}</span>
+          <span class="lc-price">${{ '%.2f' % l.price }}</span>
+        </div>
+        <div class="lc-title">{{ l.title }}</div>
+        <div class="lc-meta">
+          <span class="condition-pill {{ l.condition }}">{{ l.condition }}</span>
+          · Listed {{ l.created_at.strftime('%d %b %Y') if l.created_at else '' }}
+        </div>
+        {% set review_count = l.ratings.count() %}
+        <div class="lc-meta">
+          <span class="rating-badge">
+            <i class="fa-solid fa-star"></i>
+            {{ review_count }} review{{ 's' if review_count != 1 else '' }}
+          </span>
+        </div>
+        <div class="lc-actions">
+          <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="btn-view">
+            <i class="fa-solid fa-eye"></i> View
+          </a>
+          <form action="{{ url_for('delete_listing', listing_id=l.id) }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-del">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </form>
+        </div>
       </div>
-      <div class="lc-title">{{ l.title }}</div>
-      <div class="lc-meta">
-        <span class="condition-pill {{ l.condition }}">{{ l.condition }}</span>
-        · Listed {{ l.created_at.strftime('%d %b %Y') if l.created_at else '' }}
-      </div>
-      {% if l.description %}
-      <div class="lc-meta" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-        {{ l.description[:80] }}{{ '…' if l.description|length > 80 }}
-      </div>
-      {% endif %}
-      <div class="lc-actions">
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-tag"></i>
+      <h3>No listings yet</h3>
+      <p><a href="{{ url_for('create_listing') }}">Post your first listing</a> and earn XP when it sells.</p>
+    </div>
+    {% endif %}
+
+    {% if saved_listings %}
+    <div class="section-label" style="margin-top:16px;">Saved listings ({{ saved_listings|length }})</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+      {% for l in saved_listings %}
+      <div class="saved-card">
+        <div class="saved-card-info">
+          <div class="saved-card-title">{{ l.title }}</div>
+          <div class="saved-card-meta">
+            {{ l.unit_code }}
+            · <span class="condition-pill {{ l.condition }}">{{ l.condition }}</span>
+            · by {{ l.seller.first_name }} {{ l.seller.last_name }}
+          </div>
+        </div>
+        <div class="saved-card-price">${{ '%.2f' % l.price }}</div>
         <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="btn-view">
           <i class="fa-solid fa-eye"></i> View
         </a>
-        <form action="{{ url_for('delete_listing', listing_id=l.id) }}" method="post" style="display:inline;"
-              class="js-confirm-delete" data-confirm-message="Delete this listing? This cannot be undone.">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
 
-          <button type="submit" class="btn-del">
+  <!-- Tab 2: My Sessions -->
+  <div class="tab-panel tab-panel-sessions">
+    {% if my_sessions %}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for s in my_sessions %}
+      {% set rsvp_count = s.rsvps.count() %}
+      <div class="session-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div class="sc-title">{{ s.title }}</div>
+          <span class="sc-attendees">
+            <i class="fa-solid fa-users"></i>
+            {{ rsvp_count }} / {{ s.max_attendees }}
+          </span>
+        </div>
+        <div class="sc-meta">
+          <span><i class="fa-solid fa-book"></i> {{ s.unit_code }}</span>
+          {% if s.session_date %}
+          <span><i class="fa-regular fa-calendar"></i> {{ s.session_date.strftime('%d %b %Y, %I:%M %p') }}</span>
+          {% endif %}
+          {% if s.location %}
+          <span><i class="fa-solid fa-map-pin"></i> {{ s.location }}</span>
+          {% endif %}
+        </div>
+        {% if rsvp_count > 0 %}
+        <details class="roster">
+          <summary>{{ rsvp_count }} attendee{{ 's' if rsvp_count != 1 else '' }}</summary>
+          <div class="roster-list">
+            {% for rsvp in s.rsvps %}
+            <div class="roster-item">
+              <div class="roster-av">{{ rsvp.user.first_name[0] }}{{ rsvp.user.last_name[0] }}</div>
+              {{ rsvp.user.first_name }} {{ rsvp.user.last_name }}
+            </div>
+            {% endfor %}
+          </div>
+        </details>
+        {% endif %}
+        <div class="lc-actions">
+          {% if rsvp_count == 0 %}
+          <form action="{{ url_for('delete_session', session_id=s.id) }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-del">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </form>
+          {% else %}
+          <button class="btn-del" disabled title="Cannot delete a session with RSVPs" style="opacity:0.4;cursor:not-allowed;">
             <i class="fa-solid fa-trash"></i> Delete
           </button>
-        </form>
-      </div>
-    </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty-state">
-    <i class="fa-solid fa-tag"></i>
-    <h3>No listings yet</h3>
-    <p><a href="{{ url_for('create_listing') }}">Post your first listing</a> and earn XP when it sells.</p>
-  </div>
-  {% endif %}
-
-  <!-- Saved / wishlist -->
-  {% if saved_listings %}
-  <div class="section-label" style="margin-top:8px;">Saved listings ({{ saved_listings|length }})</div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
-    {% for l in saved_listings %}
-    <div class="saved-card">
-      <div class="saved-card-info">
-        <div class="saved-card-title">{{ l.title }}</div>
-        <div class="saved-card-meta">
-          {{ l.unit_code }}
-          · <span class="condition-pill {{ l.condition }}">{{ l.condition }}</span>
-          · by {{ l.seller.first_name }} {{ l.seller.last_name }}
+          {% endif %}
         </div>
       </div>
-      <div class="saved-card-price">${{ '%.2f' % l.price }}</div>
-      <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="btn-view">
-        <i class="fa-solid fa-eye"></i> View
-      </a>
+      {% endfor %}
     </div>
-    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-users"></i>
+      <h3>No sessions hosted yet</h3>
+      <p><a href="{{ url_for('create_session') }}">Create your first session</a> and earn XP when students join.</p>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
+
+  <!-- Tab 3: My Bounties -->
+  <div class="tab-panel tab-panel-bounties">
+    {% if my_bounties %}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for b in my_bounties %}
+      <div class="bounty-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div class="bc-title">{{ b.title }}</div>
+          <span class="status-badge status-{{ b.status }}">
+            {% if b.status == 'open' %}<i class="fa-solid fa-circle"></i> Open
+            {% elif b.status == 'claimed' %}<i class="fa-solid fa-circle-check"></i> Claimed
+            {% else %}<i class="fa-solid fa-circle-xmark"></i> Closed{% endif %}
+          </span>
+        </div>
+        <div class="bc-meta">
+          {% if b.unit_code %}<i class="fa-solid fa-book"></i> {{ b.unit_code }} · {% endif %}
+          <i class="fa-solid fa-dollar-sign"></i> Reward: ${{ '%.0f'|format(b.reward) }}
+          · Posted {{ b.created_at.strftime('%d %b %Y') if b.created_at else '' }}
+        </div>
+        {% if b.status == 'claimed' and b.claimer %}
+        <div style="display:inline-flex;align-items:center;gap:6px;font-size:0.76rem;color:#1d4ed8;font-weight:600;">
+          <i class="fa-solid fa-circle-check"></i>
+          Claimed by {{ b.claimer.first_name }} {{ b.claimer.last_name }}
+        </div>
+        {% endif %}
+        <div class="lc-actions">
+          <a href="{{ url_for('view_bounty', bounty_id=b.id) }}" class="btn-view">
+            <i class="fa-solid fa-eye"></i> View
+          </a>
+          {% if b.status == 'open' %}
+          <form action="{{ url_for('delete_bounty', bounty_id=b.id) }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-del">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-bolt"></i>
+      <h3>No bounties posted yet</h3>
+      <p><a href="{{ url_for('create_bounty') }}">Post a bounty</a> to get help from fellow students.</p>
+    </div>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}
 
 {% block right_panel %}
 <aside class="right">
   <div class="rcard">
-    <div class="rcard-title">Listing stats</div>
+    <div class="rcard-title">Your activity</div>
     <div class="stat-block">
       <div class="stat-cell">
         <div class="stat-num">{{ my_listings|length }}</div>
-        <div class="stat-lbl">Active</div>
+        <div class="stat-lbl">Listings</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">{{ my_sessions|length }}</div>
+        <div class="stat-lbl">Sessions</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">{{ my_bounties|length }}</div>
+        <div class="stat-lbl">Bounties</div>
       </div>
       <div class="stat-cell">
         <div class="stat-num">{{ saved_listings|length }}</div>
@@ -219,9 +444,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   </div>
 
   <div class="mkt-cta">
-    <h3>Got old textbooks?</h3>
-    <p>Post them on the marketplace and earn XP every time someone views or saves your listing.</p>
-    <a href="{{ url_for('create_listing') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> Post a Listing</a>
+    <h3>Keep growing</h3>
+    <p>Post listings, host sessions, and claim bounties to earn XP and climb the leaderboard.</p>
+    <a href="{{ url_for('create_listing') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> New Listing</a>
   </div>
 
   <div class="rcard" style="padding:12px 14px;">

@@ -1,32 +1,280 @@
 {% extends 'base.html' %}
 {% block title %}Post Bounty — UniShare{% endblock %}
+
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
+
+.main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.page-head {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 22px;
+}
+.page-head h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); margin-bottom: 3px; }
+.page-head p  { font-size: 0.83rem; color: var(--muted); }
+
+.form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; padding: 0;
+}
+.form-section {
+  padding: 22px 24px; border-bottom: 1px solid var(--border);
+}
+.form-section:last-child { border-bottom: none; }
+.form-section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mid); margin-bottom: 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--dark);
+}
+.field label .hint { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.field input[type=text],
+.field input[type=number],
+.field textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--dark);
+  outline: none; transition: border-color var(--t);
+}
+.field input[type=text]:focus,
+.field input[type=number]:focus,
+.field textarea:focus { border-color: var(--gold); }
+.field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Reward prefix */
+.price-wrap { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color var(--t); }
+.price-wrap:focus-within { border-color: var(--gold); }
+.price-prefix {
+  padding: 9px 11px; background: #eef0f5; font-size: 0.85rem;
+  font-weight: 700; color: var(--mid); border-right: 1.5px solid rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+.price-wrap input {
+  border: none !important; border-radius: 0 !important; flex: 1;
+  outline: none !important;
+}
+
+/* Char counter */
+.char-counter { font-size: 0.73rem; color: var(--mid); text-align: right; }
+
+/* Field hint */
+.field-hint { font-size: 0.73rem; color: var(--mid); margin-top: 2px; }
+
+/* Actions bar */
+.form-actions {
+  padding: 18px 24px; display: flex; gap: 10px; align-items: center;
+  background: #fafafa; border-top: 1px solid var(--border);
+}
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px;
+  border-radius: 9px; background: var(--dark); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+  border: none; cursor: pointer; transition: all var(--t);
+}
+.btn-submit:hover { background: var(--dark2); transform: translateY(-1px); }
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px;
+  border-radius: 9px; background: transparent; color: var(--mid);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+  border: 1.5px solid rgba(0,0,0,0.18); cursor: pointer; text-decoration: none;
+  transition: all var(--t);
+}
+.btn-cancel:hover { border-color: var(--dark); color: var(--dark); }
+
+/* XP tip */
+.xp-tip {
+  background: linear-gradient(135deg, #14532d, #166534);
+  border-radius: var(--r); padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.xp-tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+.xp-tip h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.xp-tip p  { font-size: 0.76rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+/* Right panel */
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.tip-list { display: flex; flex-direction: column; gap: 10px; }
+.tip-item { display: flex; align-items: flex-start; gap: 8px; }
+.tip-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+.tip-text { font-size: 0.78rem; color: var(--mid); line-height: 1.5; }
+.tip-text strong { color: var(--dark); }
+.rcard-footer { font-size: 0.68rem; color: var(--mid); line-height: 1.7; }
+.rcard-footer a { color: var(--mid); }
+.rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-inner" style="max-width:560px">
-    <h1 style="margin-bottom:28px">Post a bounty</h1>
-    <form method="POST" class="form-card">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="mb-3">
-            <label for="bounty-title" class="form-label">Title <span class="required">*</span></label>
-            <input type="text" id="bounty-title" name="title" class="form-control" required placeholder="e.g. Help me debug Python assignment" />
+<div class="main">
+  <div class="page-head">
+    <h1><i class="fa-solid fa-bolt" style="color:var(--gold);margin-right:8px;"></i>Post a Bounty</h1>
+    <p>Ask for help with assignments, study sessions, or anything academic — offer a reward to attract responses.</p>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="form-card">
+
+      <!-- Bounty details -->
+      <div class="form-section">
+        <div class="form-section-label">Bounty details</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="field">
+            <label for="bounty-title">Title <span style="color:#ef4444;">*</span></label>
+            <input type="text" id="bounty-title" name="title" required
+                   placeholder="e.g. Help me debug my Python assignment"
+                   value="{{ form.get('title', '') }}" />
+          </div>
+          <div class="field">
+            <label for="bounty-unit">Unit code <span class="hint">(optional)</span></label>
+            <input type="text" id="bounty-unit" name="unit_code"
+                   placeholder="CITS1401" style="text-transform:uppercase;"
+                   value="{{ form.get('unit_code', '') }}" />
+          </div>
+          <div class="field">
+            <label for="bounty-desc">Description <span style="color:#ef4444;">*</span></label>
+            <textarea id="bounty-desc" name="description" rows="5" required
+                      placeholder="Describe what you need — the more specific, the faster you'll get help.">{{ form.get('description', '') }}</textarea>
+            <span class="char-counter">0 / 2000</span>
+          </div>
         </div>
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label for="bounty-unit" class="form-label">Unit code</label>
-                <input type="text" id="bounty-unit" name="unit_code" class="form-control" placeholder="CITS1401" style="text-transform:uppercase" />
-            </div>
-            <div class="col-md-6">
-                <label for="bounty-reward" class="form-label">Reward ($)</label>
-                <input type="number" id="bounty-reward" name="reward" class="form-control" min="0" step="0.01" placeholder="20.00" />
-            </div>
+      </div>
+
+      <!-- Reward -->
+      <div class="form-section">
+        <div class="form-section-label">Reward</div>
+        <div class="field" style="max-width:180px;">
+          <label for="bounty-reward">Reward amount</label>
+          <div class="price-wrap">
+            <span class="price-prefix">$</span>
+            <input type="number" id="bounty-reward" name="reward"
+                   min="0" step="0.01" placeholder="0.00"
+                   value="{{ form.get('reward', '') }}" />
+          </div>
+          <span class="field-hint">Set $0 for free help</span>
         </div>
-        <div class="mb-3">
-            <label for="bounty-desc" class="form-label">Description</label>
-            <textarea id="bounty-desc" name="description" class="form-control" rows="3" placeholder="What do you need help with?"></textarea>
+      </div>
+
+      <!-- Cover image -->
+      <div class="form-section">
+        <div class="form-section-label">Cover image <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(optional)</span></div>
+        <label id="bounty-drop-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:90px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;padding:18px;transition:border-color var(--t);">
+          <i class="fa-regular fa-image" style="font-size:1.5rem;color:var(--mid);"></i>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--mid);">Click to add a cover photo</span>
+          <span style="font-size:0.72rem;color:var(--muted);">JPEG or PNG · max 10 MB</span>
+          <input type="file" name="image" id="bounty-file-input" accept="image/jpeg,image/png" style="display:none;" />
+        </label>
+        <div id="bounty-preview" style="display:none;margin-top:10px;position:relative;max-width:240px;">
+          <img id="bounty-preview-img" src="" alt="Preview"
+               style="width:100%;border-radius:8px;object-fit:cover;border:1.5px solid var(--border);" />
+          <button type="button" id="bounty-remove-btn"
+                  style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
         </div>
-        <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-dark">Post bounty</button>
-            <a href="{{ url_for('bounties') }}" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-    </form>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-bolt"></i> Post bounty
+        </button>
+        <a href="{{ url_for('bounties') }}" class="btn-cancel">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+
+  <div class="xp-tip">
+    <div class="xp-tip-icon">⚡</div>
+    <div>
+      <h4>Earn XP for resolving bounties</h4>
+      <p>Earn 10 XP when your bounty is claimed and resolved. Keep your bounties specific to attract better help faster.</p>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Tips for a great bounty</div>
+    <div class="tip-list">
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fa-solid fa-heading"></i></div>
+        <div class="tip-text"><strong>Specific title</strong> — say exactly what you need, not just "need help".</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-align-left"></i></div>
+        <div class="tip-text"><strong>Describe the problem</strong> — paste error messages, share context, explain what you've tried.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-dollar-sign"></i></div>
+        <div class="tip-text"><strong>Fair reward</strong> — a small incentive attracts faster and better responses.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fa-solid fa-reply"></i></div>
+        <div class="tip-text"><strong>Respond quickly</strong> — reply to claimers promptly so the help stays relevant.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rcard" style="padding:12px 14px;">
+    <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br />
+      &copy; 2025 UniShare · UWA students
+    </div>
+  </div>
+</aside>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ta = document.querySelector('textarea[name="description"]');
+const counter = document.querySelector('.char-counter');
+ta.addEventListener('input', () => {
+  counter.textContent = `${ta.value.length} / 2000`;
+  counter.style.color = ta.value.length > 1800 ? '#ef4444' : 'var(--muted)';
+});
+
+// Cover image preview
+(function () {
+  const dropArea   = document.getElementById('bounty-drop-area');
+  const fileInput  = document.getElementById('bounty-file-input');
+  const preview    = document.getElementById('bounty-preview');
+  const previewImg = document.getElementById('bounty-preview-img');
+  const removeBtn  = document.getElementById('bounty-remove-btn');
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = e => { previewImg.src = e.target.result; preview.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) showPreview(fileInput.files[0]);
+  });
+  removeBtn.addEventListener('click', () => {
+    fileInput.value = ''; preview.style.display = 'none'; previewImg.src = '';
+  });
+  dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = 'var(--gold)'; });
+  dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = 'var(--border)'; });
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault(); dropArea.style.borderColor = 'var(--border)';
+    const f = e.dataTransfer.files[0];
+    if (f && ['image/jpeg','image/png'].includes(f.type)) {
+      const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files;
+      showPreview(f);
+    }
+  });
+})();
+</script>
 {% endblock %}

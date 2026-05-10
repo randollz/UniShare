@@ -1,40 +1,328 @@
 {% extends 'base.html' %}
 {% block title %}New Listing — UniShare{% endblock %}
+
+{% block head %}
+<style>
+body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
+
+.main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.page-head {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 22px;
+}
+.page-head h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); margin-bottom: 3px; }
+.page-head p  { font-size: 0.83rem; color: var(--muted); }
+
+.form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; padding: 0;
+}
+.form-section {
+  padding: 22px 24px; border-bottom: 1px solid var(--border);
+}
+.form-section:last-child { border-bottom: none; }
+.form-section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mid); margin-bottom: 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--dark);
+}
+.field label .hint { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.field input[type=text],
+.field input[type=number],
+.field textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--dark);
+  outline: none; transition: border-color var(--t);
+}
+.field input[type=text]:focus,
+.field input[type=number]:focus,
+.field textarea:focus { border-color: var(--gold); }
+.field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Condition pills */
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill input[type=radio] { display: none; }
+.pill span {
+  display: inline-block; padding: 6px 14px; border-radius: 99px;
+  border: 1.5px solid rgba(0,0,0,0.18); background: var(--white);
+  font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
+  color: var(--dark); cursor: pointer; transition: all var(--t);
+}
+.pill:has(input:checked) span {
+  background: var(--gold); border-color: var(--gold); color: #fff;
+}
+.pill span:hover { border-color: var(--gold); background: var(--gold-pale, #fef3c7); }
+
+/* Price prefix */
+.price-wrap { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color var(--t); }
+.price-wrap:focus-within { border-color: var(--gold); }
+.price-prefix {
+  padding: 9px 11px; background: #eef0f5; font-size: 0.85rem;
+  font-weight: 700; color: var(--mid); border-right: 1.5px solid rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+.price-wrap input {
+  border: none !important; border-radius: 0 !important; flex: 1;
+  outline: none !important;
+}
+
+/* Char counter */
+.char-counter { font-size: 0.73rem; color: var(--mid); text-align: right; }
+
+/* Actions bar */
+.form-actions {
+  padding: 18px 24px; display: flex; gap: 10px; align-items: center;
+  background: #fafafa; border-top: 1px solid var(--border);
+}
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px;
+  border-radius: 9px; background: var(--dark); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+  border: none; cursor: pointer; transition: all var(--t);
+}
+.btn-submit:hover { background: var(--dark2); transform: translateY(-1px); }
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px;
+  border-radius: 9px; background: transparent; color: var(--mid);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+  border: 1.5px solid rgba(0,0,0,0.18); cursor: pointer; text-decoration: none;
+  transition: all var(--t);
+}
+.btn-cancel:hover { border-color: var(--dark); color: var(--dark); }
+
+/* XP tip */
+.xp-tip {
+  background: linear-gradient(135deg, #14532d, #166534);
+  border-radius: var(--r); padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.xp-tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+.xp-tip h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.xp-tip p  { font-size: 0.76rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+/* Right panel */
+.rcard { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.rcard-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.tip-list { display: flex; flex-direction: column; gap: 10px; }
+.tip-item { display: flex; align-items: flex-start; gap: 8px; }
+.tip-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+.tip-text { font-size: 0.78rem; color: var(--mid); line-height: 1.5; }
+.tip-text strong { color: var(--dark); }
+.rcard-footer { font-size: 0.68rem; color: var(--mid); line-height: 1.7; }
+.rcard-footer a { color: var(--mid); }
+.rcard-footer a:hover { color: var(--dark); text-decoration: underline; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-inner" style="max-width:560px">
-    <h1 style="margin-bottom:28px">Post a listing</h1>
-    <form method="POST" class="form-card">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="mb-3">
-            <label for="listing-title" class="form-label">Title <span class="required">*</span></label>
-            <input type="text" id="listing-title" name="title" class="form-control" required placeholder="e.g. Agile Web Development, 5th Ed." />
-        </div>
-        <div class="mb-3">
-            <label for="listing-unit" class="form-label">Unit code <span class="required">*</span></label>
-            <input type="text" id="listing-unit" name="unit_code" class="form-control" required placeholder="CITS3403" style="text-transform:uppercase" />
-        </div>
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label for="listing-price" class="form-label">Price ($) <span class="required">*</span></label>
-                <input type="number" id="listing-price" name="price" class="form-control" min="0" step="0.01" required placeholder="25.00" />
+<div class="main">
+  <div class="page-head">
+    <h1><i class="fa-solid fa-tag" style="color:var(--gold);margin-right:8px;"></i>Post a Listing</h1>
+    <p>List your textbooks and study materials — connect with students who need them.</p>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="form-card">
+
+      <!-- Listing details -->
+      <div class="form-section">
+        <div class="form-section-label">Listing details</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="field">
+            <label for="listing-title">Title <span style="color:#ef4444;">*</span></label>
+            <input type="text" id="listing-title" name="title" required
+                   placeholder="e.g. Agile Web Development, 5th Ed."
+                   value="{{ form.get('title', '') }}" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="listing-unit">Unit code <span style="color:#ef4444;">*</span></label>
+              <input type="text" id="listing-unit" name="unit_code" required
+                     placeholder="CITS3403" style="text-transform:uppercase;"
+                     value="{{ form.get('unit_code', '') }}" />
             </div>
-            <div class="col-md-6">
-                <label for="listing-condition" class="form-label">Condition</label>
-                <select id="listing-condition" name="condition" class="form-select">
-                    {% for c in ['New','Like new','Good','Acceptable'] %}
-                    <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
+          </div>
+          <div class="field">
+            <label for="listing-desc">Description <span class="hint">(condition, edition, extras)</span></label>
+            <textarea id="listing-desc" name="description" rows="4"
+                      placeholder="Any notes about the book — edition, highlights, missing pages, included accessories…">{{ form.get('description', '') }}</textarea>
+            <span class="char-counter">0 / 2000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photos -->
+      <div class="form-section">
+        <div class="form-section-label">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(optional · up to 5 · JPEG or PNG)</span></div>
+        <div>
+          <label id="listing-drop-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:90px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;padding:18px;transition:border-color var(--t);">
+            <i class="fa-regular fa-images" style="font-size:1.5rem;color:var(--mid);"></i>
+            <span style="font-size:0.82rem;font-weight:600;color:var(--mid);">Click to add photos</span>
+            <span style="font-size:0.72rem;color:var(--muted);">JPEG or PNG · max 10 MB each · up to 5 images</span>
+            <input type="file" name="images[]" id="listing-file-input" multiple accept="image/jpeg,image/png" style="display:none;" />
+          </label>
+          <div id="listing-preview-strip" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Condition & price -->
+      <div class="form-section">
+        <div class="form-section-label">Condition &amp; price</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="field">
+            <label>Condition <span style="color:#ef4444;">*</span></label>
+            <div class="pill-group">
+              <label class="pill"><input type="radio" name="condition" value="New" required><span>New</span></label>
+              <label class="pill"><input type="radio" name="condition" value="Like New"><span>Like New</span></label>
+              <label class="pill"><input type="radio" name="condition" value="Good"><span>Good</span></label>
+              <label class="pill"><input type="radio" name="condition" value="Fair"><span>Fair</span></label>
+              <label class="pill"><input type="radio" name="condition" value="Poor"><span>Poor</span></label>
             </div>
+          </div>
+          <div class="field" style="max-width:160px;">
+            <label for="listing-price">Price <span style="color:#ef4444;">*</span></label>
+            <div class="price-wrap">
+              <span class="price-prefix">$</span>
+              <input type="number" id="listing-price" name="price"
+                     min="0" step="0.01" required placeholder="25.00"
+                     value="{{ form.get('price', '') }}" />
+            </div>
+          </div>
         </div>
-        <div class="mb-3">
-            <label for="listing-desc" class="form-label">Description</label>
-            <textarea id="listing-desc" name="description" class="form-control" rows="3" placeholder="Any notes about the book…"></textarea>
-        </div>
-        <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-dark">Post listing</button>
-            <a href="{{ url_for('marketplace') }}" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-    </form>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-tag"></i> Post listing
+        </button>
+        <a href="{{ url_for('marketplace') }}" class="btn-cancel">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+
+  <div class="xp-tip">
+    <div class="xp-tip-icon">💰</div>
+    <div>
+      <h4>Earn XP for listing</h4>
+      <p>Earn 15 XP when a buyer contacts you about this listing. Sell it and help a fellow student save on textbooks.</p>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block right_panel %}
+<aside class="right">
+  <div class="rcard">
+    <div class="rcard-title">Tips for a great listing</div>
+    <div class="tip-list">
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fa-solid fa-heading"></i></div>
+        <div class="tip-text"><strong>Clear title</strong> — include the book name, edition, and unit code.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-dollar-sign"></i></div>
+        <div class="tip-text"><strong>Fair price</strong> — check what the book sells for new; price competitively.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-star-half-stroke"></i></div>
+        <div class="tip-text"><strong>Accurate condition</strong> — be honest about highlights, damage, or missing pages.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fa-solid fa-align-left"></i></div>
+        <div class="tip-text"><strong>Detailed description</strong> — mention extras like access codes or sticky tabs.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rcard" style="padding:12px 14px;">
+    <div class="rcard-footer" style="margin:0;padding:0;border:none;">
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Help</a><br />
+      &copy; 2025 UniShare · UWA students
+    </div>
+  </div>
+</aside>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Character counter
+const ta = document.querySelector('textarea[name="description"]');
+const counter = document.querySelector('.char-counter');
+ta.addEventListener('input', () => {
+  counter.textContent = `${ta.value.length} / 2000`;
+  counter.style.color = ta.value.length > 1800 ? '#ef4444' : 'var(--muted)';
+});
+
+// Re-select condition pill on validation error repopulate
+const preSelected = "{{ form.get('condition', '') | safe }}";
+if (preSelected) {
+  const r = document.querySelector(`input[name="condition"][value="${preSelected}"]`);
+  if (r) r.checked = true;
+}
+
+// Multi-image preview
+(function () {
+  const dropArea  = document.getElementById('listing-drop-area');
+  const fileInput = document.getElementById('listing-file-input');
+  const strip     = document.getElementById('listing-preview-strip');
+  const MAX = 5;
+  let files = [];
+
+  function renderStrip() {
+    strip.innerHTML = '';
+    files.forEach((f, i) => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:80px;height:80px;';
+      const img = document.createElement('img');
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border);';
+      const reader = new FileReader();
+      reader.onload = e => { img.src = e.target.result; };
+      reader.readAsDataURL(f);
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.innerHTML = '&times;';
+      rm.style.cssText = 'position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+      rm.addEventListener('click', () => { files.splice(i, 1); syncInput(); renderStrip(); });
+      wrap.appendChild(img); wrap.appendChild(rm); strip.appendChild(wrap);
+    });
+  }
+
+  function syncInput() {
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+  }
+
+  fileInput.addEventListener('change', () => {
+    for (const f of fileInput.files) {
+      if (files.length >= MAX) break;
+      files.push(f);
+    }
+    syncInput(); renderStrip();
+  });
+
+  dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.style.borderColor = 'var(--gold)'; });
+  dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = 'var(--border)'; });
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault(); dropArea.style.borderColor = 'var(--border)';
+    for (const f of e.dataTransfer.files) {
+      if (files.length >= MAX) break;
+      if (['image/jpeg','image/png'].includes(f.type)) files.push(f);
+    }
+    syncInput(); renderStrip();
+  });
+})();
+</script>
 {% endblock %}

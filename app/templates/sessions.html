@@ -201,7 +201,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       {% set _uc = s.unit_code[:4].upper() if s.unit_code else '' %}
       {% set _bmap = {'CITS': 'images/banners/banner_cs.svg', 'MATH': 'images/banners/banner_math.svg', 'STAT': 'images/banners/banner_stats.svg'} %}
       {% set _banner = _bmap.get(_uc, '') %}
-      {% if _banner %}
+      {% if s.image_path %}
+      <div class="sc-banner">
+        <a href="{{ url_for('view_session', session_id=s.id) }}">
+          <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.title }}" loading="lazy"/>
+        </a>
+      </div>
+      {% elif _banner %}
       <div class="sc-banner">
         <img src="{{ url_for('static', filename=_banner) }}" alt="" loading="lazy"/>
       </div>
@@ -299,6 +305,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
             <i class="fa-solid fa-star"></i> You're hosting
           </span>
           {% endif %}
+          <a href="{{ url_for('view_session', session_id=s.id) }}" class="sc-btn sc-btn-ghost">
+            Details
+          </a>
         </div>
       </div>
     </div>

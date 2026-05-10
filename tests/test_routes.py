@@ -406,10 +406,12 @@ class TestBountyActions:
             bid = b.id
         # Log in as a different user to claim
         _register_and_login(client, app, email='claimer_b@example.com')
-        rv = client.post(f'/claim_bounty/{bid}', follow_redirects=True)
+        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
         assert rv.status_code == 200
         with app.app_context():
-            assert Bounty.query.get(bid) is None  # Bounty consumed on claim
+            bounty = Bounty.query.get(bid)
+            assert bounty is not None          # bounty stays, not deleted
+            assert bounty.status == 'claimed'  # marked as claimed
 
     def test_cannot_claim_own_bounty(self, client, app):
         uid = _register_and_login(client, app, email='self_claimer@example.com')
@@ -419,7 +421,7 @@ class TestBountyActions:
             _db.session.add(b)
             _db.session.commit()
             bid = b.id
-        rv = client.post(f'/claim_bounty/{bid}', follow_redirects=True)
+        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
         assert rv.status_code == 200
         with app.app_context():
             assert Bounty.query.get(bid) is not None  # Should NOT be deleted
@@ -502,3 +504,130 @@ class TestMessages:
     def test_leaderboard(self, client, app):
         rv = client.get('/leaderboard')
         assert rv.status_code == 200
+
+
+# ── Session detail & comments ─────────────────────────────────────────────────
+
+class TestSessionDetail:
+    def _make_session(self, app, host_id):
+        from datetime import datetime, timedelta
+        with app.app_context():
+            s = StudySession(host_id=host_id, title='Detail Test Session',
+                             unit_code='CITS3403',
+                             session_date=datetime.now() + timedelta(days=7),
+                             location='Reid Library', max_attendees=10)
+            _db.session.add(s)
+            _db.session.commit()
+            return s.id
+
+    def test_view_session_page(self, client, app):
+        uid = _register_and_login(client, app, email='viewsess@example.com')
+        sid = self._make_session(app, uid)
+        rv = client.get(f'/sessions/{sid}')
+        assert rv.status_code == 200
+        assert b'Detail Test Session' in rv.data
+
+    def test_session_comment(self, client, app):
+        from app.models import SessionComment
+        host_id = _register_and_login(client, app, email='sess_host_c@example.com')
+        commenter_id = _register_and_login(client, app, email='sess_commenter@example.com')
+        sid = self._make_session(app, host_id)
+        rv = client.post(f'/sessions/{sid}/comment',
+                         json={'body': 'Will there be coffee?'},
+                         content_type='application/json')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['body'] == 'Will there be coffee?'
+        with app.app_context():
+            assert SessionComment.query.filter_by(session_id=sid).count() == 1
+
+    def test_delete_session_comment(self, client, app):
+        from app.models import SessionComment
+        uid = _register_and_login(client, app, email='sess_del_comment@example.com')
+        sid = self._make_session(app, uid)
+        rv = client.post(f'/sessions/{sid}/comment',
+                         json={'body': 'To be deleted'},
+                         content_type='application/json')
+        cid = rv.get_json()['id']
+        rv2 = client.post(f'/session-comments/{cid}/delete')
+        assert rv2.get_json()['ok'] is True
+        with app.app_context():
+            assert SessionComment.query.get(cid) is None
+
+
+# ── Listing comments ──────────────────────────────────────────────────────────
+
+class TestListingComments:
+    def _make_listing(self, app, uid):
+        with app.app_context():
+            l = Listing(seller_id=uid, title='Comment Listing', unit_code='CITS3403',
+                        price=20.0, condition='Good', description='test')
+            _db.session.add(l)
+            _db.session.commit()
+            return l.id
+
+    def test_listing_comment(self, client, app):
+        from app.models import ListingComment
+        seller_id = _register_and_login(client, app, email='list_sell_c@example.com')
+        _register_and_login(client, app, email='list_buyer_c@example.com')
+        lid = self._make_listing(app, seller_id)
+        rv = client.post(f'/listings/{lid}/comment',
+                         json={'body': 'Is this still available?'},
+                         content_type='application/json')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['body'] == 'Is this still available?'
+        with app.app_context():
+            assert ListingComment.query.filter_by(listing_id=lid).count() == 1
+
+    def test_delete_listing_comment(self, client, app):
+        from app.models import ListingComment
+        uid = _register_and_login(client, app, email='list_del_c@example.com')
+        lid = self._make_listing(app, uid)
+        rv = client.post(f'/listings/{lid}/comment',
+                         json={'body': 'To delete'},
+                         content_type='application/json')
+        cid = rv.get_json()['id']
+        rv2 = client.post(f'/listing-comments/{cid}/delete')
+        assert rv2.get_json()['ok'] is True
+        with app.app_context():
+            assert ListingComment.query.get(cid) is None
+
+
+# ── Bounty comments ───────────────────────────────────────────────────────────
+
+class TestBountyComments:
+    def _make_bounty(self, app, uid):
+        with app.app_context():
+            b = Bounty(poster_id=uid, title='Comment Bounty',
+                       description='Need help', reward=5.0)
+            _db.session.add(b)
+            _db.session.commit()
+            return b.id
+
+    def test_bounty_comment(self, client, app):
+        from app.models import BountyComment
+        poster_id = _register_and_login(client, app, email='bounty_post_c@example.com')
+        _register_and_login(client, app, email='bounty_comm@example.com')
+        bid = self._make_bounty(app, poster_id)
+        rv = client.post(f'/bounties/{bid}/comment',
+                         json={'body': 'I can help with this!'},
+                         content_type='application/json')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['body'] == 'I can help with this!'
+        with app.app_context():
+            assert BountyComment.query.filter_by(bounty_id=bid).count() == 1
+
+    def test_delete_bounty_comment(self, client, app):
+        from app.models import BountyComment
+        uid = _register_and_login(client, app, email='bounty_del_c@example.com')
+        bid = self._make_bounty(app, uid)
+        rv = client.post(f'/bounties/{bid}/comment',
+                         json={'body': 'Delete me'},
+                         content_type='application/json')
+        cid = rv.get_json()['id']
+        rv2 = client.post(f'/bounty-comments/{cid}/delete')
+        assert rv2.get_json()['ok'] is True
+        with app.app_context():
+            assert BountyComment.query.get(cid) is None

@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
     notes         = db.relationship('Note',        back_populates='author',  lazy='dynamic')
     hosted_sessions = db.relationship('StudySession', back_populates='host', lazy='dynamic')
     rsvps         = db.relationship('SessionRSVP', back_populates='user',    lazy='dynamic')
-    bounties      = db.relationship('Bounty',      back_populates='poster',  lazy='dynamic')
+    bounties      = db.relationship('Bounty',      foreign_keys='Bounty.poster_id', back_populates='poster',  lazy='dynamic')
     saved_listings = db.relationship('SavedListing', back_populates='user',  lazy='dynamic')
     saved_notes    = db.relationship('SavedNote',    back_populates='user',  lazy='dynamic')
     ratings_given    = db.relationship('Rating', foreign_keys='Rating.rater_id', back_populates='rater', lazy='dynamic')
@@ -52,18 +52,25 @@ class User(UserMixin, db.Model):
 class Listing(db.Model):
     __tablename__ = 'listings'
 
-    id          = db.Column(db.Integer,   primary_key=True)
-    seller_id   = db.Column(db.Integer,   db.ForeignKey('users.id'), nullable=False)
-    title       = db.Column(db.String(100), nullable=False)
-    unit_code   = db.Column(db.String(16),  nullable=False)
-    price       = db.Column(db.Float,     nullable=False)
-    condition   = db.Column(db.String(32), nullable=False)
-    description = db.Column(db.Text,      default='')
-    created_at  = db.Column(db.DateTime,  server_default=db.func.now())
+    id             = db.Column(db.Integer,   primary_key=True)
+    seller_id      = db.Column(db.Integer,   db.ForeignKey('users.id'), nullable=False)
+    title          = db.Column(db.String(100), nullable=False)
+    unit_code      = db.Column(db.String(16),  nullable=False)
+    price          = db.Column(db.Float,     nullable=False)
+    condition      = db.Column(db.String(32), nullable=False)
+    description    = db.Column(db.Text,      default='')
+    created_at     = db.Column(db.DateTime,  server_default=db.func.now())
+    comments_count = db.Column(db.Integer,   default=0)
 
-    seller        = db.relationship('User',        back_populates='listings')
-    saved_by      = db.relationship('SavedListing', back_populates='listing', lazy='dynamic')
-    ratings       = db.relationship('Rating',      back_populates='listing',  lazy='dynamic')
+    seller   = db.relationship('User',         back_populates='listings')
+    saved_by = db.relationship('SavedListing', back_populates='listing', lazy='dynamic')
+    ratings  = db.relationship('Rating',       back_populates='listing', lazy='dynamic')
+    images   = db.relationship('ListingImage', back_populates='listing',
+                                cascade='all, delete-orphan',
+                                order_by='ListingImage.display_order')
+    comments = db.relationship('ListingComment', back_populates='listing',
+                                cascade='all, delete-orphan',
+                                order_by='ListingComment.created_at')
 
     def __repr__(self):
         return f'<Listing {self.title}>'
@@ -102,19 +109,25 @@ class StudySession(db.Model):
     """Study group / session. Named StudySession to avoid conflict with Flask's session."""
     __tablename__ = 'sessions'
 
-    id            = db.Column(db.Integer,    primary_key=True)
-    host_id       = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
-    title         = db.Column(db.String(150), nullable=False)
-    unit_code     = db.Column(db.String(16),  nullable=False)
-    location      = db.Column(db.String(200), default='')
-    session_date  = db.Column(db.DateTime)
-    max_attendees = db.Column(db.Integer,    default=10)
-    description   = db.Column(db.Text,       default='')
-    created_at    = db.Column(db.DateTime,   server_default=db.func.now())
+    id             = db.Column(db.Integer,    primary_key=True)
+    host_id        = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
+    title          = db.Column(db.String(150), nullable=False)
+    unit_code      = db.Column(db.String(16),  nullable=False)
+    location       = db.Column(db.String(200), default='')
+    session_date   = db.Column(db.DateTime)
+    max_attendees  = db.Column(db.Integer,    default=10)
+    description    = db.Column(db.Text,       default='')
+    created_at     = db.Column(db.DateTime,   server_default=db.func.now())
+    image_path     = db.Column(db.String(256), nullable=True)
+    image_name     = db.Column(db.String(256), nullable=True)
+    comments_count = db.Column(db.Integer,    default=0)
 
-    host  = db.relationship('User',        back_populates='hosted_sessions')
-    rsvps = db.relationship('SessionRSVP', back_populates='session', lazy='dynamic',
-                             cascade='all, delete-orphan')
+    host     = db.relationship('User',        back_populates='hosted_sessions')
+    rsvps    = db.relationship('SessionRSVP', back_populates='session', lazy='dynamic',
+                                cascade='all, delete-orphan')
+    comments = db.relationship('SessionComment', back_populates='session',
+                                cascade='all, delete-orphan',
+                                order_by='SessionComment.created_at')
 
     def attendee_count(self):
         return self.rsvps.count()
@@ -139,15 +152,24 @@ class SessionRSVP(db.Model):
 class Bounty(db.Model):
     __tablename__ = 'bounties'
 
-    id          = db.Column(db.Integer,    primary_key=True)
-    poster_id   = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
-    title       = db.Column(db.String(150), nullable=False)
-    unit_code   = db.Column(db.String(16),  default='')
-    reward      = db.Column(db.Float,      default=0)
-    description = db.Column(db.Text,       default='')
-    created_at  = db.Column(db.DateTime,   server_default=db.func.now())
+    id             = db.Column(db.Integer,    primary_key=True)
+    poster_id      = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=False)
+    claimer_id     = db.Column(db.Integer,    db.ForeignKey('users.id'), nullable=True)
+    title          = db.Column(db.String(150), nullable=False)
+    unit_code      = db.Column(db.String(16),  default='')
+    reward         = db.Column(db.Float,      default=0)
+    description    = db.Column(db.Text,       default='')
+    status         = db.Column(db.String(16),  default='open')   # open | claimed | closed
+    created_at     = db.Column(db.DateTime,   server_default=db.func.now())
+    image_path     = db.Column(db.String(256), nullable=True)
+    image_name     = db.Column(db.String(256), nullable=True)
+    comments_count = db.Column(db.Integer,    default=0)
 
-    poster = db.relationship('User', back_populates='bounties')
+    poster   = db.relationship('User', foreign_keys=[poster_id],  back_populates='bounties')
+    claimer  = db.relationship('User', foreign_keys=[claimer_id])
+    comments = db.relationship('BountyComment', back_populates='bounty',
+                                cascade='all, delete-orphan',
+                                order_by='BountyComment.created_at')
 
     def __repr__(self):
         return f'<Bounty {self.title}>'
@@ -273,3 +295,66 @@ class PostComment(db.Model):
 
     def __repr__(self):
         return f'<PostComment {self.id} on post={self.post_id}>'
+
+
+class ListingImage(db.Model):
+    __tablename__ = 'listing_images'
+
+    id            = db.Column(db.Integer, primary_key=True)
+    listing_id    = db.Column(db.Integer, db.ForeignKey('listings.id'), nullable=False)
+    file_path     = db.Column(db.String(256), nullable=False)
+    file_name     = db.Column(db.String(256), nullable=False)
+    display_order = db.Column(db.Integer, default=0)
+
+    listing = db.relationship('Listing', back_populates='images')
+
+    def __repr__(self):
+        return f'<ListingImage {self.id} listing={self.listing_id}>'
+
+
+class ListingComment(db.Model):
+    __tablename__ = 'listing_comments'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listings.id'), nullable=False)
+    author_id  = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body       = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    listing = db.relationship('Listing', back_populates='comments')
+    author  = db.relationship('User', backref=db.backref('listing_comments_written', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<ListingComment {self.id} on listing={self.listing_id}>'
+
+
+class BountyComment(db.Model):
+    __tablename__ = 'bounty_comments'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    bounty_id = db.Column(db.Integer, db.ForeignKey('bounties.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body      = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    bounty = db.relationship('Bounty', back_populates='comments')
+    author = db.relationship('User', backref=db.backref('bounty_comments_written', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<BountyComment {self.id} on bounty={self.bounty_id}>'
+
+
+class SessionComment(db.Model):
+    __tablename__ = 'session_comments'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
+    author_id  = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    body       = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    session = db.relationship('StudySession', back_populates='comments')
+    author  = db.relationship('User', backref=db.backref('session_comments_written', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<SessionComment {self.id} on session={self.session_id}>'

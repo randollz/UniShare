@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ bounty.title }} — UniShare Bounty{% endblock %}
+{% block title %}{{ session.title }} — UniShare{% endblock %}
 
 {% block head %}
 <style>
@@ -11,51 +11,70 @@
 }
 .detail-back:hover { color: var(--dark); }
 .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-.detail-accent { height: 6px; background: linear-gradient(90deg,#181bc2,#181bc2); }
-.detail-hero {
+
+.session-hero {
   width: 100%; padding: 32px 32px 24px; box-sizing: border-box;
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;
-  background: linear-gradient(135deg,#190e92,#091f78); color: #fff;
+  background: linear-gradient(135deg,#1e2d40,#1f4068); color: #fff;
 }
-.detail-hero-left { flex: 1; min-width: 0; }
-.detail-hero-pill {
+.session-hero-unit {
   display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px;
   background: rgba(255,255,255,0.18); color: #fff;
   font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; margin-bottom: 10px;
 }
-.detail-hero-title {
+.session-hero-title {
   font-family: 'Inter', sans-serif; font-size: 1.55rem; font-weight: 800;
-  letter-spacing: -0.025em; line-height: 1.25; color: #fff;
+  letter-spacing: -0.025em; line-height: 1.25; color: #fff; margin-bottom: 14px;
 }
-.detail-hero-reward { flex-shrink: 0; text-align: right; min-width: 100px; }
-.detail-hero-reward-amt { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: #fde68a; }
-.detail-hero-reward-lbl { font-family: 'Inter', sans-serif; font-size: 0.72rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+.session-hero-meta { display: flex; flex-wrap: wrap; gap: 16px; }
+.session-hero-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; color: rgba(255,255,255,0.8);
+}
+.session-hero-meta-item i { color: rgba(255,255,255,0.55); }
+
 .detail-cover-img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
 .detail-body { padding: 28px 32px; }
 .detail-section { margin-bottom: 22px; }
 .detail-section-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px; }
 .detail-description { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--dark); line-height: 1.65; white-space: pre-wrap; }
 .detail-description-empty { color: var(--muted); font-style: italic; }
-.detail-poster {
+
+.host-card {
   display: flex; align-items: center; gap: 12px;
   padding: 16px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 22px;
 }
-.detail-poster-av {
+.host-av {
   width: 42px; height: 42px; border-radius: 50%;
-  background: linear-gradient(135deg,#181bc2,#181bc2);
+  background: linear-gradient(135deg,#1d4ed8,#3b6ef5);
   color: #fff; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
-.detail-poster-name { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--dark); }
-.detail-poster-meta { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid var(--border); }
+.host-name { font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--dark); }
+.host-meta { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+.attendees-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.attendee-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 99px;
+  font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--dark);
+  text-decoration: none;
+}
+.attendee-chip:hover { border-color: var(--dark); }
+.attendee-av-sm {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--dark); color: #fff;
+  font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid var(--border); margin-bottom: 0; }
 .btn-action {
   display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 9px;
   font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
   cursor: pointer; transition: all var(--t) var(--ease); border: none; text-decoration: none;
 }
-.btn-claim { background: linear-gradient(135deg,#181bc2,#2563eb); color: #fff; }
-.btn-claim:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(24,27,194,0.25); }
+.btn-join { background: var(--dark); color: #fff; }
+.btn-join:hover { background: var(--dark2); transform: translateY(-1px); }
+.btn-cancel-rsvp { background: transparent; color: #dc2626; border: 1.5px solid #fca5a5; }
+.btn-cancel-rsvp:hover { background: #fef2f2; border-color: #dc2626; }
 .btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--bdr2); }
 .btn-ghost:hover { color: var(--dark); border-color: var(--dark); }
 
@@ -94,102 +113,113 @@
 {% block content %}
 <div class="detail-wrap">
 
-  <a href="{{ url_for('bounties') }}" class="detail-back">
-    <i class="fa-solid fa-arrow-left"></i> Back to bounty board
+  <a href="{{ url_for('study_sessions') }}" class="detail-back">
+    <i class="fa-solid fa-arrow-left"></i> Back to study sessions
   </a>
 
   <div class="detail-card">
-    <div class="detail-accent"></div>
 
-    <div class="detail-hero">
-      <div class="detail-hero-left">
-        {% if bounty.unit_code %}
-        <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> {{ bounty.unit_code }}</span>
-        {% else %}
-        <span class="detail-hero-pill"><i class="fa-solid fa-bolt"></i> General</span>
+    <div class="session-hero">
+      <span class="session-hero-unit"><i class="fa-solid fa-book"></i> {{ session.unit_code }}</span>
+      <h1 class="session-hero-title">{{ session.title }}</h1>
+      <div class="session-hero-meta">
+        <div class="session-hero-meta-item">
+          <i class="fa-regular fa-calendar"></i>
+          <span>{{ session.session_date.strftime('%a %d %b %Y · %I:%M %p') }}</span>
+        </div>
+        {% if session.location %}
+        <div class="session-hero-meta-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>{{ session.location }}</span>
+        </div>
         {% endif %}
-        <h1 class="detail-hero-title">{{ bounty.title }}</h1>
-      </div>
-      <div class="detail-hero-reward">
-        <div class="detail-hero-reward-amt">${{ "%.0f"|format(bounty.reward) }}</div>
-        <div class="detail-hero-reward-lbl">Reward</div>
+        <div class="session-hero-meta-item">
+          <i class="fa-solid fa-users"></i>
+          <span>{{ session.attendee_count() }} attending{% if session.max_attendees %} / {{ session.max_attendees }} max{% endif %}</span>
+        </div>
       </div>
     </div>
 
-    {% if bounty.image_path %}
+    {% if session.image_path %}
     <img class="detail-cover-img"
-         src="{{ url_for('static', filename=bounty.image_path) }}"
-         alt="{{ bounty.title }}" />
+         src="{{ url_for('static', filename=session.image_path) }}"
+         alt="{{ session.title }}" />
     {% endif %}
 
     <div class="detail-body">
 
+      {% if session.description %}
       <div class="detail-section">
-        <div class="detail-section-label">Description</div>
-        {% if bounty.description %}
-        <div class="detail-description">{{ bounty.description }}</div>
-        {% else %}
-        <div class="detail-description detail-description-empty">No description provided.</div>
-        {% endif %}
+        <div class="detail-section-label">About this session</div>
+        <div class="detail-description">{{ session.description }}</div>
       </div>
+      {% endif %}
 
       <div class="detail-section">
-        <div class="detail-section-label">Posted by</div>
-        <div class="detail-poster">
-          <div class="detail-poster-av">
-            {{ bounty.poster.first_name[0] }}{{ bounty.poster.last_name[0] }}
+        <div class="detail-section-label">Host</div>
+        <div class="host-card">
+          <div class="host-av">
+            {{ session.host.first_name[0] }}{{ session.host.last_name[0] }}
           </div>
           <div>
-            <div class="detail-poster-name">{{ bounty.poster.first_name }} {{ bounty.poster.last_name }}</div>
-            <div class="detail-poster-meta">Posted a bounty on UniShare</div>
+            <div class="host-name">{{ session.host.first_name }} {{ session.host.last_name }}</div>
+            <div class="host-meta">Session host</div>
           </div>
         </div>
       </div>
 
-      {% if bounty.status == 'claimed' %}
+      {% set rsvps = session.rsvps.all() if session.rsvps else [] %}
+      {% if rsvps %}
       <div class="detail-section">
-        <div class="detail-section-label">Status</div>
-        <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;background:#f0fdf4;border-radius:99px;">
-          <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i>
-          <span style="font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:700;color:#166534;">
-            Claimed by {{ bounty.claimer.first_name }} {{ bounty.claimer.last_name }}
-          </span>
+        <div class="detail-section-label">Attendees ({{ rsvps|length }})</div>
+        <div class="attendees-list">
+          {% for rsvp in rsvps %}
+          <a href="{{ url_for('profile', user_id=rsvp.user_id) }}" class="attendee-chip">
+            <div class="attendee-av-sm">{{ rsvp.user.first_name[0] }}{{ rsvp.user.last_name[0] }}</div>
+            {{ rsvp.user.first_name }} {{ rsvp.user.last_name[0] }}.
+          </a>
+          {% endfor %}
         </div>
       </div>
       {% endif %}
 
       <div class="detail-actions">
-        {% if not current_user or not current_user.is_authenticated %}
-        <a href="{{ url_for('login') }}" class="btn-action btn-claim">Sign in to claim</a>
-        {% elif current_user.id == bounty.poster_id %}
-        <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">This is your bounty.</span>
-        {% elif bounty.status == 'open' %}
-        <form method="POST" action="{{ url_for('claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
+        {% if is_host %}
+        <span class="btn-action btn-ghost" style="cursor:default;"><i class="fa-solid fa-star"></i> You're hosting</span>
+        {% elif is_rsvped %}
+        <form method="POST" action="{{ url_for('cancel_rsvp', session_id=session.id) }}" style="display:inline;">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <button type="submit" class="btn-action btn-claim">
-            <i class="fa-solid fa-hand-holding-dollar"></i> Claim this bounty
+          <button type="submit" class="btn-action btn-cancel-rsvp">
+            <i class="fa-solid fa-xmark"></i> Cancel RSVP
           </button>
         </form>
+        {% elif session.attendee_count() >= session.max_attendees %}
+        <span class="btn-action btn-ghost" style="cursor:default;color:#dc2626;border-color:#fca5a5;">Session full</span>
         {% else %}
-        <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">This bounty has already been claimed.</span>
+        <form method="POST" action="{{ url_for('rsvp_session', session_id=session.id) }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="btn-action btn-join">
+            <i class="fa-solid fa-arrow-right"></i> Join session
+          </button>
+        </form>
         {% endif %}
-        <a href="{{ url_for('bounties') }}" class="btn-action btn-ghost">Back to all bounties</a>
+        <a href="{{ url_for('study_sessions') }}" class="btn-action btn-ghost">Back to sessions</a>
       </div>
 
       <!-- Comment thread -->
       <div class="comment-thread">
         <div class="comment-thread-label">Questions &amp; Comments</div>
-        <div class="comment-list" id="bounty-comments">
-          {% for c in bounty.comments %}
-          <div class="comment-item" id="bc-{{ c.id }}">
+        <div class="comment-list" id="session-comments">
+          {% for c in session.comments %}
+          <div class="comment-item" id="sc-{{ c.id }}">
             <div class="comment-av">{{ c.author.first_name[0] }}{{ c.author.last_name[0] }}</div>
             <div class="comment-bubble">
               <div class="comment-meta">
                 {{ c.author.first_name }} {{ c.author.last_name }}
                 <span class="comment-time">{{ c.created_at.strftime('%b %d') }}</span>
                 {% if c.author_id == current_user.id %}
-                <button class="comment-del" data-url="{{ url_for('delete_bounty_comment', comment_id=c.id) }}"
-                        data-target="bc-{{ c.id }}">Delete</button>
+                <button class="comment-del" data-url="{{ url_for('delete_session_comment', comment_id=c.id) }}"
+                        data-target="sc-{{ c.id }}">Delete</button>
                 {% endif %}
               </div>
               <div class="comment-body">{{ c.body }}</div>
@@ -199,9 +229,9 @@
         </div>
         {% if current_user.is_authenticated %}
         <div class="comment-compose">
-          <textarea id="bounty-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
-          <button type="button" id="bounty-comment-btn"
-                  data-url="{{ url_for('bounty_comment', bounty_id=bounty.id) }}">Reply</button>
+          <textarea id="session-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
+          <button type="button" id="session-comment-btn"
+                  data-url="{{ url_for('session_comment', session_id=session.id) }}">Reply</button>
         </div>
         {% endif %}
       </div>
@@ -215,9 +245,9 @@
 {% block scripts %}
 <script>
 (function () {
-  const list  = document.getElementById('bounty-comments');
-  const input = document.getElementById('bounty-comment-input');
-  const btn   = document.getElementById('bounty-comment-btn');
+  const list  = document.getElementById('session-comments');
+  const input = document.getElementById('session-comment-input');
+  const btn   = document.getElementById('session-comment-btn');
   if (!btn) return;
 
   btn.addEventListener('click', async () => {
@@ -233,14 +263,14 @@
       const data = await res.json();
       if (data.error) { btn.disabled = false; return; }
       const item = document.createElement('div');
-      item.className = 'comment-item'; item.id = `bc-${data.id}`;
+      item.className = 'comment-item'; item.id = `sc-${data.id}`;
       item.innerHTML = `
         <div class="comment-av">${data.initials}</div>
         <div class="comment-bubble">
           <div class="comment-meta">${data.author} <span class="comment-time">just now</span>
             <button class="comment-del"
-                    data-url="/bounty-comments/${data.id}/delete"
-                    data-target="bc-${data.id}">Delete</button>
+                    data-url="/session-comments/${data.id}/delete"
+                    data-target="sc-${data.id}">Delete</button>
           </div>
           <div class="comment-body">${data.body.replace(/</g,'&lt;')}</div>
         </div>`;
