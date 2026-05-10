@@ -345,6 +345,12 @@ body.app-page {
 /* Override global dark-theme paragraph color for the light app shell */
 body.app-page p { color: var(--mid); }
 
+/* Issue #47 — restore readable contrast for paragraph text inside the
+   dark-green XP tip cards (Create Listing / Bounty / Session / Note).
+   The rule above (specificity 0,1,2) was overriding the template-level
+   `.xp-tip p` rule (specificity 0,1,1); this 0,2,2 override wins. */
+body.app-page .xp-tip p { color: rgba(255, 255, 255, 0.85); }
+
 /* ── Top nav bar ─────────────────────────────────────────────── */
 .topbar {
   position: fixed;
