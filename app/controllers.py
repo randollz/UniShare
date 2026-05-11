@@ -75,10 +75,15 @@ def create_study_session(host_id, form):
 
 
 def rsvp_session(session_id, user_id):
-    """Returns True if RSVP created, False if already exists."""
+    """Returns True if RSVP created, 'full' if at capacity, False if already exists."""
+    session = StudySession.query.get(session_id)
+    if not session:
+        return False
     existing = SessionRSVP.query.get((session_id, user_id))
     if existing:
         return False
+    if session.max_attendees and session.attendee_count() >= session.max_attendees:
+        return 'full'
     rsvp = SessionRSVP(session_id=session_id, user_id=user_id)
     db.session.add(rsvp)
     db.session.commit()

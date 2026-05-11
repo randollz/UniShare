@@ -156,8 +156,8 @@
       </div>
 
       <div class="detail-actions">
-        <a href="{{ url_for('profile', user_id=listing.seller_id) }}" class="btn-action btn-primary">
-          <i class="fa-solid fa-user"></i> Contact seller
+        <a href="{{ url_for('messages_thread', other_id=listing.seller_id) }}" class="btn-action btn-primary">
+          <i class="fa-solid fa-envelope"></i> Contact seller
         </a>
         <a href="{{ url_for('marketplace') }}" class="btn-action btn-ghost">Back to marketplace</a>
       </div>

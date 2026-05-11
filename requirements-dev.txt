@@ -1,6 +1,0 @@
-# Test-only dependencies. Install with: pip install -r requirements-dev.txt
-# This installs the runtime stack (via -r requirements.txt) plus Selenium tools.
--r requirements.txt
-selenium>=4.18
-webdriver-manager>=4.0
-pytest>=8.0
