@@ -7,3 +7,6 @@ flask-login>=0.6
 flask-wtf>=1.2
 requests>=2.31
 beautifulsoup4>=4.12
+pytest>=8.0
+selenium>=4.18
+webdriver-manager>=4.0

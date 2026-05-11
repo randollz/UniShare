@@ -1,5 +1,6 @@
-"""Integration tests for Flask routes using the ORM layer."""
-import pytest
+"""Unit tests for Flask routes using the ORM layer."""
+import unittest
+from datetime import datetime, timedelta
 from app import create_app
 from app.extensions import db as _db
 from app.models import User, Listing, Note, StudySession, Bounty
@@ -14,33 +15,10 @@ class TestConfig:
     LOGIN_DISABLED = False
 
 
-@pytest.fixture(scope='module')
-def app():
-    application = create_app(config_class=TestConfig)
-    with application.app_context():
-        _db.create_all()
-        yield application
-        _db.drop_all()
-
-
-@pytest.fixture(scope='module')
-def client(app):
-    return app.test_client()
-
-
-@pytest.fixture(autouse=True)
-def clean_db(app):
-    with app.app_context():
-        yield
-        _db.session.rollback()
-
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
 def _register_and_login(client, app, email='test@example.com', password='pass1234',
                         first='Test', last='User'):
     """Create a user in the DB (if not already there) then log in via the login route."""
-    client.get('/logout')  # ensure clean session before switching user
+    client.get('/logout')
     with app.app_context():
         existing = User.query.filter_by(email=email).first()
         if existing:
@@ -51,7 +29,6 @@ def _register_and_login(client, app, email='test@example.com', password='pass123
             _db.session.add(user)
             _db.session.commit()
             user_id = user.id
-
     client.post('/login', data={'email': email, 'password': password,
                                 'action': 'login'}, follow_redirects=True)
     return user_id
@@ -59,153 +36,227 @@ def _register_and_login(client, app, email='test@example.com', password='pass123
 
 # ── Public pages ──────────────────────────────────────────────────────────────
 
-class TestPublicRoutes:
-    def test_home_returns_200(self, client):
-        rv = client.get('/')
-        assert rv.status_code == 200
+class TestPublicRoutes(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_login_page_returns_200(self, client):
-        rv = client.get('/login')
-        assert rv.status_code == 200
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
 
-    def test_marketplace_returns_200(self, client):
-        rv = client.get('/marketplace')
-        assert rv.status_code == 200
+    def test_home_returns_200(self):
+        rv = self.client.get('/')
+        self.assertEqual(rv.status_code, 200, "Homepage should return 200")
 
-    def test_notes_returns_200(self, client):
-        rv = client.get('/notes')
-        assert rv.status_code == 200
+    def test_login_page_returns_200(self):
+        rv = self.client.get('/login')
+        self.assertEqual(rv.status_code, 200, "Login page should return 200")
 
-    def test_sessions_returns_200(self, client):
-        rv = client.get('/sessions')
-        assert rv.status_code == 200
+    def test_marketplace_returns_200(self):
+        rv = self.client.get('/marketplace')
+        self.assertEqual(rv.status_code, 200, "Marketplace should return 200 for public users")
 
-    def test_bounties_returns_200(self, client):
-        rv = client.get('/bounties')
-        assert rv.status_code == 200
+    def test_notes_returns_200(self):
+        rv = self.client.get('/notes')
+        self.assertEqual(rv.status_code, 200, "Notes page should return 200 for public users")
 
-    def test_leaderboard_returns_200(self, client):
-        rv = client.get('/leaderboard')
-        assert rv.status_code == 200
+    def test_sessions_returns_200(self):
+        rv = self.client.get('/sessions')
+        self.assertEqual(rv.status_code, 200, "Sessions page should return 200 for public users")
+
+    def test_bounties_returns_200(self):
+        rv = self.client.get('/bounties')
+        self.assertEqual(rv.status_code, 200, "Bounties page should return 200 for public users")
+
+    def test_leaderboard_returns_200(self):
+        rv = self.client.get('/leaderboard')
+        self.assertEqual(rv.status_code, 200, "Leaderboard should return 200 for public users")
 
 
 # ── Authentication ────────────────────────────────────────────────────────────
 
-class TestAuth:
-    def test_register_and_login(self, client, app):
-        with app.app_context():
-            rv = client.post('/login', data={
-                'action': 'register',
-                'first_name': 'Alice',
-                'last_name': 'Smith',
-                'email': 'alice_auth@example.com',
-                'password': 'secret99',
-                'confirm_password': 'secret99',
-            }, follow_redirects=True)
-        assert rv.status_code == 200
+class TestAuth(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_login_wrong_password(self, client, app):
-        with app.app_context():
-            u = User(first_name='Bob', last_name='Jones',
-                     email='bob_auth@example.com', password_hash='')
-            u.set_password('correct')
-            _db.session.add(u)
-            _db.session.commit()
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
 
-        rv = client.post('/login', data={
+    def test_register_and_login(self):
+        rv = self.client.post('/login', data={
+            'action': 'register',
+            'first_name': 'Alice',
+            'last_name': 'Smith',
+            'email': 'alice_auth@example.com',
+            'password': 'secret99',
+            'confirm_password': 'secret99',
+        }, follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Successful registration should return 200")
+
+    def test_login_wrong_password(self):
+        u = User(first_name='Bob', last_name='Jones',
+                 email='bob_auth@example.com', password_hash='')
+        u.set_password('correct')
+        _db.session.add(u)
+        _db.session.commit()
+        rv = self.client.post('/login', data={
             'action': 'login',
             'email': 'bob_auth@example.com',
             'password': 'wrong',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        assert b'Invalid' in rv.data or b'incorrect' in rv.data.lower() or rv.status_code == 200
+        self.assertEqual(rv.status_code, 200, "Failed login should return 200 with error message")
+        self.assertTrue(
+            b'Invalid' in rv.data or b'invalid' in rv.data.lower(),
+            "Failed login response should contain an error message"
+        )
 
-    def test_logout_redirects(self, client, app):
-        _register_and_login(client, app, email='logout_user@example.com')
-        rv = client.get('/logout', follow_redirects=False)
-        assert rv.status_code in (301, 302)
+    def test_logout_redirects(self):
+        _register_and_login(self.client, self.app, email='logout_user@example.com')
+        rv = self.client.get('/logout', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302), "Logout should redirect the user")
 
 
 # ── Protected routes redirect when logged out ─────────────────────────────────
 
-class TestProtectedRedirect:
-    def test_dashboard_requires_login(self, client):
-        with client.session_transaction() as sess:
-            sess.clear()
-        rv = client.get('/dashboard', follow_redirects=False)
-        assert rv.status_code in (301, 302)
+class TestProtectedRedirect(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_create_listing_requires_login(self, client):
-        with client.session_transaction() as sess:
-            sess.clear()
-        rv = client.get('/create_listing', follow_redirects=False)
-        assert rv.status_code in (301, 302)
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
 
-    def test_messages_requires_login(self, client):
-        with client.session_transaction() as sess:
+    def test_dashboard_requires_login(self):
+        with self.client.session_transaction() as sess:
             sess.clear()
-        rv = client.get('/messages', follow_redirects=False)
-        assert rv.status_code in (301, 302)
+        rv = self.client.get('/dashboard', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302), "Dashboard should redirect unauthenticated users")
+
+    def test_create_listing_requires_login(self):
+        with self.client.session_transaction() as sess:
+            sess.clear()
+        rv = self.client.get('/create_listing', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302), "Create listing should redirect unauthenticated users")
+
+    def test_messages_requires_login(self):
+        with self.client.session_transaction() as sess:
+            sess.clear()
+        rv = self.client.get('/messages', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302), "Messages should redirect unauthenticated users")
 
 
 # ── Listing creation ──────────────────────────────────────────────────────────
 
-class TestListings:
-    def test_create_listing(self, client, app):
-        _register_and_login(client, app, email='listing_user@example.com')
-        rv = client.post('/create_listing', data={
+class TestListings(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_create_listing(self):
+        _register_and_login(self.client, self.app, email='listing_user@example.com')
+        rv = self.client.post('/create_listing', data={
             'title': 'Python Textbook',
             'unit_code': 'CITS1401',
             'price': '25.00',
             'condition': 'Good',
             'description': 'Great condition.',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        self.assertEqual(rv.status_code, 200, "Listing creation should succeed")
+        with self.app.app_context():
             listing = Listing.query.filter_by(title='Python Textbook').first()
-            assert listing is not None
-            assert listing.price == 25.00
+            self.assertIsNotNone(listing, "Created listing should exist in the database")
+            self.assertEqual(listing.price, 25.00, "Listing price should match the submitted value")
 
-    def test_create_listing_missing_title(self, client, app):
-        _register_and_login(client, app, email='listing_user2@example.com')
-        before_count = 0
-        with app.app_context():
+    def test_create_listing_missing_title(self):
+        _register_and_login(self.client, self.app, email='listing_user2@example.com')
+        with self.app.app_context():
             before_count = Listing.query.filter_by(unit_code='CITS9999').count()
-        rv = client.post('/create_listing', data={
+        rv = self.client.post('/create_listing', data={
             'title': '',
             'unit_code': 'CITS9999',
             'price': '25.00',
             'condition': 'Good',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        # Should stay on form with error, not create listing
-        with app.app_context():
-            assert Listing.query.filter_by(unit_code='CITS9999').count() == before_count
+        self.assertEqual(rv.status_code, 200, "Form with missing title should return 200")
+        with self.app.app_context():
+            self.assertEqual(
+                Listing.query.filter_by(unit_code='CITS9999').count(),
+                before_count,
+                "No listing should be created when the title field is empty"
+            )
 
 
 # ── Note creation ─────────────────────────────────────────────────────────────
 
-class TestNotes:
-    def test_create_note(self, client, app):
-        _register_and_login(client, app, email='note_user@example.com')
-        rv = client.post('/create_note', data={
+class TestNotes(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_create_note(self):
+        _register_and_login(self.client, self.app, email='note_user@example.com')
+        rv = self.client.post('/create_note', data={
             'title': 'Week 1 Lecture Notes',
             'unit_code': 'CITS3403',
             'semester': 'S1 2025',
             'description': 'Introduction lecture summary.',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        self.assertEqual(rv.status_code, 200, "Note creation should succeed")
+        with self.app.app_context():
             note = Note.query.filter_by(title='Week 1 Lecture Notes').first()
-            assert note is not None
+            self.assertIsNotNone(note, "Created note should exist in the database")
 
 
 # ── Study sessions ────────────────────────────────────────────────────────────
 
-class TestStudySessions:
-    def test_create_session(self, client, app):
-        _register_and_login(client, app, email='session_user@example.com')
-        rv = client.post('/create_session', data={
+class TestStudySessions(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_create_session(self):
+        _register_and_login(self.client, self.app, email='session_user@example.com')
+        rv = self.client.post('/create_session', data={
             'title': 'Exam Prep Group',
             'unit_code': 'CITS3403',
             'location': 'Reid Library',
@@ -213,139 +264,201 @@ class TestStudySessions:
             'max_attendees': '10',
             'description': 'Final exam prep.',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        self.assertEqual(rv.status_code, 200, "Session creation should succeed")
+        with self.app.app_context():
             s = StudySession.query.filter_by(title='Exam Prep Group').first()
-            assert s is not None
+            self.assertIsNotNone(s, "Created session should exist in the database")
 
 
 # ── Bounties ──────────────────────────────────────────────────────────────────
 
-class TestBounties:
-    def test_create_bounty(self, client, app):
-        _register_and_login(client, app, email='bounty_user@example.com')
-        rv = client.post('/create_bounty', data={
+class TestBounties(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_create_bounty(self):
+        _register_and_login(self.client, self.app, email='bounty_user@example.com')
+        rv = self.client.post('/create_bounty', data={
             'title': 'Need CITS3403 notes',
             'unit_code': 'CITS3403',
             'reward': '10.00',
             'description': 'Looking for comprehensive notes.',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        self.assertEqual(rv.status_code, 200, "Bounty creation should succeed")
+        with self.app.app_context():
             b = Bounty.query.filter_by(title='Need CITS3403 notes').first()
-            assert b is not None
+            self.assertIsNotNone(b, "Created bounty should exist in the database")
 
 
 # ── AJAX: search_users ────────────────────────────────────────────────────────
 
-class TestAjaxSearchUsers:
-    def test_search_users_requires_login(self, client):
-        with client.session_transaction() as sess:
-            sess.clear()
-        rv = client.get('/api/search_users?q=alice', follow_redirects=False)
-        assert rv.status_code in (301, 302)
+class TestAjaxSearchUsers(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_search_users_returns_json(self, client, app):
-        _register_and_login(client, app, email='search_host@example.com')
-        with app.app_context():
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_search_users_requires_login(self):
+        with self.client.session_transaction() as sess:
+            sess.clear()
+        rv = self.client.get('/api/search_users?q=alice', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302), "Search endpoint should redirect unauthenticated users")
+
+    def test_search_users_returns_json(self):
+        _register_and_login(self.client, self.app, email='search_host@example.com')
+        with self.app.app_context():
             target = User(first_name='Searchable', last_name='Person',
                           email='searchable@example.com', password_hash='x')
             _db.session.add(target)
             _db.session.commit()
-
-        rv = client.get('/api/search_users?q=Searchable')
-        assert rv.status_code == 200
+        rv = self.client.get('/api/search_users?q=Searchable')
+        self.assertEqual(rv.status_code, 200, "Search should return 200 for authenticated users")
         data = rv.get_json()
-        assert isinstance(data, list)
-        assert any(u['name'] == 'Searchable Person' for u in data)
+        self.assertIsInstance(data, list, "Search response should be a JSON array")
+        self.assertTrue(
+            any(u['name'] == 'Searchable Person' for u in data),
+            "Search results should include the matching user"
+        )
 
-    def test_search_users_short_query_returns_empty(self, client, app):
-        _register_and_login(client, app, email='search_host2@example.com')
-        rv = client.get('/api/search_users?q=a')
-        assert rv.status_code == 200
-        assert rv.get_json() == []
+    def test_search_users_short_query_returns_empty(self):
+        _register_and_login(self.client, self.app, email='search_host2@example.com')
+        rv = self.client.get('/api/search_users?q=a')
+        self.assertEqual(rv.status_code, 200, "Short query should still return 200")
+        self.assertEqual(rv.get_json(), [], "Query shorter than 2 chars should return an empty list")
 
 
 # ── Listing detail & delete ───────────────────────────────────────────────────
 
-class TestListingDetail:
-    def test_view_listing(self, client, app):
-        uid = _register_and_login(client, app, email='view_listing@example.com')
-        with app.app_context():
+class TestListingDetail(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_view_listing(self):
+        uid = _register_and_login(self.client, self.app, email='view_listing@example.com')
+        with self.app.app_context():
             listing = Listing(seller_id=uid, title='Detail Listing',
                               unit_code='CITS1001', price=9.99, condition='Good')
             _db.session.add(listing)
             _db.session.commit()
             lid = listing.id
-        rv = client.get(f'/listings/{lid}')
-        assert rv.status_code == 200
-        assert b'Detail Listing' in rv.data
+        rv = self.client.get(f'/listings/{lid}')
+        self.assertEqual(rv.status_code, 200, "Listing detail page should return 200")
+        self.assertIn(b'Detail Listing', rv.data, "Listing title should appear on the page")
 
-    def test_delete_listing(self, client, app):
-        uid = _register_and_login(client, app, email='del_listing@example.com')
-        with app.app_context():
+    def test_delete_listing(self):
+        uid = _register_and_login(self.client, self.app, email='del_listing@example.com')
+        with self.app.app_context():
             listing = Listing(seller_id=uid, title='To Delete',
                               unit_code='CITS1001', price=5.0, condition='Good')
             _db.session.add(listing)
             _db.session.commit()
             lid = listing.id
-        rv = client.post(f'/delete_listing/{lid}', follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
-            assert Listing.query.get(lid) is None
+        rv = self.client.post(f'/delete_listing/{lid}', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Delete should redirect with 200")
+        with self.app.app_context():
+            self.assertIsNone(Listing.query.get(lid), "Deleted listing should not exist in the database")
 
-    def test_delete_listing_wrong_owner(self, client, app):
-        owner_id = _register_and_login(client, app, email='owner_l@example.com')
-        with app.app_context():
+    def test_delete_listing_wrong_owner(self):
+        owner_id = _register_and_login(self.client, self.app, email='owner_l@example.com')
+        with self.app.app_context():
             listing = Listing(seller_id=owner_id, title='Protected',
                               unit_code='CITS1001', price=5.0, condition='Good')
             _db.session.add(listing)
             _db.session.commit()
             lid = listing.id
-        # Log in as a different user
-        _register_and_login(client, app, email='intruder_l@example.com')
-        client.post(f'/delete_listing/{lid}', follow_redirects=True)
-        with app.app_context():
-            # Listing should still exist (wrong owner can't delete)
-            assert Listing.query.get(lid) is not None
+        _register_and_login(self.client, self.app, email='intruder_l@example.com')
+        self.client.post(f'/delete_listing/{lid}', follow_redirects=True)
+        with self.app.app_context():
+            self.assertIsNotNone(
+                Listing.query.get(lid),
+                "Listing should not be deleted by a user who does not own it"
+            )
 
 
 # ── Note detail & upvote ──────────────────────────────────────────────────────
 
-class TestNoteDetail:
-    def test_view_note(self, client, app):
-        uid = _register_and_login(client, app, email='view_note@example.com')
-        with app.app_context():
+class TestNoteDetail(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_view_note(self):
+        uid = _register_and_login(self.client, self.app, email='view_note@example.com')
+        with self.app.app_context():
             note = Note(author_id=uid, title='Test Note Detail',
                         unit_code='CITS3403', semester='S1 2025', upvotes=0)
             _db.session.add(note)
             _db.session.commit()
             nid = note.id
-        rv = client.get(f'/notes/{nid}')
-        assert rv.status_code == 200
-        assert b'Test Note Detail' in rv.data
+        rv = self.client.get(f'/notes/{nid}')
+        self.assertEqual(rv.status_code, 200, "Note detail page should return 200")
+        self.assertIn(b'Test Note Detail', rv.data, "Note title should appear on the page")
 
-    def test_upvote_note(self, client, app):
-        uid = _register_and_login(client, app, email='upvote_user@example.com')
-        with app.app_context():
+    def test_upvote_note(self):
+        uid = _register_and_login(self.client, self.app, email='upvote_user@example.com')
+        with self.app.app_context():
             note = Note(author_id=uid, title='Upvotable Note',
                         unit_code='CITS3003', semester='S2 2025', upvotes=0)
             _db.session.add(note)
             _db.session.commit()
             nid = note.id
-        client.post(f'/upvote_note/{nid}', follow_redirects=True)
-        with app.app_context():
+        self.client.post(f'/upvote_note/{nid}', follow_redirects=True)
+        with self.app.app_context():
             updated = Note.query.get(nid)
-            assert updated.upvotes == 1
+            self.assertEqual(updated.upvotes, 1, "Upvote count should increment by 1")
 
 
 # ── Session delete & cancel RSVP ─────────────────────────────────────────────
 
-class TestSessionActions:
-    def test_delete_session(self, client, app):
-        from datetime import datetime, timedelta
-        uid = _register_and_login(client, app, email='del_session@example.com')
-        with app.app_context():
+class TestSessionActions(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_delete_session(self):
+        uid = _register_and_login(self.client, self.app, email='del_session@example.com')
+        with self.app.app_context():
             s = StudySession(host_id=uid, title='Session to Delete',
                              unit_code='CITS4009',
                              session_date=datetime.now() + timedelta(days=7),
@@ -353,18 +466,16 @@ class TestSessionActions:
             _db.session.add(s)
             _db.session.commit()
             sid = s.id
-        rv = client.post(f'/delete_session/{sid}', follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
-            from app.models import StudySession as SS
-            assert SS.query.get(sid) is None
+        rv = self.client.post(f'/delete_session/{sid}', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Delete session should redirect with 200")
+        with self.app.app_context():
+            self.assertIsNone(StudySession.query.get(sid), "Deleted session should not exist in the database")
 
-    def test_cancel_rsvp(self, client, app):
-        from datetime import datetime, timedelta
+    def test_cancel_rsvp(self):
         from app.models import SessionRSVP
-        host_id = _register_and_login(client, app, email='cancel_host@example.com')
-        uid = _register_and_login(client, app, email='cancel_rsvp@example.com')
-        with app.app_context():
+        host_id = _register_and_login(self.client, self.app, email='cancel_host@example.com')
+        uid = _register_and_login(self.client, self.app, email='cancel_rsvp@example.com')
+        with self.app.app_context():
             s = StudySession(host_id=host_id, title='Cancel Session',
                              unit_code='CITS4009',
                              session_date=datetime.now() + timedelta(days=7),
@@ -375,143 +486,261 @@ class TestSessionActions:
             _db.session.add(rsvp)
             _db.session.commit()
             sid = s.id
-        rv = client.post(f'/cancel_rsvp/{sid}', follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
-            assert SessionRSVP.query.filter_by(session_id=sid, user_id=uid).first() is None
+        rv = self.client.post(f'/cancel_rsvp/{sid}', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Cancel RSVP should redirect with 200")
+        with self.app.app_context():
+            self.assertIsNone(
+                SessionRSVP.query.filter_by(session_id=sid, user_id=uid).first(),
+                "RSVP record should be removed after cancellation"
+            )
+
+
+# ── RSVP creation & capacity enforcement ─────────────────────────────────────
+
+class TestRSVP(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_rsvp_creates_record(self):
+        from app.models import SessionRSVP
+        host_id = _register_and_login(self.client, self.app, email='rsvp_host@example.com')
+        with self.app.app_context():
+            s = StudySession(host_id=host_id, title='RSVP Session',
+                             unit_code='CITS3403',
+                             session_date=datetime.now() + timedelta(days=7),
+                             location='Online', max_attendees=5)
+            _db.session.add(s)
+            _db.session.commit()
+            sid = s.id
+        attendee_id = _register_and_login(self.client, self.app, email='rsvp_attendee@example.com')
+        rv = self.client.post(f'/rsvp_session/{sid}', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "RSVP should succeed and redirect")
+        with self.app.app_context():
+            rsvp = SessionRSVP.query.filter_by(session_id=sid, user_id=attendee_id).first()
+            self.assertIsNotNone(rsvp, "RSVP record should be created in the database")
+
+    def test_rsvp_blocked_when_full(self):
+        from app.models import SessionRSVP
+        host_id = _register_and_login(self.client, self.app, email='rsvp_full_host@example.com')
+        first_id = _register_and_login(self.client, self.app, email='rsvp_first@example.com')
+        with self.app.app_context():
+            s = StudySession(host_id=host_id, title='Full Session',
+                             unit_code='CITS3403',
+                             session_date=datetime.now() + timedelta(days=7),
+                             location='Online', max_attendees=1)
+            _db.session.add(s)
+            _db.session.commit()
+            rsvp = SessionRSVP(session_id=s.id, user_id=first_id)
+            _db.session.add(rsvp)
+            _db.session.commit()
+            sid = s.id
+        _register_and_login(self.client, self.app, email='rsvp_second@example.com')
+        rv = self.client.post(f'/rsvp_session/{sid}', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Over-capacity RSVP should still redirect with 200")
+        with self.app.app_context():
+            count = SessionRSVP.query.filter_by(session_id=sid).count()
+            self.assertEqual(count, 1, "Session should have only 1 RSVP when at capacity")
 
 
 # ── Bounty detail & claim ─────────────────────────────────────────────────────
 
-class TestBountyActions:
-    def test_view_bounty(self, client, app):
-        uid = _register_and_login(client, app, email='view_bounty@example.com')
-        with app.app_context():
+class TestBountyActions(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_view_bounty(self):
+        uid = _register_and_login(self.client, self.app, email='view_bounty@example.com')
+        with self.app.app_context():
             b = Bounty(poster_id=uid, title='View Bounty Test',
                        unit_code='CITS3403', reward=20.0)
             _db.session.add(b)
             _db.session.commit()
             bid = b.id
-        rv = client.get(f'/bounties/{bid}')
-        assert rv.status_code == 200
-        assert b'View Bounty Test' in rv.data
+        rv = self.client.get(f'/bounties/{bid}')
+        self.assertEqual(rv.status_code, 200, "Bounty detail page should return 200")
+        self.assertIn(b'View Bounty Test', rv.data, "Bounty title should appear on the page")
 
-    def test_claim_bounty(self, client, app):
-        poster_id = _register_and_login(client, app, email='poster_b@example.com')
-        with app.app_context():
+    def test_claim_bounty(self):
+        poster_id = _register_and_login(self.client, self.app, email='poster_b@example.com')
+        with self.app.app_context():
             b = Bounty(poster_id=poster_id, title='Claimable Bounty',
                        unit_code='CITS3403', reward=15.0)
             _db.session.add(b)
             _db.session.commit()
             bid = b.id
-        # Log in as a different user to claim
-        _register_and_login(client, app, email='claimer_b@example.com')
-        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        _register_and_login(self.client, self.app, email='claimer_b@example.com')
+        rv = self.client.post(f'/bounties/{bid}/claim', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Claim bounty should succeed")
+        with self.app.app_context():
             bounty = Bounty.query.get(bid)
-            assert bounty is not None          # bounty stays, not deleted
-            assert bounty.status == 'claimed'  # marked as claimed
+            self.assertIsNotNone(bounty, "Bounty should still exist after being claimed")
+            self.assertEqual(bounty.status, 'claimed', "Bounty status should be updated to 'claimed'")
 
-    def test_cannot_claim_own_bounty(self, client, app):
-        uid = _register_and_login(client, app, email='self_claimer@example.com')
-        with app.app_context():
+    def test_cannot_claim_own_bounty(self):
+        uid = _register_and_login(self.client, self.app, email='self_claimer@example.com')
+        with self.app.app_context():
             b = Bounty(poster_id=uid, title='Own Bounty',
                        unit_code='CITS3403', reward=5.0)
             _db.session.add(b)
             _db.session.commit()
             bid = b.id
-        rv = client.post(f'/bounties/{bid}/claim', follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
-            assert Bounty.query.get(bid) is not None  # Should NOT be deleted
+        rv = self.client.post(f'/bounties/{bid}/claim', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200, "Claiming own bounty should return 200")
+        with self.app.app_context():
+            self.assertIsNotNone(
+                Bounty.query.get(bid),
+                "User should not be able to claim their own bounty"
+            )
 
 
 # ── Profile page ──────────────────────────────────────────────────────────────
 
-class TestProfile:
-    def test_view_profile(self, client, app):
-        uid = _register_and_login(client, app, email='profile_view@example.com',
-                                  first='Profile', last='User')
-        rv = client.get(f'/profile/{uid}')
-        assert rv.status_code == 200
-        assert b'Profile' in rv.data
+class TestProfile(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_view_profile_not_found(self, client, app):
-        _register_and_login(client, app, email='profile_404@example.com')
-        rv = client.get('/profile/99999')
-        assert rv.status_code == 404
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_view_profile(self):
+        uid = _register_and_login(self.client, self.app, email='profile_view@example.com',
+                                  first='Profile', last='User')
+        rv = self.client.get(f'/profile/{uid}')
+        self.assertEqual(rv.status_code, 200, "Profile page should return 200")
+        self.assertIn(b'Profile', rv.data, "Profile name should appear on the page")
+
+    def test_view_profile_not_found(self):
+        _register_and_login(self.client, self.app, email='profile_404@example.com')
+        rv = self.client.get('/profile/99999')
+        self.assertEqual(rv.status_code, 404, "Non-existent profile should return 404")
 
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 
-class TestSettings:
-    def test_get_settings(self, client, app):
-        _register_and_login(client, app, email='settings_get@example.com')
-        rv = client.get('/settings')
-        assert rv.status_code == 200
+class TestSettings(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_update_name(self, client, app):
-        uid = _register_and_login(client, app, email='settings_post@example.com',
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_get_settings(self):
+        _register_and_login(self.client, self.app, email='settings_get@example.com')
+        rv = self.client.get('/settings')
+        self.assertEqual(rv.status_code, 200, "Settings page should return 200 for authenticated users")
+
+    def test_update_name(self):
+        uid = _register_and_login(self.client, self.app, email='settings_post@example.com',
                                   first='Old', last='Name')
-        rv = client.post('/settings', data={
+        rv = self.client.post('/settings', data={
             'first_name': 'New',
             'last_name': 'Name',
             'bio': 'Hello world',
         }, follow_redirects=True)
-        assert rv.status_code == 200
-        with app.app_context():
+        self.assertEqual(rv.status_code, 200, "Settings update should succeed")
+        with self.app.app_context():
             u = User.query.filter_by(id=uid).first()
-            assert u.first_name == 'New'
-            assert u.bio == 'Hello world'
+            self.assertEqual(u.first_name, 'New', "First name should be updated in the database")
+            self.assertEqual(u.bio, 'Hello world', "Bio should be updated in the database")
 
 
 # ── Messages ──────────────────────────────────────────────────────────────────
 
-class TestMessages:
-    def test_messages_list(self, client, app):
-        _register_and_login(client, app, email='msg_list@example.com')
-        rv = client.get('/messages')
-        assert rv.status_code == 200
+class TestMessages(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
 
-    def test_messages_thread(self, client, app):
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def test_messages_list(self):
+        _register_and_login(self.client, self.app, email='msg_list@example.com')
+        rv = self.client.get('/messages')
+        self.assertEqual(rv.status_code, 200, "Messages list should return 200")
+
+    def test_messages_thread(self):
         from app.models import Message as Msg
-        uid_a = _register_and_login(client, app, email='msg_a@example.com')
-        uid_b = _register_and_login(client, app, email='msg_b@example.com')
-        with app.app_context():
+        uid_a = _register_and_login(self.client, self.app, email='msg_a@example.com')
+        uid_b = _register_and_login(self.client, self.app, email='msg_b@example.com')
+        with self.app.app_context():
             m = Msg(sender_id=uid_a, receiver_id=uid_b, body='Hello', read=0)
             _db.session.add(m)
             _db.session.commit()
-        # Log in as B and view thread
-        _register_and_login(client, app, email='msg_b@example.com')
-        rv = client.get(f'/messages/{uid_a}')
-        assert rv.status_code == 200
+        _register_and_login(self.client, self.app, email='msg_b@example.com')
+        rv = self.client.get(f'/messages/{uid_a}')
+        self.assertEqual(rv.status_code, 200, "Message thread should return 200")
 
-    def test_api_send_message(self, client, app):
-        uid_a = _register_and_login(client, app, email='apisend_a@example.com')
-        uid_b = _register_and_login(client, app, email='apisend_b@example.com')
-        # Switch back to A (already registered above) and send to B
-        client.get('/logout')
-        client.post('/login', data={'email': 'apisend_a@example.com', 'password': 'pass1234',
-                                    'action': 'login'}, follow_redirects=True)
-        rv = client.post(f'/api/messages/{uid_b}/send',
-                         json={'body': 'Hi there!'},
-                         content_type='application/json')
-        assert rv.status_code == 200
+    def test_api_send_message(self):
+        _register_and_login(self.client, self.app, email='apisend_a@example.com')
+        uid_b = _register_and_login(self.client, self.app, email='apisend_b@example.com')
+        self.client.get('/logout')
+        self.client.post('/login', data={'email': 'apisend_a@example.com', 'password': 'pass1234',
+                                         'action': 'login'}, follow_redirects=True)
+        rv = self.client.post(f'/api/messages/{uid_b}/send',
+                              json={'body': 'Hi there!'},
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 200, "API message send should return 200")
         data = rv.get_json()
-        assert data['body'] == 'Hi there!'
+        self.assertEqual(data['body'], 'Hi there!', "Response should echo the sent message body")
 
-    def test_leaderboard(self, client, app):
-        rv = client.get('/leaderboard')
-        assert rv.status_code == 200
+    def test_leaderboard(self):
+        rv = self.client.get('/leaderboard')
+        self.assertEqual(rv.status_code, 200, "Leaderboard should return 200")
 
 
 # ── Session detail & comments ─────────────────────────────────────────────────
 
-class TestSessionDetail:
-    def _make_session(self, app, host_id):
-        from datetime import datetime, timedelta
-        with app.app_context():
+class TestSessionDetail(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def _make_session(self, host_id):
+        with self.app.app_context():
             s = StudySession(host_id=host_id, title='Detail Test Session',
                              unit_code='CITS3403',
                              session_date=datetime.now() + timedelta(days=7),
@@ -520,114 +749,150 @@ class TestSessionDetail:
             _db.session.commit()
             return s.id
 
-    def test_view_session_page(self, client, app):
-        uid = _register_and_login(client, app, email='viewsess@example.com')
-        sid = self._make_session(app, uid)
-        rv = client.get(f'/sessions/{sid}')
-        assert rv.status_code == 200
-        assert b'Detail Test Session' in rv.data
+    def test_view_session_page(self):
+        uid = _register_and_login(self.client, self.app, email='viewsess@example.com')
+        sid = self._make_session(uid)
+        rv = self.client.get(f'/sessions/{sid}')
+        self.assertEqual(rv.status_code, 200, "Session detail page should return 200")
+        self.assertIn(b'Detail Test Session', rv.data, "Session title should appear on the page")
 
-    def test_session_comment(self, client, app):
+    def test_session_comment(self):
         from app.models import SessionComment
-        host_id = _register_and_login(client, app, email='sess_host_c@example.com')
-        commenter_id = _register_and_login(client, app, email='sess_commenter@example.com')
-        sid = self._make_session(app, host_id)
-        rv = client.post(f'/sessions/{sid}/comment',
-                         json={'body': 'Will there be coffee?'},
-                         content_type='application/json')
-        assert rv.status_code == 200
+        host_id = _register_and_login(self.client, self.app, email='sess_host_c@example.com')
+        _register_and_login(self.client, self.app, email='sess_commenter@example.com')
+        sid = self._make_session(host_id)
+        rv = self.client.post(f'/sessions/{sid}/comment',
+                              json={'body': 'Will there be coffee?'},
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 200, "Comment creation should return 200")
         data = rv.get_json()
-        assert data['body'] == 'Will there be coffee?'
-        with app.app_context():
-            assert SessionComment.query.filter_by(session_id=sid).count() == 1
+        self.assertEqual(data['body'], 'Will there be coffee?', "Response should echo the comment body")
+        with self.app.app_context():
+            self.assertEqual(
+                SessionComment.query.filter_by(session_id=sid).count(),
+                1,
+                "One comment should exist in the database"
+            )
 
-    def test_delete_session_comment(self, client, app):
+    def test_delete_session_comment(self):
         from app.models import SessionComment
-        uid = _register_and_login(client, app, email='sess_del_comment@example.com')
-        sid = self._make_session(app, uid)
-        rv = client.post(f'/sessions/{sid}/comment',
-                         json={'body': 'To be deleted'},
-                         content_type='application/json')
+        uid = _register_and_login(self.client, self.app, email='sess_del_comment@example.com')
+        sid = self._make_session(uid)
+        rv = self.client.post(f'/sessions/{sid}/comment',
+                              json={'body': 'To be deleted'},
+                              content_type='application/json')
         cid = rv.get_json()['id']
-        rv2 = client.post(f'/session-comments/{cid}/delete')
-        assert rv2.get_json()['ok'] is True
-        with app.app_context():
-            assert SessionComment.query.get(cid) is None
+        rv2 = self.client.post(f'/session-comments/{cid}/delete')
+        self.assertTrue(rv2.get_json()['ok'], "Comment deletion should return ok=True")
+        with self.app.app_context():
+            self.assertIsNone(SessionComment.query.get(cid), "Deleted comment should not exist in the database")
 
 
 # ── Listing comments ──────────────────────────────────────────────────────────
 
-class TestListingComments:
-    def _make_listing(self, app, uid):
-        with app.app_context():
-            l = Listing(seller_id=uid, title='Comment Listing', unit_code='CITS3403',
-                        price=20.0, condition='Good', description='test')
-            _db.session.add(l)
+class TestListingComments(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def _make_listing(self, uid):
+        with self.app.app_context():
+            listing = Listing(seller_id=uid, title='Comment Listing', unit_code='CITS3403',
+                              price=20.0, condition='Good', description='test')
+            _db.session.add(listing)
             _db.session.commit()
-            return l.id
+            return listing.id
 
-    def test_listing_comment(self, client, app):
+    def test_listing_comment(self):
         from app.models import ListingComment
-        seller_id = _register_and_login(client, app, email='list_sell_c@example.com')
-        _register_and_login(client, app, email='list_buyer_c@example.com')
-        lid = self._make_listing(app, seller_id)
-        rv = client.post(f'/listings/{lid}/comment',
-                         json={'body': 'Is this still available?'},
-                         content_type='application/json')
-        assert rv.status_code == 200
+        seller_id = _register_and_login(self.client, self.app, email='list_sell_c@example.com')
+        _register_and_login(self.client, self.app, email='list_buyer_c@example.com')
+        lid = self._make_listing(seller_id)
+        rv = self.client.post(f'/listings/{lid}/comment',
+                              json={'body': 'Is this still available?'},
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 200, "Listing comment creation should return 200")
         data = rv.get_json()
-        assert data['body'] == 'Is this still available?'
-        with app.app_context():
-            assert ListingComment.query.filter_by(listing_id=lid).count() == 1
+        self.assertEqual(data['body'], 'Is this still available?', "Response should echo the comment body")
+        with self.app.app_context():
+            self.assertEqual(
+                ListingComment.query.filter_by(listing_id=lid).count(),
+                1,
+                "One comment should exist for the listing"
+            )
 
-    def test_delete_listing_comment(self, client, app):
+    def test_delete_listing_comment(self):
         from app.models import ListingComment
-        uid = _register_and_login(client, app, email='list_del_c@example.com')
-        lid = self._make_listing(app, uid)
-        rv = client.post(f'/listings/{lid}/comment',
-                         json={'body': 'To delete'},
-                         content_type='application/json')
+        uid = _register_and_login(self.client, self.app, email='list_del_c@example.com')
+        lid = self._make_listing(uid)
+        rv = self.client.post(f'/listings/{lid}/comment',
+                              json={'body': 'To delete'},
+                              content_type='application/json')
         cid = rv.get_json()['id']
-        rv2 = client.post(f'/listing-comments/{cid}/delete')
-        assert rv2.get_json()['ok'] is True
-        with app.app_context():
-            assert ListingComment.query.get(cid) is None
+        rv2 = self.client.post(f'/listing-comments/{cid}/delete')
+        self.assertTrue(rv2.get_json()['ok'], "Comment deletion should return ok=True")
+        with self.app.app_context():
+            self.assertIsNone(ListingComment.query.get(cid), "Deleted comment should not exist in the database")
 
 
 # ── Bounty comments ───────────────────────────────────────────────────────────
 
-class TestBountyComments:
-    def _make_bounty(self, app, uid):
-        with app.app_context():
+class TestBountyComments(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def _make_bounty(self, uid):
+        with self.app.app_context():
             b = Bounty(poster_id=uid, title='Comment Bounty',
                        description='Need help', reward=5.0)
             _db.session.add(b)
             _db.session.commit()
             return b.id
 
-    def test_bounty_comment(self, client, app):
+    def test_bounty_comment(self):
         from app.models import BountyComment
-        poster_id = _register_and_login(client, app, email='bounty_post_c@example.com')
-        _register_and_login(client, app, email='bounty_comm@example.com')
-        bid = self._make_bounty(app, poster_id)
-        rv = client.post(f'/bounties/{bid}/comment',
-                         json={'body': 'I can help with this!'},
-                         content_type='application/json')
-        assert rv.status_code == 200
+        poster_id = _register_and_login(self.client, self.app, email='bounty_post_c@example.com')
+        _register_and_login(self.client, self.app, email='bounty_comm@example.com')
+        bid = self._make_bounty(poster_id)
+        rv = self.client.post(f'/bounties/{bid}/comment',
+                              json={'body': 'I can help with this!'},
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 200, "Bounty comment creation should return 200")
         data = rv.get_json()
-        assert data['body'] == 'I can help with this!'
-        with app.app_context():
-            assert BountyComment.query.filter_by(bounty_id=bid).count() == 1
+        self.assertEqual(data['body'], 'I can help with this!', "Response should echo the comment body")
+        with self.app.app_context():
+            self.assertEqual(
+                BountyComment.query.filter_by(bounty_id=bid).count(),
+                1,
+                "One comment should exist for the bounty"
+            )
 
-    def test_delete_bounty_comment(self, client, app):
+    def test_delete_bounty_comment(self):
         from app.models import BountyComment
-        uid = _register_and_login(client, app, email='bounty_del_c@example.com')
-        bid = self._make_bounty(app, uid)
-        rv = client.post(f'/bounties/{bid}/comment',
-                         json={'body': 'Delete me'},
-                         content_type='application/json')
+        uid = _register_and_login(self.client, self.app, email='bounty_del_c@example.com')
+        bid = self._make_bounty(uid)
+        rv = self.client.post(f'/bounties/{bid}/comment',
+                              json={'body': 'Delete me'},
+                              content_type='application/json')
         cid = rv.get_json()['id']
-        rv2 = client.post(f'/bounty-comments/{cid}/delete')
-        assert rv2.get_json()['ok'] is True
-        with app.app_context():
-            assert BountyComment.query.get(cid) is None
+        rv2 = self.client.post(f'/bounty-comments/{cid}/delete')
+        self.assertTrue(rv2.get_json()['ok'], "Comment deletion should return ok=True")
+        with self.app.app_context():
+            self.assertIsNone(BountyComment.query.get(cid), "Deleted comment should not exist in the database")

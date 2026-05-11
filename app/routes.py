@@ -437,7 +437,9 @@ def register_routes(app):
     @login_required
     def rsvp_session(session_id):
         created = controllers.rsvp_session(session_id, current_user.id)
-        if created:
+        if created == 'full':
+            flash("That session is already full.", 'error')
+        elif created:
             flash("You're in!", 'success')
         else:
             flash("You're already signed up for that session.", 'info')
