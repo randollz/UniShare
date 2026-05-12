@@ -95,7 +95,7 @@
 {% block content %}
 <div class="detail-wrap">
 
-  <a href="{{ url_for('marketplace') }}" class="detail-back">
+  <a href="{{ url_for('listings.marketplace') }}" class="detail-back">
     <i class="fa-solid fa-arrow-left"></i> Back to marketplace
   </a>
 
@@ -156,10 +156,10 @@
       </div>
 
       <div class="detail-actions">
-        <a href="{{ url_for('messages_thread', other_id=listing.seller_id) }}" class="btn-action btn-primary">
+        <a href="{{ url_for('messages.messages_thread', other_id=listing.seller_id) }}" class="btn-action btn-primary">
           <i class="fa-solid fa-envelope"></i> Contact seller
         </a>
-        <a href="{{ url_for('marketplace') }}" class="btn-action btn-ghost">Back to marketplace</a>
+        <a href="{{ url_for('listings.marketplace') }}" class="btn-action btn-ghost">Back to marketplace</a>
       </div>
 
       <!-- Comment thread -->
@@ -174,7 +174,7 @@
                 {{ c.author.first_name }} {{ c.author.last_name }}
                 <span class="comment-time">{{ c.created_at.strftime('%b %d') }}</span>
                 {% if c.author_id == current_user.id %}
-                <button class="comment-del" data-url="{{ url_for('delete_listing_comment', comment_id=c.id) }}"
+                <button class="comment-del" data-url="{{ url_for('listings.delete_listing_comment', comment_id=c.id) }}"
                         data-target="lc-{{ c.id }}">Delete</button>
                 {% endif %}
               </div>
@@ -187,7 +187,7 @@
         <div class="comment-compose">
           <textarea id="listing-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
           <button type="button" id="listing-comment-btn"
-                  data-url="{{ url_for('listing_comment', listing_id=listing.id) }}">Reply</button>
+                  data-url="{{ url_for('listings.listing_comment', listing_id=listing.id) }}">Reply</button>
         </div>
         {% endif %}
       </div>

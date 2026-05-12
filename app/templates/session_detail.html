@@ -113,7 +113,7 @@
 {% block content %}
 <div class="detail-wrap">
 
-  <a href="{{ url_for('study_sessions') }}" class="detail-back">
+  <a href="{{ url_for('sessions.study_sessions') }}" class="detail-back">
     <i class="fa-solid fa-arrow-left"></i> Back to study sessions
   </a>
 
@@ -174,7 +174,7 @@
         <div class="detail-section-label">Attendees ({{ rsvps|length }})</div>
         <div class="attendees-list">
           {% for rsvp in rsvps %}
-          <a href="{{ url_for('profile', user_id=rsvp.user_id) }}" class="attendee-chip">
+          <a href="{{ url_for('users.profile', user_id=rsvp.user_id) }}" class="attendee-chip">
             <div class="attendee-av-sm">{{ rsvp.user.first_name[0] }}{{ rsvp.user.last_name[0] }}</div>
             {{ rsvp.user.first_name }} {{ rsvp.user.last_name[0] }}.
           </a>
@@ -187,7 +187,7 @@
         {% if is_host %}
         <span class="btn-action btn-ghost" style="cursor:default;"><i class="fa-solid fa-star"></i> You're hosting</span>
         {% elif is_rsvped %}
-        <form method="POST" action="{{ url_for('cancel_rsvp', session_id=session.id) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('sessions.cancel_rsvp', session_id=session.id) }}" style="display:inline;">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="btn-action btn-cancel-rsvp">
             <i class="fa-solid fa-xmark"></i> Cancel RSVP
@@ -196,14 +196,14 @@
         {% elif session.attendee_count() >= session.max_attendees %}
         <span class="btn-action btn-ghost" style="cursor:default;color:#dc2626;border-color:#fca5a5;">Session full</span>
         {% else %}
-        <form method="POST" action="{{ url_for('rsvp_session', session_id=session.id) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('sessions.rsvp_session', session_id=session.id) }}" style="display:inline;">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="btn-action btn-join">
             <i class="fa-solid fa-arrow-right"></i> Join session
           </button>
         </form>
         {% endif %}
-        <a href="{{ url_for('study_sessions') }}" class="btn-action btn-ghost">Back to sessions</a>
+        <a href="{{ url_for('sessions.study_sessions') }}" class="btn-action btn-ghost">Back to sessions</a>
       </div>
 
       <!-- Comment thread -->
@@ -218,7 +218,7 @@
                 {{ c.author.first_name }} {{ c.author.last_name }}
                 <span class="comment-time">{{ c.created_at.strftime('%b %d') }}</span>
                 {% if c.author_id == current_user.id %}
-                <button class="comment-del" data-url="{{ url_for('delete_session_comment', comment_id=c.id) }}"
+                <button class="comment-del" data-url="{{ url_for('sessions.delete_session_comment', comment_id=c.id) }}"
                         data-target="sc-{{ c.id }}">Delete</button>
                 {% endif %}
               </div>
@@ -231,7 +231,7 @@
         <div class="comment-compose">
           <textarea id="session-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
           <button type="button" id="session-comment-btn"
-                  data-url="{{ url_for('session_comment', session_id=session.id) }}">Reply</button>
+                  data-url="{{ url_for('sessions.session_comment', session_id=session.id) }}">Reply</button>
         </div>
         {% endif %}
       </div>

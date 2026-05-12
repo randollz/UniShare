@@ -140,10 +140,10 @@
 <body>
 
   <nav class="nav">
-    <a href="{{ url_for('index') }}" class="nav-logo">UniShare<span>.</span></a>
+    <a href="{{ url_for('main.index') }}" class="nav-logo">UniShare<span>.</span></a>
     <div class="nav-btns">
-      <a href="{{ url_for('login') }}" class="btn btn-ghost">Log in</a>
-      <a href="{{ url_for('login') }}#signup" class="btn btn-dark">Sign up</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Log in</a>
+      <a href="{{ url_for('auth.login') }}#signup" class="btn btn-dark">Sign up</a>
     </div>
   </nav>
 
@@ -176,7 +176,7 @@
           Continue with UWA SSO
         </div>
         <div class="auth-divider"><span>or sign in with email</span></div>
-        <form method="POST" action="{{ url_for('login') }}">
+        <form method="POST" action="{{ url_for('auth.login') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="action" value="login" />
           <div class="field">
@@ -191,7 +191,7 @@
           <button type="submit" class="btn-submit">Sign in</button>
         </form>
         <p class="auth-terms">
-          By continuing you agree to our <a href="{{ url_for('privacy') }}">Terms</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a>.
+          By continuing you agree to our <a href="{{ url_for('main.privacy') }}">Terms</a> and <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>.
         </p>
       </div>
 
@@ -202,7 +202,7 @@
           Sign up with UWA SSO
         </div>
         <div class="auth-divider"><span>or create an account</span></div>
-        <form method="POST" action="{{ url_for('login') }}">
+        <form method="POST" action="{{ url_for('auth.login') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="action" value="register" />
           <div class="field-row">
@@ -226,14 +226,14 @@
           <button type="submit" class="btn-submit">Create account</button>
         </form>
         <p class="auth-terms">
-          By continuing you agree to our <a href="{{ url_for('privacy') }}">Terms</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a>.
+          By continuing you agree to our <a href="{{ url_for('main.privacy') }}">Terms</a> and <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>.
         </p>
       </div>
     </div>
   </main>
 
   <footer class="page-footer">
-    &copy; 2025 UniShare &middot; <a href="{{ url_for('about') }}">Help</a> &middot; <a href="{{ url_for('privacy') }}">Privacy</a>
+    &copy; 2025 UniShare &middot; <a href="{{ url_for('main.about') }}">Help</a> &middot; <a href="{{ url_for('main.privacy') }}">Privacy</a>
   </footer>
 
   <script>

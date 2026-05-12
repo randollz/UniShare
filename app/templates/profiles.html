@@ -272,7 +272,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
         <div class="plc-title">{{ l.title }}</div>
         <div class="plc-footer">
           <span class="plc-price">${{ "%.0f"|format(l.price) }}</span>
-          <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="plc-link">
+          <a href="{{ url_for('listings.view_listing', listing_id=l.id) }}" class="plc-link">
             <i class="fa-solid fa-eye" style="font-size:.7rem;margin-right:4px;"></i>View
           </a>
         </div>
@@ -310,7 +310,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
         </div>
       </div>
       <div class="p-note-actions">
-        <a href="{{ url_for('view_note', note_id=n.id) }}" class="p-note-view">
+        <a href="{{ url_for('notes.view_note', note_id=n.id) }}" class="p-note-view">
           <i class="fa-solid fa-eye" style="font-size:.7rem;margin-right:4px;"></i>View
         </a>
       </div>
@@ -362,7 +362,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   </div>
 
   {% if current_user and current_user.id != profile_user.id %}
-  <a href="{{ url_for('messages') }}" class="rcard" style="display:block;text-decoration:none;transition:box-shadow var(--t);">
+  <a href="{{ url_for('messages.messages') }}" class="rcard" style="display:block;text-decoration:none;transition:box-shadow var(--t);">
     <div class="rcard-title">Send a Message</div>
     <div style="font-size:0.82rem;color:var(--mid);margin-bottom:12px;">Reach out about a listing or study group.</div>
     <div style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;background:var(--dark);color:#fff;font-size:0.8rem;font-weight:700;width:fit-content;">

@@ -318,7 +318,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
   <div class="leaderboard-list">
     {% for u in users %}
     {% set is_me = current_user and u.id == current_user.id %}
-    <a href="{{ url_for('profile', user_id=u.id) }}"
+    <a href="{{ url_for('users.profile', user_id=u.id) }}"
        class="rank-row {{ 'you' if is_me else '' }}">
       <div class="rank-num">{{ loop.index }}</div>
       <div class="rank-av" style="background:{{ av_colors[loop.index0 % av_colors|length] }};">
@@ -396,7 +396,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
       <div class="tip-text">
         Upload notes, host study sessions, and help others to earn XP and climb the leaderboard.
       </div>
-      <a href="{{ url_for('create_note') }}" class="tip-btn">
+      <a href="{{ url_for('notes.create_note') }}" class="tip-btn">
         <i class="fa fa-bolt"></i>
         Upload notes
       </a>

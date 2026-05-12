@@ -142,7 +142,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="empty-state">
     <i class="fa-solid fa-bell-slash"></i>
     <h3>No activity yet</h3>
-    <p>Start by <a href="{{ url_for('dashboard') }}">sharing a post</a> or joining a study session.</p>
+    <p>Start by <a href="{{ url_for('feed.dashboard') }}">sharing a post</a> or joining a study session.</p>
   </div>
   {% endif %}
 </div>
@@ -175,7 +175,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="mkt-cta">
     <h3>Keep it up!</h3>
     <p>Every post, comment, and session earns you XP toward the next rank.</p>
-    <a href="{{ url_for('leaderboard') }}" class="btn-mkt"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
+    <a href="{{ url_for('main.leaderboard') }}" class="btn-mkt"><i class="fa-solid fa-trophy"></i> Leaderboard</a>
   </div>
 
   <div class="rcard" style="padding:12px 14px;">

@@ -31,38 +31,38 @@
       <input type="text" placeholder="Search units, notes, listings…" />
     </div>
     <nav class="tb-nav">
-      <a href="{{ url_for('dashboard') }}"
+      <a href="{{ url_for('feed.dashboard') }}"
          class="tb-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
         <i class="fa-solid fa-house"></i> Feed
       </a>
-      <a href="{{ url_for('marketplace') }}"
+      <a href="{{ url_for('listings.marketplace') }}"
          class="tb-nav-item {% if request.endpoint in ['marketplace','view_listing'] %}active{% endif %}">
         <i class="fa-solid fa-tag"></i> Marketplace
       </a>
-      <a href="{{ url_for('notes') }}"
+      <a href="{{ url_for('notes.notes') }}"
          class="tb-nav-item {% if request.endpoint in ['notes','view_note'] %}active{% endif %}">
         <i class="fa-solid fa-file-lines"></i> Notes
       </a>
-      <a href="{{ url_for('study_sessions') }}"
+      <a href="{{ url_for('sessions.study_sessions') }}"
          class="tb-nav-item {% if request.endpoint == 'study_sessions' %}active{% endif %}">
         <i class="fa-solid fa-users"></i> Sessions
       </a>
-      <a href="{{ url_for('bounties') }}"
+      <a href="{{ url_for('bounties.bounties') }}"
          class="tb-nav-item {% if request.endpoint in ['bounties','view_bounty'] %}active{% endif %}">
         <i class="fa-solid fa-bolt"></i> Bounties
       </a>
     </nav>
     <div class="tb-right">
       {% if current_user %}
-        <a href="{{ url_for('messages') }}" class="tb-icon-btn" style="position:relative;">
+        <a href="{{ url_for('messages.messages') }}" class="tb-icon-btn" style="position:relative;">
           <i class="fa-solid fa-envelope"></i>
           {% if unread_count %}<span class="tb-badge">{{ unread_count }}</span>{% endif %}
         </a>
-        <a href="{{ url_for('profile', user_id=current_user.id) }}" class="tb-av">
+        <a href="{{ url_for('users.profile', user_id=current_user.id) }}" class="tb-av">
           {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
         </a>
       {% else %}
-        <a href="{{ url_for('login') }}" class="tb-nav-item">Sign in</a>
+        <a href="{{ url_for('auth.login') }}" class="tb-nav-item">Sign in</a>
       {% endif %}
     </div>
   </header>
@@ -103,55 +103,55 @@
       </div>
       {% endif %}
       <div class="sb-nav-card">
-        <a href="{{ url_for('dashboard') }}"
+        <a href="{{ url_for('feed.dashboard') }}"
            class="sb-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
           <i class="fa-solid fa-house"></i> Feed
         </a>
-        <a href="{{ url_for('marketplace') }}"
+        <a href="{{ url_for('listings.marketplace') }}"
            class="sb-link {% if request.endpoint in ['marketplace','view_listing'] %}active{% endif %}">
           <i class="fa-solid fa-tag"></i> Marketplace
         </a>
-        <a href="{{ url_for('notes') }}"
+        <a href="{{ url_for('notes.notes') }}"
            class="sb-link {% if request.endpoint in ['notes','view_note'] %}active{% endif %}">
           <i class="fa-solid fa-file-lines"></i> Notes
         </a>
-        <a href="{{ url_for('study_sessions') }}"
+        <a href="{{ url_for('sessions.study_sessions') }}"
            class="sb-link {% if request.endpoint == 'study_sessions' %}active{% endif %}">
           <i class="fa-solid fa-users"></i> Study Sessions
         </a>
-        <a href="{{ url_for('bounties') }}"
+        <a href="{{ url_for('bounties.bounties') }}"
            class="sb-link {% if request.endpoint in ['bounties','view_bounty'] %}active{% endif %}">
           <i class="fa-solid fa-bolt"></i> Bounties
         </a>
         {% if current_user %}
-        <a href="{{ url_for('messages') }}"
+        <a href="{{ url_for('messages.messages') }}"
            class="sb-link {% if request.endpoint in ['messages','messages_thread'] %}active{% endif %}">
           <i class="fa-solid fa-envelope"></i> Messages
           {% if unread_count %}
           <span style="margin-left:auto;background:#ef4444;color:#fff;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:99px;">{{ unread_count }}</span>
           {% endif %}
         </a>
-        <a href="{{ url_for('leaderboard') }}"
+        <a href="{{ url_for('main.leaderboard') }}"
            class="sb-link {% if request.endpoint == 'leaderboard' %}active{% endif %}">
           <i class="fa-solid fa-trophy"></i> Leaderboard
         </a>
-        <a href="{{ url_for('activity') }}"
+        <a href="{{ url_for('users.activity') }}"
            class="sb-link {% if request.endpoint == 'activity' %}active{% endif %}">
           <i class="fa-solid fa-bell"></i> Activity
         </a>
-        <a href="{{ url_for('library') }}"
+        <a href="{{ url_for('notes.library') }}"
            class="sb-link {% if request.endpoint == 'library' %}active{% endif %}">
           <i class="fa-solid fa-bookmark"></i> Library
         </a>
-        <a href="{{ url_for('my_listings_page') }}"
+        <a href="{{ url_for('users.my_listings_page') }}"
            class="sb-link {% if request.endpoint == 'my_listings_page' %}active{% endif %}">
           <i class="fa-solid fa-store"></i> My Listings
         </a>
-        <a href="{{ url_for('settings') }}"
+        <a href="{{ url_for('users.settings') }}"
            class="sb-link {% if request.endpoint == 'settings' %}active{% endif %}">
           <i class="fa-solid fa-gear"></i> Settings
         </a>
-        <a href="{{ url_for('logout') }}" class="sb-link">
+        <a href="{{ url_for('auth.logout') }}" class="sb-link">
           <i class="fa-solid fa-right-from-bracket"></i> Log out
         </a>
         {% endif %}
