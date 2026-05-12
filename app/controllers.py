@@ -6,7 +6,7 @@ import datetime
 from app.extensions import db
 from app.models import (Listing, Note, StudySession, SessionRSVP,
                         Bounty, Rating, Message, User)
-from validators import (validate_required_text, validate_optional_text,
+from app.validators import (validate_required_text, validate_optional_text,
                         validate_unit_code, validate_price, validate_positive_int,
                         validate_session_date, validate_choice, LISTING_CONDITIONS)
 

@@ -9,7 +9,7 @@ Tests are grouped by validator.
 """
 
 import pytest
-from validators import (
+from app.validators import (
     validate_required_text,
     validate_optional_text,
     validate_price,
