@@ -12,7 +12,7 @@ from app.models import (User, Listing, Note, StudySession, SessionRSVP,
                         Bounty, SavedListing, SavedNote, Rating, Message, Post, PostLike, PostComment,
                         ListingImage, ListingComment, BountyComment, SessionComment)
 from app import controllers
-from validators import LISTING_CONDITIONS
+from app.validators import LISTING_CONDITIONS
 
 
 def register_routes(app):

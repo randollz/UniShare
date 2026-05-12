@@ -1,14 +1,7 @@
-import sys
-import os
-
 from flask import Flask
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# Allow importing database.py and validators.py from the project root.
-# This shim is removed once the ORM layer replaces raw SQL (feature/orm-routes).
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from app.config import Config
 from app.extensions import db, migrate, login_manager, csrf
