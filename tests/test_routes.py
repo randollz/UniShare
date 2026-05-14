@@ -896,3 +896,74 @@ class TestBountyComments(unittest.TestCase):
         self.assertTrue(rv2.get_json()['ok'], "Comment deletion should return ok=True")
         with self.app.app_context():
             self.assertIsNone(BountyComment.query.get(cid), "Deleted comment should not exist in the database")
+
+
+# ── Universal search ──────────────────────────────────────────────────────────
+
+class TestSearch(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(config_class=TestConfig)
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+        _db.create_all()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        _db.session.remove()
+        _db.drop_all()
+        self.ctx.pop()
+
+    def _make_listing(self, uid, title='Unique Listing Title', unit='CITS1401'):
+        l = Listing(title=title, description='Search test description',
+                    unit_code=unit, price=10.0, condition='Good', seller_id=uid)
+        _db.session.add(l)
+        _db.session.commit()
+        return l.id
+
+    def _make_note(self, uid, title='Unique Note Title', unit='CITS2200'):
+        n = Note(title=title, description='Search test note desc',
+                 unit_code=unit, semester='S1', author_id=uid)
+        _db.session.add(n)
+        _db.session.commit()
+        return n.id
+
+    def test_search_page_loads(self):
+        _register_and_login(self.client, self.app, email='search_a@example.com')
+        rv = self.client.get('/search')
+        self.assertEqual(rv.status_code, 200, "GET /search should return 200")
+
+    def test_search_empty_query_is_graceful(self):
+        _register_and_login(self.client, self.app, email='search_b@example.com')
+        rv = self.client.get('/search?q=')
+        self.assertEqual(rv.status_code, 200, "Empty query should still return 200")
+        self.assertNotIn(b'No results', rv.data,
+                         "Empty query should not show 'No results' empty-state message")
+
+    def test_search_returns_matching_listing(self):
+        uid = _register_and_login(self.client, self.app, email='search_c@example.com')
+        self._make_listing(uid, title='Quantum Physics Textbook')
+        rv = self.client.get('/search?q=Quantum+Physics')
+        self.assertEqual(rv.status_code, 200, "Search page should return 200")
+        self.assertIn(b'Quantum Physics Textbook', rv.data,
+                      "Matching listing title should appear in search results")
+
+    def test_search_returns_matching_note(self):
+        uid = _register_and_login(self.client, self.app, email='search_d@example.com')
+        self._make_note(uid, title='Algorithms Lecture Notes')
+        rv = self.client.get('/search?q=Algorithms+Lecture')
+        self.assertEqual(rv.status_code, 200, "Search page should return 200")
+        self.assertIn(b'Algorithms Lecture Notes', rv.data,
+                      "Matching note title should appear in search results")
+
+    def test_search_no_results_shows_empty_state(self):
+        _register_and_login(self.client, self.app, email='search_e@example.com')
+        rv = self.client.get('/search?q=xyznosuchthing99999')
+        self.assertEqual(rv.status_code, 200, "Search page should return 200 even with no results")
+        self.assertIn(b'No results', rv.data,
+                      "Zero-result search should show the empty-state message")
+
+    def test_search_requires_login(self):
+        self.client.get('/logout')
+        rv = self.client.get('/search?q=test', follow_redirects=False)
+        self.assertIn(rv.status_code, (301, 302),
+                      "Unauthenticated search request should redirect to login")
