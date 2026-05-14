@@ -279,7 +279,7 @@
   <!-- Compose -->
   <div class="compose-card">
     <h2>Share something</h2>
-    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form">
+    <form method="POST" action="{{ url_for('feed.feed_create') }}" id="compose-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <textarea class="compose-textarea" name="body" id="compose-body"
                 placeholder="What's on your mind? Share a note, event, or update…"
@@ -316,7 +316,7 @@
         <div class="post-header">
           <div class="post-av">{{ initials }}</div>
           <div class="post-meta">
-            <a href="{{ url_for('profile', user_id=post.author_id) }}" class="post-author">
+            <a href="{{ url_for('users.profile', user_id=post.author_id) }}" class="post-author">
               {{ post.author.first_name }} {{ post.author.last_name }}
             </a>
             <div class="post-time">{{ post.created_at.strftime('%b %d, %Y · %I:%M %p') }}</div>
@@ -343,7 +343,7 @@
           </button>
 
           {% if post.author_id == current_user.id %}
-            <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
+            <form method="POST" action="{{ url_for('feed.feed_delete', post_id=post.id) }}"
                   style="margin-left:auto;"
                   class="js-confirm-delete" data-confirm-message="Delete this post? This cannot be undone.">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -383,7 +383,7 @@
     <h3>Top Notes This Week</h3>
     {% if top_notes %}
       {% for note in top_notes %}
-        <a href="{{ url_for('view_note', note_id=note.id) }}" class="trend-item">
+        <a href="{{ url_for('notes.view_note', note_id=note.id) }}" class="trend-item">
           {{ note.title }}
           <span class="trend-sub">{{ note.unit_code }} · {{ note.upvotes }} upvotes</span>
         </a>
@@ -397,7 +397,7 @@
     <h3>Popular Sessions</h3>
     {% if top_sessions %}
       {% for s in top_sessions %}
-        <a href="{{ url_for('view_session', session_id=s.id) }}" class="trend-item">
+        <a href="{{ url_for('sessions.view_session', session_id=s.id) }}" class="trend-item">
           {{ s.title }}
           <span class="trend-sub">{{ s.unit_code }} · {{ s.attendee_count() }} attending</span>
         </a>

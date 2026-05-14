@@ -260,10 +260,10 @@ details.roster[open] summary::before { transform: rotate(90deg); }
           </span>
         </div>
         <div class="lc-actions">
-          <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="btn-view">
+          <a href="{{ url_for('listings.view_listing', listing_id=l.id) }}" class="btn-view">
             <i class="fa-solid fa-eye"></i> View
           </a>
-          <form action="{{ url_for('delete_listing', listing_id=l.id) }}" method="post" style="display:inline;">
+          <form action="{{ url_for('listings.delete_listing', listing_id=l.id) }}" method="post" style="display:inline;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="btn-del">
               <i class="fa-solid fa-trash"></i> Delete
@@ -277,7 +277,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
     <div class="empty-state">
       <i class="fa-solid fa-tag"></i>
       <h3>No listings yet</h3>
-      <p><a href="{{ url_for('create_listing') }}">Post your first listing</a> and earn XP when it sells.</p>
+      <p><a href="{{ url_for('listings.create_listing') }}">Post your first listing</a> and earn XP when it sells.</p>
     </div>
     {% endif %}
 
@@ -295,7 +295,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
           </div>
         </div>
         <div class="saved-card-price">${{ '%.2f' % l.price }}</div>
-        <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="btn-view">
+        <a href="{{ url_for('listings.view_listing', listing_id=l.id) }}" class="btn-view">
           <i class="fa-solid fa-eye"></i> View
         </a>
       </div>
@@ -342,7 +342,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
         {% endif %}
         <div class="lc-actions">
           {% if rsvp_count == 0 %}
-          <form action="{{ url_for('delete_session', session_id=s.id) }}" method="post" style="display:inline;">
+          <form action="{{ url_for('sessions.delete_session', session_id=s.id) }}" method="post" style="display:inline;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="btn-del">
               <i class="fa-solid fa-trash"></i> Delete
@@ -361,7 +361,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
     <div class="empty-state">
       <i class="fa-solid fa-users"></i>
       <h3>No sessions hosted yet</h3>
-      <p><a href="{{ url_for('create_session') }}">Create your first session</a> and earn XP when students join.</p>
+      <p><a href="{{ url_for('sessions.create_session') }}">Create your first session</a> and earn XP when students join.</p>
     </div>
     {% endif %}
   </div>
@@ -392,11 +392,11 @@ details.roster[open] summary::before { transform: rotate(90deg); }
         </div>
         {% endif %}
         <div class="lc-actions">
-          <a href="{{ url_for('view_bounty', bounty_id=b.id) }}" class="btn-view">
+          <a href="{{ url_for('bounties.view_bounty', bounty_id=b.id) }}" class="btn-view">
             <i class="fa-solid fa-eye"></i> View
           </a>
           {% if b.status == 'open' %}
-          <form action="{{ url_for('delete_bounty', bounty_id=b.id) }}" method="post" style="display:inline;">
+          <form action="{{ url_for('bounties.delete_bounty', bounty_id=b.id) }}" method="post" style="display:inline;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="btn-del">
               <i class="fa-solid fa-trash"></i> Delete
@@ -411,7 +411,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
     <div class="empty-state">
       <i class="fa-solid fa-bolt"></i>
       <h3>No bounties posted yet</h3>
-      <p><a href="{{ url_for('create_bounty') }}">Post a bounty</a> to get help from fellow students.</p>
+      <p><a href="{{ url_for('bounties.create_bounty') }}">Post a bounty</a> to get help from fellow students.</p>
     </div>
     {% endif %}
   </div>
@@ -446,7 +446,7 @@ details.roster[open] summary::before { transform: rotate(90deg); }
   <div class="mkt-cta">
     <h3>Keep growing</h3>
     <p>Post listings, host sessions, and claim bounties to earn XP and climb the leaderboard.</p>
-    <a href="{{ url_for('create_listing') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> New Listing</a>
+    <a href="{{ url_for('listings.create_listing') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> New Listing</a>
   </div>
 
   <div class="rcard" style="padding:12px 14px;">

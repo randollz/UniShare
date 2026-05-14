@@ -206,7 +206,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
 {% block content %}
 <div class="detail-wrap">
 
-  <a href="{{ url_for('notes') }}" class="detail-back">
+  <a href="{{ url_for('notes.notes') }}" class="detail-back">
     <i class="fa-solid fa-arrow-left"></i> Back to notes
   </a>
 
@@ -276,7 +276,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <!-- Actions -->
     <div class="detail-actions">
       {% if current_user and current_user.is_authenticated %}
-      <form method="POST" action="{{ url_for('upvote_note', note_id=note.id) }}" style="display:inline;">
+      <form method="POST" action="{{ url_for('notes.upvote_note', note_id=note.id) }}" style="display:inline;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <button type="submit" class="btn-action btn-upvote">
           <i class="fa-solid fa-arrow-up"></i> Upvote
@@ -284,7 +284,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
       </form>
       {% endif %}
 
-      <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-action btn-download">
+      <a href="{{ url_for('notes.download_note', note_id=note.id) }}" class="btn-action btn-download">
         <i class="fa-solid fa-download"></i>
         Download{% if note.file_path %} ({{ note.file_name.rsplit('.', 1)[-1].upper() if note.file_name else 'File' }}){% endif %}
       </a>
@@ -297,7 +297,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
       </button>
       {% endif %}
 
-      <a href="{{ url_for('notes') }}" class="btn-action btn-ghost">All notes</a>
+      <a href="{{ url_for('notes.notes') }}" class="btn-action btn-ghost">All notes</a>
     </div>
 
   </div>
@@ -332,7 +332,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="rcard">
     <div class="rcard-title">More from {{ note.author.first_name }}</div>
     {% for r in related %}
-    <a href="{{ url_for('view_note', note_id=r.id) }}" class="related-item">
+    <a href="{{ url_for('notes.view_note', note_id=r.id) }}" class="related-item">
       <div class="related-thumb">
         {% if r.cover_image %}
         <img src="{{ url_for('static', filename=r.cover_image) }}"
@@ -353,7 +353,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="mkt-cta">
     <h3>Share your notes</h3>
     <p>Help students like you and earn XP by uploading your summaries and study sheets.</p>
-    <a href="{{ url_for('create_note') }}" class="btn-mkt">
+    <a href="{{ url_for('notes.create_note') }}" class="btn-mkt">
       <i class="fa-solid fa-plus"></i> Upload Notes
     </a>
   </div>

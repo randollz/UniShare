@@ -140,10 +140,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
           · {{ note.upvotes }} upvote{{ 's' if note.upvotes != 1 }}
         </div>
         <div class="nc-actions">
-          <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-dl">
+          <a href="{{ url_for('notes.download_note', note_id=note.id) }}" class="btn-dl">
             <i class="fa-solid fa-download"></i> Download
           </a>
-          <a href="{{ url_for('view_note', note_id=note.id) }}" class="btn-unsave" style="text-decoration:none;">
+          <a href="{{ url_for('notes.view_note', note_id=note.id) }}" class="btn-unsave" style="text-decoration:none;">
             <i class="fa-solid fa-eye"></i> View
           </a>
           <button class="btn-unsave" onclick="unsaveNote({{ note.id }}, this)">
@@ -157,7 +157,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <div class="empty-state">
       <i class="fa-solid fa-bookmark"></i>
       <h3>No saved notes yet</h3>
-      <p>Browse the <a href="{{ url_for('notes') }}">Notes Hub</a> and bookmark notes you want to revisit.</p>
+      <p>Browse the <a href="{{ url_for('notes.notes') }}">Notes Hub</a> and bookmark notes you want to revisit.</p>
     </div>
     {% endif %}
   </div>
@@ -175,10 +175,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
           {% if note.semester %} · {{ note.semester }}{% endif %}
         </div>
         <div class="nc-actions">
-          <a href="{{ url_for('download_note', note_id=note.id) }}" class="btn-dl">
+          <a href="{{ url_for('notes.download_note', note_id=note.id) }}" class="btn-dl">
             <i class="fa-solid fa-download"></i> Download
           </a>
-          <a href="{{ url_for('view_note', note_id=note.id) }}" class="btn-unsave" style="text-decoration:none;">
+          <a href="{{ url_for('notes.view_note', note_id=note.id) }}" class="btn-unsave" style="text-decoration:none;">
             <i class="fa-solid fa-eye"></i> View
           </a>
         </div>
@@ -189,7 +189,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     <div class="empty-state">
       <i class="fa-solid fa-file-lines"></i>
       <h3>You haven't shared any notes yet</h3>
-      <p><a href="{{ url_for('create_note') }}">Upload your first note</a> and earn XP.</p>
+      <p><a href="{{ url_for('notes.create_note') }}">Upload your first note</a> and earn XP.</p>
     </div>
     {% endif %}
   </div>
@@ -215,7 +215,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="mkt-cta">
     <h3>Share your notes</h3>
     <p>Help other students and earn XP by uploading your summaries and study sheets.</p>
-    <a href="{{ url_for('create_note') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> Upload Notes</a>
+    <a href="{{ url_for('notes.create_note') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> Upload Notes</a>
   </div>
 
   <div class="rcard" style="padding:12px 14px;">

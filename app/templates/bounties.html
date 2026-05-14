@@ -122,7 +122,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       <div class="phc-sub">Earn XP by completing student requests</div>
     </div>
     {% if current_user %}
-    <a href="{{ url_for('create_bounty') }}" class="btn-post">
+    <a href="{{ url_for('bounties.create_bounty') }}" class="btn-post">
       <i class="fa-solid fa-plus"></i> Post Bounty
     </a>
     {% endif %}
@@ -150,7 +150,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
             {{ b.poster.first_name[0] }}{{ b.poster.last_name[0] }}
           </div>
           <div>
-            <a href="{{ url_for('profile', user_id=b.poster_id) }}" class="bc-poster-name">
+            <a href="{{ url_for('users.profile', user_id=b.poster_id) }}" class="bc-poster-name">
               {{ b.poster.first_name }} {{ b.poster.last_name[0] }}.
             </a>
             <div class="bc-poster-detail">Posted a bounty</div>
@@ -172,21 +172,21 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
       <div class="bc-footer">
         {% if current_user and current_user.id != b.poster_id %}
-        <form method="POST" action="{{ url_for('claim_bounty', bounty_id=b.id) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('bounties.claim_bounty', bounty_id=b.id) }}" style="display:inline;">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="bc-btn-offer">
             <i class="fa-solid fa-hand-holding-dollar"></i> Claim Bounty
           </button>
         </form>
         {% elif not current_user %}
-        <a href="{{ url_for('login') }}" class="bc-btn-offer">Sign in to claim</a>
+        <a href="{{ url_for('auth.login') }}" class="bc-btn-offer">Sign in to claim</a>
         {% else %}
         <span style="font-size:.78rem;color:var(--muted);">Your bounty</span>
         {% endif %}
-        <a href="{{ url_for('view_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="View detail">
+        <a href="{{ url_for('bounties.view_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="View detail">
           <i class="fa-regular fa-eye"></i>
         </a>
-        <a href="{{ url_for('download_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="Download as text">
+        <a href="{{ url_for('bounties.download_bounty', bounty_id=b.id) }}" class="bc-action-btn" title="Download as text">
           <i class="fa-solid fa-download"></i>
         </a>
       </div>
@@ -198,7 +198,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="empty-state">
     <p>No open bounties right now.</p>
     {% if current_user %}
-    <a href="{{ url_for('create_bounty') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+    <a href="{{ url_for('bounties.create_bounty') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
       <i class="fa-solid fa-plus"></i> Post the first one
     </a>
     {% endif %}
@@ -228,7 +228,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="cta-card">
     <div class="cta-title">Got a task?</div>
     <div class="cta-sub">Post a bounty and let other students help you out for a reward.</div>
-    <a href="{{ url_for('create_bounty') }}" class="cta-btn">
+    <a href="{{ url_for('bounties.create_bounty') }}" class="cta-btn">
       <i class="fa-solid fa-plus"></i> Post a Bounty
     </a>
   </div>
@@ -236,7 +236,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="cta-card">
     <div class="cta-title">Join UniShare</div>
     <div class="cta-sub">Sign up to claim bounties, post tasks, and earn XP.</div>
-    <a href="{{ url_for('login') }}" class="cta-btn">Create account</a>
+    <a href="{{ url_for('auth.login') }}" class="cta-btn">Create account</a>
   </div>
   {% endif %}
 </aside>

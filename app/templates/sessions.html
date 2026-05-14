@@ -146,7 +146,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
         <div class="phc-sub">Find study groups, book tutors, or post a bounty for help you need</div>
       </div>
       {% if current_user %}
-      <a href="{{ url_for('create_session') }}" class="btn-post">
+      <a href="{{ url_for('sessions.create_session') }}" class="btn-post">
         <i class="fa-solid fa-plus"></i> Post Session
       </a>
       {% endif %}
@@ -161,14 +161,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     </div>
   </div>
 
-  <form class="filter-row" method="GET" action="{{ url_for('study_sessions') }}">
+  <form class="filter-row" method="GET" action="{{ url_for('sessions.study_sessions') }}">
     <div class="filter-search">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" name="unit" value="{{ unit }}" placeholder="Filter by unit code e.g. CITS3403" style="text-transform:uppercase" />
     </div>
     <button type="submit" class="btn-post" style="padding:8px 14px;">Filter</button>
     {% if unit %}
-    <a href="{{ url_for('study_sessions') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
+    <a href="{{ url_for('sessions.study_sessions') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
     {% endif %}
   </form>
 
@@ -195,7 +195,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       {% set _banner = _bmap.get(_uc, '') %}
       {% if s.image_path %}
       <div class="sc-banner">
-        <a href="{{ url_for('view_session', session_id=s.id) }}">
+        <a href="{{ url_for('sessions.view_session', session_id=s.id) }}">
           <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.title }}" loading="lazy"/>
         </a>
       </div>
@@ -213,7 +213,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
               {{ s.host.first_name[0] }}{{ s.host.last_name[0] }}
             </div>
             <div>
-              <a href="{{ url_for('profile', user_id=s.host_id) }}" class="sc-host-name">
+              <a href="{{ url_for('users.profile', user_id=s.host_id) }}" class="sc-host-name">
                 {{ s.host.first_name }} {{ s.host.last_name[0] }}.
               </a>
               <div class="sc-host-detail">Host · {{ s.rsvp_count }} attending</div>
@@ -276,14 +276,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
         <div class="sc-actions">
           {% if current_user and current_user.id != s.host_id %}
             {% if s.id in joined_ids %}
-            <form method="POST" action="{{ url_for('cancel_rsvp', session_id=s.id) }}" style="display:inline;">
+            <form method="POST" action="{{ url_for('sessions.cancel_rsvp', session_id=s.id) }}" style="display:inline;">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit" class="sc-btn sc-btn-ghost">
                 <i class="fa-solid fa-xmark"></i> Cancel RSVP
               </button>
             </form>
             {% else %}
-            <form method="POST" action="{{ url_for('rsvp_session', session_id=s.id) }}" style="display:inline;">
+            <form method="POST" action="{{ url_for('sessions.rsvp_session', session_id=s.id) }}" style="display:inline;">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit" class="sc-btn sc-btn-join">
                 <i class="fa-solid fa-arrow-right"></i> Join session
@@ -291,13 +291,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
             </form>
             {% endif %}
           {% elif not current_user %}
-          <a href="{{ url_for('login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
+          <a href="{{ url_for('auth.login') }}" class="sc-btn sc-btn-join">Sign in to join</a>
           {% else %}
           <span class="sc-btn" style="background:#f0f1f5;color:var(--muted);cursor:default;">
             <i class="fa-solid fa-star"></i> You're hosting
           </span>
           {% endif %}
-          <a href="{{ url_for('view_session', session_id=s.id) }}" class="sc-btn sc-btn-ghost">
+          <a href="{{ url_for('sessions.view_session', session_id=s.id) }}" class="sc-btn sc-btn-ghost">
             Details
           </a>
         </div>
@@ -309,7 +309,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     <div class="empty-state">
       <p>No sessions yet{% if unit %} for {{ unit }}{% endif %}.</p>
       {% if current_user %}
-      <a href="{{ url_for('create_session') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+      <a href="{{ url_for('sessions.create_session') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
         <i class="fa-solid fa-plus"></i> Create the first one
       </a>
       {% endif %}
@@ -322,14 +322,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <span style="font-size:.83rem;color:var(--muted);">Open bounties from students</span>
       {% if current_user %}
-      <a href="{{ url_for('create_bounty') }}" class="btn-post" style="padding:8px 14px;">
+      <a href="{{ url_for('bounties.create_bounty') }}" class="btn-post" style="padding:8px 14px;">
         <i class="fa-solid fa-plus"></i> Post Bounty
       </a>
       {% endif %}
     </div>
     <div class="empty-state">
       <p>View all bounties on the dedicated board.</p>
-      <a href="{{ url_for('bounties') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+      <a href="{{ url_for('bounties.bounties') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
         <i class="fa-solid fa-bolt"></i> Go to Bounty Board
       </a>
     </div>
@@ -367,10 +367,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="cta-card">
     <div class="cta-title">Got something to offer?</div>
     <div class="cta-sub">Host a study session or post a bounty and earn XP helping your peers.</div>
-    <a href="{{ url_for('create_session') }}" class="cta-btn">
+    <a href="{{ url_for('sessions.create_session') }}" class="cta-btn">
       <i class="fa-solid fa-calendar-plus"></i> Post a session
     </a>
-    <a href="{{ url_for('create_bounty') }}" class="cta-btn">
+    <a href="{{ url_for('bounties.create_bounty') }}" class="cta-btn">
       <i class="fa-solid fa-bolt"></i> Create a bounty
     </a>
   </div>
@@ -378,7 +378,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
   <div class="cta-card">
     <div class="cta-title">Join UniShare</div>
     <div class="cta-sub">Sign up to RSVP to sessions, host your own, and earn XP.</div>
-    <a href="{{ url_for('login') }}" class="cta-btn">Create account</a>
+    <a href="{{ url_for('auth.login') }}" class="cta-btn">Create account</a>
   </div>
   {% endif %}
 </aside>

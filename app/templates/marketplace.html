@@ -186,7 +186,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
     <p>Buy and sell textbooks, notes, electronics and more — filtered to your units.</p>
   </div>
 
-  <form class="filter-bar" method="GET" action="{{ url_for('marketplace') }}">
+  <form class="filter-bar" method="GET" action="{{ url_for('listings.marketplace') }}">
     <div class="cat-tabs">
       <button type="submit" class="cat-tab active">All listings</button>
       <button type="submit" name="condition" value="New" class="cat-tab {% if condition == 'New' %}active{% endif %}">New</button>
@@ -214,14 +214,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
         <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Sort: Price ↓</option>
       </select>
       {% if current_user %}
-      <a href="{{ url_for('create_listing') }}" class="btn-post"><i class="fa-solid fa-plus"></i> Post listing</a>
+      <a href="{{ url_for('listings.create_listing') }}" class="btn-post"><i class="fa-solid fa-plus"></i> Post listing</a>
       {% endif %}
     </div>
   </form>
 
   <div class="results-meta">
     <span>Showing <strong>{{ listings|length }} listing{{ 's' if listings|length != 1 }}</strong></span>
-    {% if q or unit or condition %}<a href="{{ url_for('marketplace') }}" style="color:var(--muted);font-size:.75rem;">Clear filters ×</a>{% endif %}
+    {% if q or unit or condition %}<a href="{{ url_for('listings.marketplace') }}" style="color:var(--muted);font-size:.75rem;">Clear filters ×</a>{% endif %}
   </div>
 
   {% if listings %}
@@ -259,14 +259,14 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
         </div>
         {% if current_user %}
           {% if l.id in saved_ids %}
-          <form method="POST" action="{{ url_for('unsave_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+          <form method="POST" action="{{ url_for('listings.unsave_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lc-save lc-save-active" title="Saved (click to unsave)">
               <i class="fa-solid fa-bookmark"></i>
             </button>
           </form>
           {% else %}
-          <form method="POST" action="{{ url_for('save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
+          <form method="POST" action="{{ url_for('listings.save_listing', listing_id=l.id) }}" style="position:absolute;top:10px;right:10px;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lc-save" title="Save">
               <i class="fa-regular fa-bookmark"></i>
@@ -283,10 +283,10 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
         <div class="lc-price-row">
           <span class="lc-price">${{ "%.0f"|format(l.price) }}</span>
           <div class="lc-actions">
-            <a href="{{ url_for('view_listing', listing_id=l.id) }}" class="lc-action-btn" title="View detail">
+            <a href="{{ url_for('listings.view_listing', listing_id=l.id) }}" class="lc-action-btn" title="View detail">
               <i class="fa-regular fa-eye"></i>
             </a>
-            <a href="{{ url_for('download_listing', listing_id=l.id) }}" class="lc-action-btn" title="Download as text">
+            <a href="{{ url_for('listings.download_listing', listing_id=l.id) }}" class="lc-action-btn" title="Download as text">
               <i class="fa-solid fa-download"></i>
             </a>
           </div>
@@ -296,13 +296,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
             {{ l.seller.first_name[0] }}
           </div>
           <div>
-            <a href="{{ url_for('profile', user_id=l.seller_id) }}" class="lc-seller-name" style="text-decoration:none;">
+            <a href="{{ url_for('users.profile', user_id=l.seller_id) }}" class="lc-seller-name" style="text-decoration:none;">
               {{ l.seller.first_name }} {{ l.seller.last_name[0] }}.
             </a>
             <div class="lc-seller-time">{{ l.unit_code }}</div>
           </div>
           {% if current_user and current_user.id == l.seller_id %}
-          <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}"
+          <form method="POST" action="{{ url_for('listings.delete_listing', listing_id=l.id) }}"
                 class="js-confirm-delete" data-confirm-message="Remove this listing? This cannot be undone."
                 style="margin-left:auto;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -322,7 +322,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
   <div class="empty-state">
     <p>No listings found{% if q or unit or condition %} for your search{% endif %}.</p>
     {% if current_user %}
-    <a href="{{ url_for('create_listing') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+    <a href="{{ url_for('listings.create_listing') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
       <i class="fa-solid fa-plus"></i> Post the first listing
     </a>
     {% endif %}
@@ -339,13 +339,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
   <div class="cta-post">
     <h3>Got something to sell?</h3>
     <p>Post a listing and reach every student enrolled in that unit.</p>
-    <a href="{{ url_for('create_listing') }}" class="btn-cta-post"><i class="fa-solid fa-plus"></i> Post a listing</a>
+    <a href="{{ url_for('listings.create_listing') }}" class="btn-cta-post"><i class="fa-solid fa-plus"></i> Post a listing</a>
   </div>
   {% else %}
   <div class="cta-post">
     <h3>Join UniShare</h3>
     <p>Sign up to post listings, save items, and connect with students in your units.</p>
-    <a href="{{ url_for('login') }}" class="btn-cta-post"><i class="fa-solid fa-user"></i> Create account</a>
+    <a href="{{ url_for('auth.login') }}" class="btn-cta-post"><i class="fa-solid fa-user"></i> Create account</a>
   </div>
   {% endif %}
 
@@ -382,7 +382,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 240px; }
         'linear-gradient(135deg,#1e1b4b,#6d28d9)',
         'linear-gradient(135deg,#1e3a5f,#7c3aed)'
       ] %}
-      <a href="{{ url_for('view_listing', listing_id=r.id) }}" class="sold-row" style="text-decoration:none; color:inherit;">
+      <a href="{{ url_for('listings.view_listing', listing_id=r.id) }}" class="sold-row" style="text-decoration:none; color:inherit;">
         <div class="sold-img" style="background: {{ rcolors[ridx] }};"><i class="fa-solid fa-book" style="font-size:.9rem;"></i></div>
         <div>
           <div class="sold-title">{{ r.title[:32] }}{% if r.title|length > 32 %}…{% endif %}</div>

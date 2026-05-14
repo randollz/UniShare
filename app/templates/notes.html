@@ -141,13 +141,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
       <p>Student summaries, cheat sheets and past papers — searchable by unit.</p>
     </div>
     {% if current_user %}
-    <a href="{{ url_for('create_note') }}" class="btn-post">
+    <a href="{{ url_for('notes.create_note') }}" class="btn-post">
       <i class="fa-solid fa-plus"></i> Share Notes
     </a>
     {% endif %}
   </div>
 
-  <form method="GET" action="{{ url_for('notes') }}" class="filter-row">
+  <form method="GET" action="{{ url_for('notes.notes') }}" class="filter-row">
     <div class="filter-search">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input type="text" name="q" value="{{ q }}" placeholder="Search by title or keyword…" />
@@ -163,7 +163,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
     </select>
     <button type="submit" class="btn-post">Search</button>
     {% if q or unit %}
-    <a href="{{ url_for('notes') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
+    <a href="{{ url_for('notes.notes') }}" class="btn-post" style="background:#f3f4f8;color:var(--mid);">Clear</a>
     {% endif %}
   </form>
 
@@ -206,7 +206,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
           </div>
           <div class="lib-title">{{ n.title }}</div>
           <div class="lib-sub">
-            by <a href="{{ url_for('profile', user_id=n.author_id) }}" style="color:inherit;">
+            by <a href="{{ url_for('users.profile', user_id=n.author_id) }}" style="color:inherit;">
               {{ n.author.first_name }} {{ n.author.last_name[0] }}.
             </a>
           </div>
@@ -219,15 +219,15 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
         </div>
         <div class="lib-actions">
           {% if current_user %}
-          <form method="POST" action="{{ url_for('upvote_note', note_id=n.id) }}">
+          <form method="POST" action="{{ url_for('notes.upvote_note', note_id=n.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <button type="submit" class="lib-btn"><i class="fa-solid fa-arrow-up"></i> Upvote</button>
           </form>
           {% endif %}
-          <a href="{{ url_for('view_note', note_id=n.id) }}" class="lib-btn">
+          <a href="{{ url_for('notes.view_note', note_id=n.id) }}" class="lib-btn">
             <i class="fa-solid fa-eye"></i> View
           </a>
-          <a href="{{ url_for('download_note', note_id=n.id) }}" class="lib-btn lib-btn-dl">
+          <a href="{{ url_for('notes.download_note', note_id=n.id) }}" class="lib-btn lib-btn-dl">
             <i class="fa-solid fa-download"></i> Download
           </a>
         </div>
@@ -240,7 +240,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="empty-state">
     <p>No notes found{% if q or unit %} for your search{% endif %}.</p>
     {% if current_user %}
-    <a href="{{ url_for('create_note') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
+    <a href="{{ url_for('notes.create_note') }}" class="btn-post" style="display:inline-flex;margin:0 auto;">
       <i class="fa-solid fa-plus"></i> Share the first notes
     </a>
     {% endif %}
@@ -270,13 +270,13 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 256px; }
   <div class="mkt-cta">
     <h3>Share your notes</h3>
     <p>Help other students and earn XP by uploading your summaries and cheat sheets.</p>
-    <a href="{{ url_for('create_note') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> Share Notes</a>
+    <a href="{{ url_for('notes.create_note') }}" class="btn-mkt"><i class="fa-solid fa-plus"></i> Share Notes</a>
   </div>
   {% else %}
   <div class="mkt-cta">
     <h3>Join UniShare</h3>
     <p>Sign up to share notes, upvote, and earn XP.</p>
-    <a href="{{ url_for('login') }}" class="btn-mkt"><i class="fa-solid fa-user"></i> Create account</a>
+    <a href="{{ url_for('auth.login') }}" class="btn-mkt"><i class="fa-solid fa-user"></i> Create account</a>
   </div>
   {% endif %}
 

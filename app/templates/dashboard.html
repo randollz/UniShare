@@ -209,7 +209,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
 
   <!-- Compose -->
   <div class="compose" id="compose-box">
-    <form method="POST" action="{{ url_for('feed_create') }}" id="compose-form"
+    <form method="POST" action="{{ url_for('feed.feed_create') }}" id="compose-form"
           enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
@@ -319,7 +319,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="my-listing-price">${{ '%.2f'|format(l.price) }}</span>
-        <form method="POST" action="{{ url_for('delete_listing', listing_id=l.id) }}" style="display:inline;"
+        <form method="POST" action="{{ url_for('listings.delete_listing', listing_id=l.id) }}" style="display:inline;"
               class="js-confirm-delete" data-confirm-message="Delete this listing? This cannot be undone.">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" style="border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:0.75rem;">
@@ -343,7 +343,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
           <div class="post-meta">
             <div class="post-av" style="background:{{ av_color }};">{{ initials }}</div>
             <div>
-              <a href="{{ url_for('profile', user_id=post.author_id) }}"
+              <a href="{{ url_for('users.profile', user_id=post.author_id) }}"
                  class="post-name" style="text-decoration:none;color:var(--dark);">
                 {{ post.author.first_name }} {{ post.author.last_name }}
               </a>
@@ -413,7 +413,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
             <span class="comment-count">{{ post.comments_count }}</span>
           </button>
           {% if post.author_id == current_user.id %}
-            <form method="POST" action="{{ url_for('feed_delete', post_id=post.id) }}"
+            <form method="POST" action="{{ url_for('feed.feed_delete', post_id=post.id) }}"
                   style="margin-left:auto;"
                   class="js-confirm-delete" data-confirm-message="Delete this post? This cannot be undone.">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -757,7 +757,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     {% if saved|length > 3 %}
     <div style="margin-top:8px;font-size:0.72rem;color:var(--muted);">+{{ saved|length - 3 }} more</div>
     {% endif %}
-    <div class="rcard-footer"><a href="{{ url_for('marketplace') }}">Browse marketplace →</a></div>
+    <div class="rcard-footer"><a href="{{ url_for('listings.marketplace') }}">Browse marketplace →</a></div>
   </div>
   {% endif %}
 

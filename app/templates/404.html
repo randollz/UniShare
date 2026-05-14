@@ -102,17 +102,17 @@
     </p>
 
     <div class="error-suggestions">
-        <a href="{{ url_for('marketplace') }}" class="error-card">
+        <a href="{{ url_for('listings.marketplace') }}" class="error-card">
             <div class="error-card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
             <div class="error-card-title">Browse marketplace</div>
             <div class="error-card-desc">Find textbooks, gear, and more from other students</div>
         </a>
-        <a href="{{ url_for('notes') }}" class="error-card">
+        <a href="{{ url_for('notes.notes') }}" class="error-card">
             <div class="error-card-icon"><i class="fa-solid fa-book-open"></i></div>
             <div class="error-card-title">Study notes</div>
             <div class="error-card-desc">Browse and share notes by unit code</div>
         </a>
-        <a href="{{ url_for('study_sessions') }}" class="error-card">
+        <a href="{{ url_for('sessions.study_sessions') }}" class="error-card">
             <div class="error-card-icon"><i class="fa-solid fa-users"></i></div>
             <div class="error-card-title">Study sessions</div>
             <div class="error-card-desc">Join or host group study sessions</div>
@@ -121,10 +121,10 @@
 
     <div class="error-actions">
         {% if current_user %}
-            <a href="{{ url_for('dashboard') }}" class="btn btn-dark">Go to dashboard</a>
+            <a href="{{ url_for('feed.dashboard') }}" class="btn btn-dark">Go to dashboard</a>
         {% else %}
-            <a href="{{ url_for('index') }}" class="btn btn-dark">Go home</a>
-            <a href="{{ url_for('login') }}" class="btn btn-ghost">Log in</a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-dark">Go home</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Log in</a>
         {% endif %}
     </div>
 </div>

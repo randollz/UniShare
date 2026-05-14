@@ -94,7 +94,7 @@
 {% block content %}
 <div class="detail-wrap">
 
-  <a href="{{ url_for('bounties') }}" class="detail-back">
+  <a href="{{ url_for('bounties.bounties') }}" class="detail-back">
     <i class="fa-solid fa-arrow-left"></i> Back to bounty board
   </a>
 
@@ -160,11 +160,11 @@
 
       <div class="detail-actions">
         {% if not current_user or not current_user.is_authenticated %}
-        <a href="{{ url_for('login') }}" class="btn-action btn-claim">Sign in to claim</a>
+        <a href="{{ url_for('auth.login') }}" class="btn-action btn-claim">Sign in to claim</a>
         {% elif current_user.id == bounty.poster_id %}
         <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">This is your bounty.</span>
         {% elif bounty.status == 'open' %}
-        <form method="POST" action="{{ url_for('claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
+        <form method="POST" action="{{ url_for('bounties.claim_bounty', bounty_id=bounty.id) }}" style="display:inline;">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <button type="submit" class="btn-action btn-claim">
             <i class="fa-solid fa-hand-holding-dollar"></i> Claim this bounty
@@ -173,7 +173,7 @@
         {% else %}
         <span style="font-family:'Inter',sans-serif; font-size:.85rem; color:var(--muted); padding:10px 0;">This bounty has already been claimed.</span>
         {% endif %}
-        <a href="{{ url_for('bounties') }}" class="btn-action btn-ghost">Back to all bounties</a>
+        <a href="{{ url_for('bounties.bounties') }}" class="btn-action btn-ghost">Back to all bounties</a>
       </div>
 
       <!-- Comment thread -->
@@ -188,7 +188,7 @@
                 {{ c.author.first_name }} {{ c.author.last_name }}
                 <span class="comment-time">{{ c.created_at.strftime('%b %d') }}</span>
                 {% if c.author_id == current_user.id %}
-                <button class="comment-del" data-url="{{ url_for('delete_bounty_comment', comment_id=c.id) }}"
+                <button class="comment-del" data-url="{{ url_for('bounties.delete_bounty_comment', comment_id=c.id) }}"
                         data-target="bc-{{ c.id }}">Delete</button>
                 {% endif %}
               </div>
@@ -201,7 +201,7 @@
         <div class="comment-compose">
           <textarea id="bounty-comment-input" rows="2" placeholder="Ask a question or leave a comment…" maxlength="500"></textarea>
           <button type="button" id="bounty-comment-btn"
-                  data-url="{{ url_for('bounty_comment', bounty_id=bounty.id) }}">Reply</button>
+                  data-url="{{ url_for('bounties.bounty_comment', bounty_id=bounty.id) }}">Reply</button>
         </div>
         {% endif %}
       </div>
