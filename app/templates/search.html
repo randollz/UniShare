@@ -33,7 +33,7 @@
     </div>
     <div class="search-results-grid">
       {% for item in results.listings %}
-      <a href="{{ url_for('view_listing', listing_id=item.id) }}" class="sr-card">
+      <a href="{{ url_for('listings.view_listing', listing_id=item.id) }}" class="sr-card">
         <div class="sr-card-meta">
           <span class="sr-badge sr-badge-unit">{{ item.unit_code }}</span>
           <span class="sr-badge sr-badge-type">Listing</span>
@@ -58,7 +58,7 @@
     </div>
     <div class="search-results-grid">
       {% for item in results.notes %}
-      <a href="{{ url_for('view_note', note_id=item.id) }}" class="sr-card">
+      <a href="{{ url_for('notes.view_note', note_id=item.id) }}" class="sr-card">
         <div class="sr-card-meta">
           <span class="sr-badge sr-badge-unit">{{ item.unit_code }}</span>
           <span class="sr-badge sr-badge-type">Note</span>
@@ -83,7 +83,7 @@
     </div>
     <div class="search-results-grid">
       {% for item in results.sessions %}
-      <a href="{{ url_for('view_session', session_id=item.id) }}" class="sr-card">
+      <a href="{{ url_for('sessions.view_session', session_id=item.id) }}" class="sr-card">
         <div class="sr-card-meta">
           <span class="sr-badge sr-badge-unit">{{ item.unit_code }}</span>
           <span class="sr-badge sr-badge-type">Session</span>
@@ -109,7 +109,7 @@
     </div>
     <div class="search-results-grid">
       {% for item in results.bounties %}
-      <a href="{{ url_for('view_bounty', bounty_id=item.id) }}" class="sr-card">
+      <a href="{{ url_for('bounties.view_bounty', bounty_id=item.id) }}" class="sr-card">
         <div class="sr-card-meta">
           <span class="sr-badge sr-badge-unit">{{ item.unit_code }}</span>
           <span class="sr-badge sr-badge-type">Bounty</span>
