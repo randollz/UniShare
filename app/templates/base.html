@@ -26,10 +26,11 @@
       <div class="tb-divider"></div>
       <span class="tb-logo">UniShare<span>.</span></span>
     </div>
-    <div class="tb-search">
+    <form class="tb-search" action="{{ url_for('main.search') }}" method="get">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input type="text" placeholder="Search units, notes, listings…" />
-    </div>
+      <input type="text" name="q" placeholder="Search units, notes, listings…"
+             value="{{ request.args.get('q', '') }}" autocomplete="off" />
+    </form>
     <nav class="tb-nav">
       <a href="{{ url_for('feed.dashboard') }}"
          class="tb-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">

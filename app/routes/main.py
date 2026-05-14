@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
+from flask_login import login_required
 
 from app.extensions import db
-from app.models import User, Listing, Note
+from app.models import User, Listing, Note, StudySession, Bounty
 
 main_bp = Blueprint('main', __name__)
 
@@ -51,3 +52,27 @@ def contact():
 def leaderboard():
     users = User.query.order_by(User.xp.desc()).all()
     return render_template('leaderboard.html', users=users)
+
+
+@main_bp.route('/search')
+@login_required
+def search():
+    from sqlalchemy import or_
+    q = request.args.get('q', '').strip()
+    results = {'listings': [], 'notes': [], 'sessions': [], 'bounties': []}
+    if len(q) >= 2:
+        like = f'%{q}%'
+        results['listings'] = Listing.query.filter(
+            or_(Listing.title.ilike(like), Listing.description.ilike(like))
+        ).order_by(Listing.created_at.desc()).limit(10).all()
+        results['notes'] = Note.query.filter(
+            or_(Note.title.ilike(like), Note.description.ilike(like))
+        ).order_by(Note.created_at.desc()).limit(10).all()
+        results['sessions'] = StudySession.query.filter(
+            or_(StudySession.title.ilike(like), StudySession.unit_code.ilike(like))
+        ).order_by(StudySession.session_date.desc()).limit(10).all()
+        results['bounties'] = Bounty.query.filter(
+            or_(Bounty.title.ilike(like), Bounty.description.ilike(like))
+        ).order_by(Bounty.created_at.desc()).limit(10).all()
+    total = sum(len(v) for v in results.values())
+    return render_template('search.html', q=q, results=results, total=total)
