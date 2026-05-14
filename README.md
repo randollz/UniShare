@@ -188,9 +188,18 @@ UniShare/
 │   ├── config.py           # Configuration classes
 │   ├── extensions.py       # Flask extensions (db, login_manager, csrf)
 │   ├── models.py           # SQLAlchemy models
-│   ├── routes.py           # All route definitions
 │   ├── controllers.py      # Business logic helpers
 │   ├── validators.py       # Input validation utilities
+│   ├── routes/             # Route handlers split by domain
+│   │   ├── auth.py         # Login, logout
+│   │   ├── main.py         # Home, leaderboard, search
+│   │   ├── listings.py     # Marketplace, create/save/delete listings
+│   │   ├── notes.py        # Notes, upload, download
+│   │   ├── sessions.py     # Study sessions, RSVP
+│   │   ├── bounties.py     # Bounties, claim, delete
+│   │   ├── feed.py         # Dashboard, posts, likes, comments
+│   │   ├── messages.py     # Direct messaging
+│   │   └── users.py        # Profiles, settings, activity
 │   ├── templates/          # Jinja2 HTML templates
 │   └── static/
 │       ├── css/shared.css  # Global design system
