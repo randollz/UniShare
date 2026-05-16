@@ -533,3 +533,49 @@ body.app-page .detail-wrap {
   max-width: 860px;
   padding-top: 8px;
 }
+
+/* ================================================================
+   Responsive breakpoints — app shell
+   ================================================================ */
+
+/* Tablet (≤ 1024px): narrow sidebar, hide topbar text labels */
+@media (max-width: 1024px) {
+  body.app-page .page-wrap {
+    grid-template-columns: 180px 1fr;
+    padding: 88px 12px 32px;
+  }
+  .tb-nav-item { padding: 6px 10px; font-size: 0.62rem; }
+  .tb-brand { width: 180px; }
+}
+
+/* Tablet portrait / large phone (≤ 768px): stack layout, hide sidebar */
+@media (max-width: 768px) {
+  body.app-page .page-wrap {
+    grid-template-columns: 1fr;
+    padding: 80px 12px 28px;
+    gap: 14px;
+  }
+
+  .sidebar { display: none; }
+
+  .topbar { padding: 0 12px; gap: 10px; }
+  .tb-brand { width: auto; }
+  .tb-uwa  { height: 44px; }
+  .tb-nav  { gap: 0; }
+  .tb-nav-item { padding: 5px 8px; font-size: 0; } /* hide text, keep icon */
+  .tb-nav-item i { font-size: 1rem; }
+  .tb-search { max-width: 140px; }
+
+  .field-row { grid-template-columns: 1fr; }
+  .form-card { padding: 20px 18px; }
+}
+
+/* Small phone (≤ 480px): simplify topbar further */
+@media (max-width: 480px) {
+  .topbar { height: 60px; gap: 6px; }
+  .tb-logo { display: none; }
+  .tb-search { max-width: 110px; padding: 5px 10px; }
+  body.app-page .page-wrap { padding-top: 72px; }
+
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}

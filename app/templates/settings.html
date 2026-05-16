@@ -191,71 +191,51 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
     <div class="settings-panels">
       <!-- Profile -->
       <section class="s-panel active" id="p-profile">
-        <div class="s-card">
-          <div class="s-card-head">
-            <h3>Public Profile</h3>
-            <p>How other students see you across UniShare.</p>
-          </div>
-          <div class="avatar-row">
-            <div class="avatar-big">
-              {% if user %}{{ user.first_name[0] }}{{ user.last_name[0] }}{% else %}?{% endif %}
+        <form method="post" action="{{ url_for('users.settings') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <div class="s-card">
+            <div class="s-card-head">
+              <h3>Public Profile</h3>
+              <p>How other students see you across UniShare.</p>
             </div>
-            <div>
-              <button class="btn-secondary">Change Photo</button>
-              <div class="avatar-hint">JPG, PNG · Max 2MB</div>
+            <div class="avatar-row">
+              <div class="avatar-big">
+                {% if user %}{{ user.first_name[0] }}{{ user.last_name[0] }}{% else %}?{% endif %}
+              </div>
+              <div>
+                <div class="avatar-hint">Initials shown until photo upload is available.</div>
+              </div>
+            </div>
+            <div class="f-row">
+              <div class="f-row-left">
+                <label class="f-label" for="s-first-name">First Name</label>
+                <div class="f-desc">Shown on listings and sessions.</div>
+              </div>
+              <input id="s-first-name" class="f-input" type="text" name="first_name"
+                     value="{% if user %}{{ user.first_name }}{% endif %}" />
+            </div>
+            <div class="f-row">
+              <div class="f-row-left">
+                <label class="f-label" for="s-last-name">Last Name</label>
+              </div>
+              <input id="s-last-name" class="f-input" type="text" name="last_name"
+                     value="{% if user %}{{ user.last_name }}{% endif %}" />
+            </div>
+            <div class="f-row">
+              <div class="f-row-left">
+                <label class="f-label" for="s-bio">Bio</label>
+                <div class="f-desc">Short intro about you.</div>
+              </div>
+              <input id="s-bio" class="f-input" type="text" name="bio"
+                     placeholder="e.g. CS student @ UWA"
+                     value="{% if user %}{{ user.bio or '' }}{% endif %}" />
             </div>
           </div>
-          <div class="f-row">
-            <div class="f-row-left">
-              <label class="f-label">Display Name</label>
-              <div class="f-desc">Shown on listings and sessions.</div>
-            </div>
-            <input class="f-input" type="text" value="{% if user %}{{ user.first_name }} {{ user.last_name[0] }}.{% endif %}" />
+          <div class="save-bar visible" id="save-profile">
+            <span class="save-bar-hint">Update your profile details above.</span>
+            <button type="submit" class="btn-primary">Save Changes</button>
           </div>
-          <div class="f-row">
-            <div class="f-row-left">
-              <label class="f-label">Bio</label>
-              <div class="f-desc">Short intro about you.</div>
-            </div>
-            <input class="f-input" type="text" placeholder="e.g. CS student @ UWA" />
-          </div>
-          <div class="f-row">
-            <div class="f-row-left"><label class="f-label">Faculty</label></div>
-            <select class="f-select">
-              <option>Computer Science</option>
-              <option>Engineering</option>
-              <option>Law</option>
-              <option>Business</option>
-              <option>Science</option>
-              <option>Arts</option>
-            </select>
-          </div>
-          <div class="f-row">
-            <div class="f-row-left"><label class="f-label">Year Level</label></div>
-            <select class="f-select">
-              <option>1st Year</option>
-              <option selected>2nd Year</option>
-              <option>3rd Year</option>
-              <option>Honours</option>
-              <option>Postgrad</option>
-            </select>
-          </div>
-          <div class="f-row">
-            <div class="f-row-left">
-              <label class="f-label">Show Profile Publicly</label>
-              <div class="f-desc">Let other students find your profile.</div>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" checked />
-              <span class="toggle-track"><span class="toggle-knob"></span></span>
-            </label>
-          </div>
-        </div>
-        <div class="save-bar" id="save-profile">
-          <span class="save-bar-hint">You have unsaved changes.</span>
-          <button class="btn-secondary">Discard</button>
-          <button class="btn-primary">Save Changes</button>
-        </div>
+        </form>
       </section>
 
       <!-- Account -->
@@ -275,9 +255,9 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
           <div class="f-row">
             <div class="f-row-left">
               <label class="f-label">Student ID</label>
-              <div class="f-desc">Verified with your university account.</div>
+              <div class="f-desc">Contact support to update your student ID.</div>
             </div>
-            <input class="f-input" type="text" value="{% if user %}{{ user.student_id }}{% endif %}" disabled />
+            <input class="f-input" type="text" value="Managed by UWA" disabled />
           </div>
           <div class="f-row">
             <div class="f-row-left"><label class="f-label">Preferred Currency</label></div>
@@ -489,6 +469,7 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 248px; }
     });
   });
   document.querySelectorAll('.f-input, .f-select, .toggle input').forEach(el => {
+    if (el.closest('form')) return; // profile panel handles its own save bar
     el.addEventListener('change', () => {
       const panel = el.closest('.s-panel');
       if (!panel) return;
