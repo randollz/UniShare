@@ -460,11 +460,11 @@ body.app-page .page-wrap { grid-template-columns: 220px 1fr 260px; }
     {% if posts.has_prev or posts.has_next %}
     <div style="display:flex;gap:8px;justify-content:center;padding:4px 0;">
       {% if posts.has_prev %}
-        <a href="{{ url_for('dashboard', page=posts.prev_num) }}"
+        <a href="{{ url_for('feed.dashboard', page=posts.prev_num) }}"
            class="compose-btn" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 16px;">← Newer</a>
       {% endif %}
       {% if posts.has_next %}
-        <a href="{{ url_for('dashboard', page=posts.next_num) }}"
+        <a href="{{ url_for('feed.dashboard', page=posts.next_num) }}"
            class="compose-btn" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 16px;">Older →</a>
       {% endif %}
     </div>

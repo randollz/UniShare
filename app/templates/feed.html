@@ -359,10 +359,10 @@
     {% if posts.has_prev or posts.has_next %}
     <div class="feed-pagination">
       {% if posts.has_prev %}
-        <a href="{{ url_for('feed', page=posts.prev_num) }}" class="pg-btn">← Newer</a>
+        <a href="{{ url_for('feed.feed', page=posts.prev_num) }}" class="pg-btn">← Newer</a>
       {% endif %}
       {% if posts.has_next %}
-        <a href="{{ url_for('feed', page=posts.next_num) }}" class="pg-btn">Older →</a>
+        <a href="{{ url_for('feed.feed', page=posts.next_num) }}" class="pg-btn">Older →</a>
       {% endif %}
     </div>
     {% endif %}
